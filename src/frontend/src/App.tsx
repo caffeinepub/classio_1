@@ -19,10 +19,13 @@ function AppRoutes() {
 
   const navigate = (p: string) => setPage(p);
 
-  // Ensure Classio1 admin exists in already-initialized systems
+  // Initialize system on fresh canisters, then ensure Classio1 admin exists
   useEffect(() => {
     if (actor) {
-      actor.ensureClassio1Admin().catch(() => {});
+      actor.initializeSystem().catch(() => {
+        // Already initialized — that's fine, just ensure Classio1 admin exists
+        actor.ensureClassio1Admin().catch(() => {});
+      });
     }
   }, [actor]);
 
