@@ -1,37 +1,29 @@
-# Classio - Reading Comprehension Platform
+# Classio
 
 ## Current State
-New project. No existing code.
+StudentTest shows a reading passage, an audio recording section, and comprehension questions (MCQ). Submit scores answers automatically.
 
 ## Requested Changes (Diff)
 
 ### Add
-- Master admin account (hardcoded credentials: id=Siddiqui, password=Siddiqui11)
-- Teacher account management: admin can create teacher accounts (username/password)
-- Student account management: teachers can create student accounts with grade (1-10)
-- Reading comprehension proficiency test flow for students:
-  - Display a reading passage (grade-appropriate)
-  - Audio recording of the student reading aloud (using microphone)
-  - 5 multiple-choice comprehension questions
-  - Score calculation and result storage
-- Role-based dashboards: Admin, Teacher, Student
-- Admin dashboard: list/create teacher accounts
-- Teacher dashboard: list/create student accounts, view student test results
-- Student dashboard: take proficiency test, view past results
+- 4 individual skill assessment sections: Rhythm, Intonation, Chunking, Pronunciation
+- Each section has a short spoken prompt and a dedicated microphone recorder
+- Submit enabled only when all 4 recordings are made
 
 ### Modify
-N/A
+- Remove reading passage card entirely
+- Remove comprehension questions MCQ section
+- Change test title to "Speaking Proficiency Test"
+- Change submit to submit all recordings (audioBlobId = null for now, local blobs tracked)
+- Result screen updated to say "Speaking Test Submitted" and show teacher-review message
 
 ### Remove
-N/A
+- Reading passage display
+- MCQ comprehension questions
+- Dependency on passage content/questions backend calls for display purposes
 
 ## Implementation Plan
-1. Backend: Stable storage for teachers, students, test passages, questions, results
-2. Backend: Admin auth (hardcoded), teacher/student auth with hashed passwords
-3. Backend: CRUD APIs for teachers, students, passages, questions, results
-4. Backend: Audio blob storage for student recordings
-5. Frontend: Login page (auto-detects role)
-6. Frontend: Admin dashboard - create/list teachers
-7. Frontend: Teacher dashboard - create/list students with grade, view results
-8. Frontend: Student dashboard - take test (passage + audio record + 5 MCQ questions)
-9. Frontend: Test result view
+1. Rewrite StudentTest.tsx to show 4 skill recording cards
+2. Each card: skill name, instructions with short spoken prompt, record/stop/playback controls
+3. Submit when all 4 recordings are done; call submitTest with empty answers array
+4. Update result screen messaging to reflect speaking test
