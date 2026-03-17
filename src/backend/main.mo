@@ -84,13 +84,7 @@ actor {
   include MixinAuthorization(accessControlState);
   let baseBlobPath = "/audio-responses/";
 
-  // ============================================================
-  // SYNCHRONOUS INITIALIZATION — runs immediately when actor starts
-  // Admin accounts and sample content are seeded here so they are
-  // available before any frontend call arrives.
-  // ============================================================
   do {
-    // Seed the single default admin account
     users.add("admin1", {
       id = "admin1";
       username = "Classio1";
@@ -100,7 +94,6 @@ actor {
       teacherId = null;
     });
 
-    // Seed reading passages
     passages.add(1, {
       id = 1;
       title = "The Hungry Caterpillar";
@@ -121,7 +114,6 @@ actor {
     });
     nextPassageId := 4;
 
-    // Questions for passage 1
     questions.add(1, List.fromArray<Question>([
       { id = 1; passageId = 1; questionText = "What did the caterpillar eat?"; options = ["Leaves", "Meat", "Fish", "Cake"]; correctIndex = 0 },
       { id = 2; passageId = 1; questionText = "What was the caterpillar's main emotion?"; options = ["Happy", "Angry", "Hungry", "Sad"]; correctIndex = 2 },
@@ -130,7 +122,6 @@ actor {
       { id = 5; passageId = 1; questionText = "How does the story begin?"; options = ["Once upon a time", "Long ago", "Yesterday", "Today"]; correctIndex = 0 },
     ]));
 
-    // Questions for passage 2
     questions.add(2, List.fromArray<Question>([
       { id = 6; passageId = 2; questionText = "What does the solar system consist of?"; options = ["Plants", "Food", "Sun, planets, asteroids", "Clouds"]; correctIndex = 2 },
       { id = 7; passageId = 2; questionText = "What is at the center of the solar system?"; options = ["Earth", "Moon", "Sun", "Mars"]; correctIndex = 2 },
@@ -139,7 +130,6 @@ actor {
       { id = 10; passageId = 2; questionText = "What is the purpose of the passage?"; options = ["To cook", "To inform about the solar system", "To play games", "To build houses"]; correctIndex = 1 },
     ]));
 
-    // Questions for passage 3
     questions.add(3, List.fromArray<Question>([
       { id = 11; passageId = 3; questionText = "What is photosynthesis?"; options = ["Process by plants", "Process by humans", "Process by animals", "Process by machines"]; correctIndex = 0 },
       { id = 12; passageId = 3; questionText = "What do plants convert during photosynthesis?"; options = ["Sunlight into energy", "Energy into water", "Sunlight into water", "Water into sunlight"]; correctIndex = 0 },
@@ -150,7 +140,6 @@ actor {
     nextQuestionId := 16;
   };
 
-  // Helper: get current user from session
   func getCurrentUser(caller : Principal) : ?User {
     switch (sessionMap.get(caller)) {
       case (null) { null };
@@ -173,7 +162,6 @@ actor {
     user;
   };
 
-  // Legacy no-op kept so frontend calls don't fail if still present
   public shared func initializeSystem() : async () {};
   public shared func ensureClassio1Admin() : async () {};
 
@@ -268,12 +256,12 @@ actor {
       case (null) { Runtime.trap("Invalid passage") };
       case (?qList) { qList.toArray() };
     };
-    if (answers.size() != qList.size()) {
+    if (answers.size() != qList.size() and answers.size() != 0) {
       Runtime.trap("Invalid answer count");
     };
     var score = 0;
     var j = 0;
-    while (j < answers.size()) {
+    while (j < answers.size() and j < qList.size()) {
       if (answers[j] == qList[j].correctIndex) { score += 1 };
       j += 1;
     };

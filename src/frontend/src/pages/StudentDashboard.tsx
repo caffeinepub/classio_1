@@ -29,7 +29,7 @@ export function StudentDashboard({ onNavigate }: StudentDashboardProps) {
         <div className="mb-6">
           <h2 className="text-2xl font-bold text-foreground">My Dashboard</h2>
           <p className="text-muted-foreground mt-1">
-            Grade <strong>{user?.grade?.toString() ?? "—"}</strong> • Reading
+            Grade <strong>{user?.grade?.toString() ?? "—"}</strong> · Reading
             Comprehension Tests
           </p>
         </div>
@@ -91,8 +91,12 @@ export function StudentDashboard({ onNavigate }: StudentDashboardProps) {
                 Ready for a Reading Test?
               </h3>
               <p className="text-muted-foreground text-sm">
-                Read a passage, record your voice, and answer 5 comprehension
-                questions.
+                Read a passage, record your voice — the system automatically
+                scores your{" "}
+                <strong>
+                  rhythm, intonation, chunking &amp; pronunciation
+                </strong>{" "}
+                and shows you a report card instantly.
               </p>
             </div>
             <Button
@@ -161,7 +165,8 @@ export function StudentDashboard({ onNavigate }: StudentDashboardProps) {
                 <BookOpen className="w-10 h-10 mx-auto mb-3 opacity-30" />
                 <p className="font-medium">No tests taken yet</p>
                 <p className="text-sm">
-                  Take your first test to see results here
+                  Take a test — your voice is analysed and you get an instant
+                  skill report!
                 </p>
               </div>
             )}
