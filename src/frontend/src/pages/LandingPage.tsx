@@ -12,8 +12,10 @@ import {
   BookOpen,
   ChevronRight,
   GraduationCap,
+  Info,
   Loader2,
   Users,
+  Zap,
 } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
@@ -90,6 +92,12 @@ export function LandingPage({ onNavigate }: LandingPageProps) {
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleQuickFill = () => {
+    setUsername("Classio1");
+    setPassword("Classio@11");
+    toast.success("Admin credentials filled in!");
   };
 
   return (
@@ -384,7 +392,39 @@ export function LandingPage({ onNavigate }: LandingPageProps) {
               <DialogTitle className="text-xl">Login to Classio</DialogTitle>
             </div>
           </DialogHeader>
-          <form onSubmit={handleLogin} className="space-y-4 mt-2">
+
+          {/* Default Admin Credentials Hint */}
+          <div className="rounded-xl border border-blue-200 bg-blue-50 p-3.5 flex items-start gap-3">
+            <Info className="w-4 h-4 text-blue-500 mt-0.5 shrink-0" />
+            <div className="flex-1 min-w-0">
+              <p className="text-xs font-semibold text-blue-700 mb-1.5">
+                Default Admin Login
+              </p>
+              <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-xs text-blue-600">
+                <span className="font-medium text-blue-500">Username</span>
+                <span className="font-mono font-semibold text-blue-800">
+                  Classio1
+                </span>
+                <span className="font-medium text-blue-500">Password</span>
+                <span className="font-mono font-semibold text-blue-800">
+                  Classio@11
+                </span>
+              </div>
+            </div>
+            <Button
+              type="button"
+              size="sm"
+              variant="outline"
+              onClick={handleQuickFill}
+              className="shrink-0 h-7 px-2 text-xs border-blue-300 text-blue-700 hover:bg-blue-100 hover:border-blue-400 gap-1"
+              data-ocid="login.secondary_button"
+            >
+              <Zap className="w-3 h-3" />
+              Quick Fill
+            </Button>
+          </div>
+
+          <form onSubmit={handleLogin} className="space-y-4 mt-1">
             <div className="space-y-1.5">
               <Label htmlFor="username">Username</Label>
               <Input
