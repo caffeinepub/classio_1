@@ -111,7 +111,7 @@ actor {
 
   public shared ({ caller }) func initializeSystem() : async () {
     if (users.size() > 0) { Runtime.trap("System already initialized") };
-    let admin : User = {
+    let admin1 : User = {
       id = "admin1";
       username = "Siddiqui";
       password = "Siddiqui11";
@@ -119,8 +119,36 @@ actor {
       grade = null;
       teacherId = null;
     };
-    users.add("admin1", admin);
+    users.add("admin1", admin1);
+    let admin2 : User = {
+      id = "admin2";
+      username = "Classio1";
+      password = "Classio@11";
+      role = #admin;
+      grade = null;
+      teacherId = null;
+    };
+    users.add("admin2", admin2);
     addInitialContent();
+  };
+
+  // Migration: add Classio1 admin if not already present
+  public shared func ensureClassio1Admin() : async () {
+    let exists = users.values().toArray().find(func(u) { u.username == "Classio1" });
+    switch (exists) {
+      case (?_) { /* already exists */ };
+      case (null) {
+        let admin2 : User = {
+          id = "admin2";
+          username = "Classio1";
+          password = "Classio@11";
+          role = #admin;
+          grade = null;
+          teacherId = null;
+        };
+        users.add("admin2", admin2);
+      };
+    };
   };
 
   public type LoginResponse = {

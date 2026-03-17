@@ -173,6 +173,7 @@ export interface backendInterface {
     getQuestionsForPassage(passageId: PassageId): Promise<Array<Question>>;
     getStudentResults(studentId: UserId): Promise<Array<TestResult>>;
     getUserProfile(userId: UserId): Promise<UserProfile | null>;
+    ensureClassio1Admin(): Promise<void>;
     initializeSystem(): Promise<void>;
     isCallerAdmin(): Promise<boolean>;
     listMyStudents(): Promise<Array<User>>;
@@ -421,6 +422,20 @@ export class Backend implements backendInterface {
         } else {
             const result = await this.actor.getUserProfile(arg0);
             return from_candid_opt_n10(this._uploadFile, this._downloadFile, result);
+        }
+    }
+    async ensureClassio1Admin(): Promise<void> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.ensureClassio1Admin();
+                return result;
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.ensureClassio1Admin();
+            return result;
         }
     }
     async initializeSystem(): Promise<void> {

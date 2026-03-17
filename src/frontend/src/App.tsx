@@ -1,8 +1,9 @@
 import { Toaster } from "@/components/ui/sonner";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { UserRole } from "./backend";
 import { AuthProvider, useAuth } from "./context/AuthContext";
+import { useActor } from "./hooks/useActor";
 import { AdminDashboard } from "./pages/AdminDashboard";
 import { LandingPage } from "./pages/LandingPage";
 import { StudentDashboard } from "./pages/StudentDashboard";
@@ -14,8 +15,16 @@ const queryClient = new QueryClient();
 function AppRoutes() {
   const [page, setPage] = useState<string>("/");
   const { user } = useAuth();
+  const { actor } = useActor();
 
   const navigate = (p: string) => setPage(p);
+
+  // Ensure Classio1 admin exists in already-initialized systems
+  useEffect(() => {
+    if (actor) {
+      actor.ensureClassio1Admin().catch(() => {});
+    }
+  }, [actor]);
 
   // Route guard
   if (!user) {

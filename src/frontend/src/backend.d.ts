@@ -66,6 +66,7 @@ export interface backendInterface {
     assignCallerUserRole(user: Principal, role: UserRole__1): Promise<void>;
     createStudent(username: string, password: string, grade: bigint): Promise<UserId>;
     createTeacher(username: string, password: string): Promise<UserId>;
+    ensureClassio1Admin(): Promise<void>;
     getCallerUserProfile(): Promise<UserProfile | null>;
     getCallerUserRole(): Promise<UserRole__1>;
     getMyResults(): Promise<Array<TestResult>>;
