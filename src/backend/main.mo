@@ -12,7 +12,6 @@ import Principal "mo:core/Principal";
 actor {
   include MixinStorage();
 
-  // ── Core types (kept identical to v1 for stable-variable compatibility) ──────
   type UserId      = Text;
   type PassageId   = Nat;
   type QuestionId  = Nat;
@@ -21,7 +20,6 @@ actor {
 
   type UserRole = { #admin; #teacher; #student };
 
-  // Stable User – NO new fields vs v1 (effectiveLevel lives in effectiveLevels map)
   type User = {
     id        : UserId;
     username  : Text;
@@ -31,7 +29,6 @@ actor {
     teacherId : ?UserId;
   };
 
-  // Stable Passage – NO subject field vs v1 (subject lives in passageSubjects map)
   type Passage = {
     id         : PassageId;
     title      : Text;
@@ -47,7 +44,6 @@ actor {
     correctIndex : Nat;
   };
 
-  // Stable TestResult – keeps `answers` (v1 field); skillScores live in resultSkillScores
   type TestResult = {
     id         : ResultId;
     studentId  : UserId;
@@ -58,7 +54,6 @@ actor {
     audioBlobId : ?ExternalBlobId;
   };
 
-  // ── New types (not stored in stable maps, used only in API responses) ─────────
   type SkillScores = {
     rhythm       : Nat;
     intonation   : Nat;
@@ -89,45 +84,67 @@ actor {
 
   public type LoginResponse = { role : UserRole; userId : Text };
 
-  // ── Stable storage ────────────────────────────────────────────────────────────
-  // All names and types identical to v1 → no upgrade-compatibility errors
-  let users    = Map.empty<UserId,    User>();
-  let passages = Map.empty<PassageId, Passage>();
-  let questions = Map.empty<PassageId, List.List<Question>>();
-  let results  = Map.empty<ResultId,  TestResult>();
+  let users      = Map.empty<UserId,    User>();
+  let passages   = Map.empty<PassageId, Passage>();
+  let questions  = Map.empty<PassageId, List.List<Question>>();
+  let results    = Map.empty<ResultId,  TestResult>();
   let sessionMap = Map.empty<Principal, UserId>();
 
   var nextPassageId  = 1;
-  var nextQuestionId = 1;   // kept for v1 compat
+  var nextQuestionId = 1;
   var nextResultId   = 1;
-  let baseBlobPath   = "/audio-responses/";  // kept for v1 compat
+  let baseBlobPath   = "/audio-responses/";
 
-  // ── NEW stable maps for added fields (don't touch v1 types) ──────────────────
-  let passageSubjects    = Map.empty<PassageId, Text>();   // PassageId → subject
-  let effectiveLevels    = Map.empty<UserId,    Nat>();    // UserId    → effectiveLevel
-  let resultSkillScores  = Map.empty<ResultId,  SkillScores>(); // ResultId → SkillScores
+  let passageSubjects   = Map.empty<PassageId, Text>();
+  let effectiveLevels   = Map.empty<UserId,    Nat>();
+  let resultSkillScores = Map.empty<ResultId,  SkillScores>();
 
-  // ── Auth ──────────────────────────────────────────────────────────────────────
   let accessControlState = AccessControl.initState();
   include MixinAuthorization(accessControlState);
 
+  // Upsert helper: remove then add
+  func upsertUser(id : UserId, u : User) {
+    users.remove(id);
+    users.add(id, u);
+  };
+  func upsertSession(p : Principal, uid : UserId) {
+    sessionMap.remove(p);
+    sessionMap.add(p, uid);
+  };
+  func upsertEffectiveLevel(uid : UserId, level : Nat) {
+    effectiveLevels.remove(uid);
+    effectiveLevels.add(uid, level);
+  };
+  func upsertResult(rid : ResultId, r : TestResult) {
+    results.remove(rid);
+    results.add(rid, r);
+  };
+  func upsertSkillScores(rid : ResultId, ss : SkillScores) {
+    resultSkillScores.remove(rid);
+    resultSkillScores.add(rid, ss);
+  };
+  func upsertPassage(pid : PassageId, p : Passage, subject : Text) {
+    passages.remove(pid);
+    passages.add(pid, p);
+    passageSubjects.remove(pid);
+    passageSubjects.add(pid, subject);
+  };
+
   // ── Seed ─────────────────────────────────────────────────────────────────────
   do {
-    users.add("admin1", {
+    upsertUser("admin1", {
       id = "admin1"; username = "Classio1"; password = "Classio@11";
       role = #admin; grade = null; teacherId = null;
     });
 
-    // Helper to seed a passage
     func addPassage(pid : PassageId, title : Text, content : Text, grade : Nat, subject : Text) {
-      passages.add(pid, { id = pid; title; content; gradeLevel = grade });
-      passageSubjects.add(pid, subject);
+      upsertPassage(pid, { id = pid; title; content; gradeLevel = grade }, subject);
     };
 
     // Grade 1
-    addPassage(1,  "Plants Need Sun",       "Plants need sunlight to grow. They also need water and soil. A seed grows into a plant when it gets what it needs.", 1, "Science");
-    addPassage(2,  "My Community",           "Long ago, people lived in small villages. They helped each other every day. Communities have changed, but people still help one another.", 1, "History");
-    addPassage(3,  "Land and Water",         "Earth has land and water. Mountains are very tall. Rivers carry water to the sea.", 1, "Geography");
+    addPassage(1,  "Plants Need Sun",        "Plants need sunlight to grow. They also need water and soil. A seed grows into a plant when it gets what it needs.", 1, "Science");
+    addPassage(2,  "My Community",            "Long ago, people lived in small villages. They helped each other every day. Communities have changed, but people still help one another.", 1, "History");
+    addPassage(3,  "Land and Water",          "Earth has land and water. Mountains are very tall. Rivers carry water to the sea.", 1, "Geography");
     // Grade 2
     addPassage(4,  "Animals and Their Homes", "Animals live in different places called habitats. Fish live in water. Birds build nests in trees. Bears sleep in caves during winter.", 2, "Science");
     addPassage(5,  "Early Explorers",         "Many years ago, brave explorers sailed on big ships. They wanted to find new lands. Some explorers made maps of the places they found.", 2, "History");
@@ -145,9 +162,9 @@ actor {
     addPassage(14, "The Silk Road",            "The Silk Road was an ancient network of trade routes connecting China to the Mediterranean Sea. Merchants traveled thousands of miles to trade silk, spices, and other goods. Ideas and religions also spread along these routes, shaping civilizations.", 5, "History");
     addPassage(15, "River Systems and Deltas", "Rivers shape the land around them as they flow toward the sea. They carry sediment and deposit it at their mouths, forming deltas. The Amazon carries more water than any other river. River valleys were home to early civilizations.", 5, "Geography");
     // Grade 6
-    addPassage(16, "Cells: Building Blocks of Life", "All living organisms are made of cells, the basic unit of life. Plant cells contain a cell wall and chloroplasts that allow photosynthesis. The nucleus contains DNA with genetic instructions. Scientists use microscopes to study these tiny structures.", 6, "Science");
-    addPassage(17, "The Renaissance",                "The Renaissance was a period of cultural rebirth in Europe that began in Italy around the 14th century. Artists and scientists challenged old ways of thinking. Leonardo da Vinci was both a painter and an inventor. The printing press helped spread Renaissance ideas across Europe.", 6, "History");
-    addPassage(18, "Monsoons and Seasonal Winds",    "Monsoons are seasonal wind patterns that bring heavy rainfall to large parts of Asia, Africa, and Australia. Farmers depend on monsoon rains to irrigate crops. When monsoons fail, droughts can devastate entire regions and lead to food shortages.", 6, "Geography");
+    addPassage(16, "Cells: Building Blocks of Life",  "All living organisms are made of cells, the basic unit of life. Plant cells contain a cell wall and chloroplasts that allow photosynthesis. The nucleus contains DNA with genetic instructions. Scientists use microscopes to study these tiny structures.", 6, "Science");
+    addPassage(17, "The Renaissance",                  "The Renaissance was a period of cultural rebirth in Europe that began in Italy around the 14th century. Artists and scientists challenged old ways of thinking. Leonardo da Vinci was both a painter and an inventor. The printing press helped spread Renaissance ideas across Europe.", 6, "History");
+    addPassage(18, "Monsoons and Seasonal Winds",      "Monsoons are seasonal wind patterns that bring heavy rainfall to large parts of Asia, Africa, and Australia. Farmers depend on monsoon rains to irrigate crops. When monsoons fail, droughts can devastate entire regions and lead to food shortages.", 6, "Geography");
     // Grade 7
     addPassage(19, "Ecosystems and Food Webs",  "An ecosystem is a community of organisms interacting with each other and their environment. Producers convert solar energy into food through photosynthesis. Consumers eat producers or other consumers. Decomposers return nutrients to the soil. Removing one species can disrupt the entire food web.", 7, "Science");
     addPassage(20, "The Industrial Revolution", "The Industrial Revolution began in Britain in the late 18th century and transformed how goods were made. Steam engines powered factories and locomotives, enabling mass production and faster transport. Workers moved to cities, but harsh conditions prompted new labor reform movements.", 7, "History");
@@ -161,12 +178,12 @@ actor {
     addPassage(26, "The Cold War and Global Tensions",        "The Cold War was a period of geopolitical tension between the United States and Soviet Union from 1947 to 1991. Rather than direct conflict, the rivalry was expressed through arms races, proxy wars, and ideological competition. The Cuban Missile Crisis brought the world close to nuclear war. The Cold War ended with the dissolution of the Soviet Union, reshaping the international order.", 9, "History");
     addPassage(27, "Urbanization and Megacities",             "Urbanization, the migration from rural to urban areas, is a defining trend of the modern era. More than half the world's population now lives in cities. Megacities with over ten million people face challenges including infrastructure strain, air pollution, housing shortages, and inequality. Sustainable urban planning with green spaces and public transport is essential for managing rapid growth.", 9, "Geography");
     // Grade 10
-    addPassage(28, "Quantum Mechanics and Modern Physics", "Quantum mechanics describes the behavior of matter and energy at the subatomic scale where classical physics breaks down. Particles exhibit wave-particle duality, behaving as waves or particles depending on experimental context. The Heisenberg Uncertainty Principle states that position and momentum cannot both be precisely known simultaneously. These principles underpin transformative technologies including semiconductors, lasers, and MRI scanners.", 10, "Science");
-    addPassage(29, "Colonialism and Its Legacy",           "European colonialism, reaching its peak in the 19th and early 20th centuries, reshaped political and economic structures across Africa, Asia, and the Americas. Colonial powers extracted resources and suppressed indigenous cultures. Decolonization movements of the mid-20th century led to independence for dozens of nations, yet economic disparities and ethnic conflicts persist as lasting legacies of colonial rule.", 10, "History");
+    addPassage(28, "Quantum Mechanics and Modern Physics",    "Quantum mechanics describes the behavior of matter and energy at the subatomic scale where classical physics breaks down. Particles exhibit wave-particle duality, behaving as waves or particles depending on experimental context. The Heisenberg Uncertainty Principle states that position and momentum cannot both be precisely known simultaneously. These principles underpin transformative technologies including semiconductors, lasers, and MRI scanners.", 10, "Science");
+    addPassage(29, "Colonialism and Its Legacy",              "European colonialism, reaching its peak in the 19th and early 20th centuries, reshaped political and economic structures across Africa, Asia, and the Americas. Colonial powers extracted resources and suppressed indigenous cultures. Decolonization movements of the mid-20th century led to independence for dozens of nations, yet economic disparities and ethnic conflicts persist as lasting legacies of colonial rule.", 10, "History");
     addPassage(30, "Climate Change and Environmental Policy", "Climate change, driven by fossil fuel combustion and deforestation, represents one of the most complex challenges of the contemporary era. Rising atmospheric greenhouse gases trap heat, causing temperature increases, glacial retreat, sea-level rise, and extreme weather events. International agreements like the Paris Accord seek coordinated emissions reductions, yet tensions between economic development and environmental sustainability continue to complicate global climate action.", 10, "Geography");
 
-    nextPassageId  := 31;
-    nextResultId   := 1;
+    nextPassageId := 31;
+    nextResultId  := 1;
   };
 
   // ── Internal helpers ──────────────────────────────────────────────────────────
@@ -208,7 +225,7 @@ actor {
     switch (found) {
       case (null) Runtime.trap("Invalid credentials");
       case (?u) {
-        sessionMap.add(caller, u.id);
+        upsertSession(caller, u.id);
         { role = u.role; userId = u.id };
       };
     };
@@ -222,7 +239,7 @@ actor {
   public shared ({ caller }) func createTeacher(username : Text, password : Text) : async UserId {
     let _ = requireRole(caller, #admin);
     let id = "teacher" # (users.size() + 1).toText();
-    users.add(id, { id; username; password; role = #teacher; grade = null; teacherId = null });
+    upsertUser(id, { id; username; password; role = #teacher; grade = null; teacherId = null });
     id;
   };
 
@@ -234,9 +251,9 @@ actor {
   // ── Teacher endpoints ─────────────────────────────────────────────────────────
   public shared ({ caller }) func createStudent(username : Text, password : Text, grade : Nat) : async UserId {
     let teacher = requireRole(caller, #teacher);
-    if (grade < 1 or grade > 10) Runtime.trap("Invalid grade: must be 1–10");
+    if (grade < 1 or grade > 10) Runtime.trap("Invalid grade: must be 1-10");
     let id = "student" # (users.size() + 1).toText();
-    users.add(id, { id; username; password; role = #student; grade = ?grade; teacherId = ?teacher.id });
+    upsertUser(id, { id; username; password; role = #student; grade = ?grade; teacherId = ?teacher.id });
     id;
   };
 
@@ -260,9 +277,6 @@ actor {
   };
 
   // ── Student test endpoints ────────────────────────────────────────────────────
-
-  // Returns the passage for the student's current effective level,
-  // rotating subject by the student's total test count mod 3.
   public query ({ caller }) func getPassageForTest() : async ?PassageInfo {
     let student = requireRole(caller, #student);
     let level   = getEffectiveLevel(student);
@@ -279,7 +293,6 @@ actor {
         ?{ id = p.id; title = p.title; content = p.content; gradeLevel = p.gradeLevel; subject = sub };
       };
       case (null) {
-        // fallback: any passage at this level
         let any = passages.values().toArray().find(func(p) { p.gradeLevel == level });
         switch (any) {
           case (null) null;
@@ -299,7 +312,6 @@ actor {
     { enrolledGrade = enrolled; effectiveLevel = effective };
   };
 
-  // Submit with skill scores – adjusts effective level automatically
   public shared ({ caller }) func submitTestWithSkills(
     passageId    : PassageId,
     skillScores  : SkillScores,
@@ -309,28 +321,25 @@ actor {
     let enrolled = switch (student.grade) { case (?g) g; case null 1 };
     let current  = getEffectiveLevel(student);
 
-    // 80 % threshold: sum of 4 skills × 5-max = 20 max; 80 % = 16
     let total = skillScores.rhythm + skillScores.intonation +
                 skillScores.chunking + skillScores.pronunciation;
     let newLevel : Nat = if (total < 16) {
-      if (current > 1) current - 1 else 1;          // drop one level
+      if (current > 1) current - 1 else 1;
     } else {
-      if (current < enrolled) current + 1 else enrolled; // raise back
+      if (current < enrolled) current + 1 else enrolled;
     };
-    effectiveLevels.add(student.id, newLevel);
+    upsertEffectiveLevel(student.id, newLevel);
 
     let rid = nextResultId;
-    let res : TestResult = {
+    upsertResult(rid, {
       id = rid; studentId = student.id; passageId;
       answers = []; score = total; timestamp = Time.now(); audioBlobId;
-    };
-    results.add(rid, res);
-    resultSkillScores.add(rid, skillScores);
+    });
+    upsertSkillScores(rid, skillScores);
     nextResultId += 1;
     total;
   };
 
-  // Legacy submitTest (kept for backward compat)
   public shared ({ caller }) func submitTest(
     passageId   : PassageId,
     answers     : [Nat],
@@ -338,7 +347,7 @@ actor {
   ) : async Nat {
     let student = requireRole(caller, #student);
     let rid = nextResultId;
-    results.add(rid, {
+    upsertResult(rid, {
       id = rid; studentId = student.id; passageId;
       answers; score = 0; timestamp = Time.now(); audioBlobId;
     });
@@ -351,7 +360,6 @@ actor {
     results.values().toArray().filter(func(r) { r.studentId == student.id });
   };
 
-  // Legacy passage-for-grade (kept for backward compat)
   public query ({ caller }) func getPassageForGrade(grade : Nat) : async ?Passage {
     let _ = requireAuth(caller);
     let arr = passages.values().toArray().filter(func(p) { p.gradeLevel == grade });
@@ -389,7 +397,7 @@ actor {
     switch (users.get(profile.userId)) {
       case (null) Runtime.trap("User not found");
       case (?u) {
-        users.add(u.id, {
+        upsertUser(u.id, {
           id = u.id; username = profile.username; password = u.password;
           role = u.role; grade = u.grade; teacherId = u.teacherId;
         });
