@@ -2,7 +2,6 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
-  AlertCircle,
   CheckCircle,
   ChevronLeft,
   Info,
@@ -12,17 +11,17 @@ import {
   Pause,
   Play,
   Square,
-  TrendingDown,
   TrendingUp,
 } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
 import { AppHeader } from "../components/AppHeader";
 import { useAuth } from "../context/AuthContext";
+import { getPassageForLevel } from "../data/passages";
 import {
   useMyEffectiveLevel,
-  usePassageForTest,
+  useMyResults,
   useSubmitTestWithSkills,
 } from "../hooks/useQueries";
 
@@ -71,7 +70,6 @@ function scoreSkills(
   const transcriptWords = normalizeWords(transcript);
   const passageWords = normalizeWords(passageText);
 
-  // Pronunciation: word match ratio
   let matchCount = 0;
   for (const word of transcriptWords) {
     if (passageWords.includes(word)) matchCount++;
@@ -83,7 +81,6 @@ function scoreSkills(
     Math.min(5, Math.round(wordMatchRatio * 5)),
   );
 
-  // Rhythm: WPM deviation from 120
   let rhythm = 1;
   if (durationSeconds > 0 && transcriptWords.length > 0) {
     const actualWPM = (transcriptWords.length / durationSeconds) * 60;
@@ -95,7 +92,6 @@ function scoreSkills(
     else rhythm = 1;
   }
 
-  // Chunking: segment count vs punctuation boundaries
   const punctuationCount = (passageText.match(/[,.]/g) || []).length;
   let chunking = 2;
   if (segments.length > 0 && punctuationCount > 0) {
@@ -106,7 +102,6 @@ function scoreSkills(
     else chunking = 1;
   }
 
-  // Intonation: recognized sentences vs passage sentences
   const passageSentences = passageText
     .split(".")
     .filter((s) => s.trim().length > 0).length;
@@ -160,10 +155,7 @@ function useSpeechRecognition() {
       setInterimText(interim);
     };
 
-    rec.onerror = () => {
-      setIsListening(false);
-    };
-
+    rec.onerror = () => setIsListening(false);
     rec.onend = () => {
       setIsListening(false);
       setInterimText("");
@@ -375,7 +367,6 @@ function AdaptiveBanner({
     );
   }
 
-  // Below 80% (total < 16)
   return (
     <motion.div
       initial={{ opacity: 0, y: -8 }}
@@ -405,6 +396,7 @@ function ReportCard({
   enrolledGrade,
   effectiveLevel,
   onBack,
+  onNavigate,
 }: {
   scores: SkillScores;
   studentName: string;
@@ -412,6 +404,7 @@ function ReportCard({
   enrolledGrade: bigint | undefined;
   effectiveLevel: bigint | undefined;
   onBack: () => void;
+  onNavigate?: (page: string) => void;
 }) {
   const total =
     scores.rhythm + scores.intonation + scores.chunking + scores.pronunciation;
@@ -437,14 +430,12 @@ function ReportCard({
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.4 }}
         >
-          {/* Adaptive notice banner */}
           <AdaptiveBanner
             total={total}
             enrolledGrade={enrolledGrade}
             effectiveLevel={effectiveLevel}
           />
 
-          {/* Header */}
           <div className="text-center mb-8">
             <div className="w-16 h-16 rounded-full mx-auto mb-4 flex items-center justify-center bg-primary/10 text-3xl">
               📊
@@ -455,7 +446,6 @@ function ReportCard({
             </p>
           </div>
 
-          {/* 2×2 skill grid */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
             {SKILL_META.map((skill, idx) => {
               const score = scores[skill.key];
@@ -491,7 +481,6 @@ function ReportCard({
             })}
           </div>
 
-          {/* Overall */}
           <Card className="rounded-xl border-border shadow-card mb-8">
             <CardContent className="pt-5 text-center">
               <p className="text-sm text-muted-foreground mb-1">
@@ -505,10 +494,20 @@ function ReportCard({
             </CardContent>
           </Card>
 
-          <div className="text-center">
+          <div className="flex flex-col sm:flex-row gap-3 justify-center">
+            {onNavigate && (
+              <Button
+                size="lg"
+                className="bg-emerald-600 hover:bg-emerald-700 text-white px-8 gap-2"
+                onClick={() => onNavigate("/student/vocab")}
+                data-ocid="test.secondary_button"
+              >
+                📚 Start Vocab Builder →
+              </Button>
+            )}
             <Button
               size="lg"
-              className="bg-classio-blue hover:bg-classio-blue/90 text-white px-10"
+              variant="outline"
               onClick={onBack}
               data-ocid="test.primary_button"
             >
@@ -532,12 +531,24 @@ export function StudentTest({ onNavigate }: StudentTestProps) {
   const startTimeRef = useRef<number>(0);
 
   const userId = user?.userId ?? "";
-  const { data: passage, isLoading: passageLoading } =
-    usePassageForTest(userId);
+
+  // Load results count and effective level from backend (non-blocking)
+  const { data: results } = useMyResults(userId);
   const { data: levelData } = useMyEffectiveLevel(userId);
   const submitTest = useSubmitTestWithSkills();
   const recorder = useAudioRecorder();
   const speech = useSpeechRecognition();
+
+  // Determine passage entirely client-side — no backend query needed
+  const passage = useMemo(() => {
+    // Use effective level from backend if available, else fall back to enrolled grade
+    const enrolledGrade = user?.grade ? Number(user.grade) : 1;
+    const effectiveGrade = levelData?.effectiveLevel
+      ? Number(levelData.effectiveLevel)
+      : enrolledGrade;
+    const testsTaken = results?.length ?? 0;
+    return getPassageForLevel(effectiveGrade, testsTaken);
+  }, [user?.grade, levelData?.effectiveLevel, results?.length]);
 
   const handleStartRecording = async () => {
     startTimeRef.current = Date.now();
@@ -552,7 +563,6 @@ export function StudentTest({ onNavigate }: StudentTestProps) {
     speech.stop();
   };
 
-  // Compute scores when recording stops and transcript is available
   useEffect(() => {
     if (
       !recorder.isRecording &&
@@ -567,6 +577,16 @@ export function StudentTest({ onNavigate }: StudentTestProps) {
         speech.segments,
       );
       setComputedScores(scores);
+      // Save skill scores for weekly report
+      localStorage.setItem(
+        `classio_skills_${userId}`,
+        JSON.stringify({
+          rhythm: scores.rhythm,
+          intonation: scores.intonation,
+          chunking: scores.chunking,
+          pronunciation: scores.pronunciation,
+        }),
+      );
     }
   }, [
     recorder.isRecording,
@@ -575,6 +595,7 @@ export function StudentTest({ onNavigate }: StudentTestProps) {
     speech.segments,
     passage,
     recordingDuration,
+    userId,
   ]);
 
   const handleSubmit = async () => {
@@ -588,7 +609,7 @@ export function StudentTest({ onNavigate }: StudentTestProps) {
     try {
       await submitTest.mutateAsync({
         userId,
-        passageId: passage.id,
+        passageId: BigInt(passage.id),
         skillScores: {
           rhythm: BigInt(scores.rhythm),
           intonation: BigInt(scores.intonation),
@@ -602,7 +623,6 @@ export function StudentTest({ onNavigate }: StudentTestProps) {
     }
   };
 
-  // Show report card after submission (with scores if available)
   if (submitTest.isSuccess) {
     if (computedScores) {
       return (
@@ -613,6 +633,7 @@ export function StudentTest({ onNavigate }: StudentTestProps) {
           enrolledGrade={levelData?.enrolledGrade}
           effectiveLevel={levelData?.effectiveLevel}
           onBack={() => onNavigate("/student")}
+          onNavigate={onNavigate}
         />
       );
     }
@@ -628,7 +649,8 @@ export function StudentTest({ onNavigate }: StudentTestProps) {
           </div>
           <h2 className="text-3xl font-bold mb-3">Test Submitted!</h2>
           <p className="text-muted-foreground mb-8">
-            Your teacher will review your recording and assess your skills.
+            Your recording has been submitted and your skills have been
+            assessed.
           </p>
           <Button
             onClick={() => onNavigate("/student")}
@@ -646,7 +668,6 @@ export function StudentTest({ onNavigate }: StudentTestProps) {
     <div className="min-h-screen bg-background">
       <AppHeader title="Reading Test" />
       <main className="max-w-3xl mx-auto px-6 py-8">
-        {/* Header */}
         <div className="flex items-center gap-3 mb-6">
           <Button
             variant="ghost"
@@ -666,35 +687,16 @@ export function StudentTest({ onNavigate }: StudentTestProps) {
           </div>
         </div>
 
-        {passageLoading ? (
-          <div
-            className="flex justify-center py-20"
-            data-ocid="test.loading_state"
-          >
-            <Loader2 className="w-8 h-8 animate-spin text-muted-foreground" />
-          </div>
-        ) : !passage ? (
+        {!passage ? (
+          // This should never happen since passages are embedded locally,
+          // but show a friendly message just in case.
           <Card
             className="rounded-xl border-border"
             data-ocid="test.error_state"
           >
             <CardContent className="py-12 text-center">
-              <AlertCircle className="w-10 h-10 text-muted-foreground mx-auto mb-3 opacity-50" />
-              <p className="font-medium">
-                No passage available for your grade level
-              </p>
-              <p className="text-sm text-muted-foreground mt-1">
-                Passages are auto-assigned based on your grade level. Please
-                contact your teacher if this issue persists.
-              </p>
-              <Button
-                variant="outline"
-                className="mt-4"
-                onClick={() => onNavigate("/student")}
-                data-ocid="test.button"
-              >
-                Go Back
-              </Button>
+              <Loader2 className="w-8 h-8 animate-spin text-muted-foreground mx-auto mb-3" />
+              <p className="font-medium">Loading your passage...</p>
             </CardContent>
           </Card>
         ) : (
@@ -707,15 +709,13 @@ export function StudentTest({ onNavigate }: StudentTestProps) {
                   <div className="flex items-center gap-2 shrink-0">
                     {passage.subject && (
                       <Badge
-                        className={`text-xs border ${subjectBadgeClass(
-                          passage.subject,
-                        )}`}
+                        className={`text-xs border ${subjectBadgeClass(passage.subject)}`}
                       >
                         {passage.subject}
                       </Badge>
                     )}
                     <Badge className="bg-primary/10 text-primary border-0">
-                      Grade {passage.gradeLevel.toString()}
+                      Grade {passage.gradeLevel}
                     </Badge>
                   </div>
                 </div>
@@ -765,8 +765,7 @@ export function StudentTest({ onNavigate }: StudentTestProps) {
                       className="gap-2 bg-destructive hover:bg-destructive/90 text-destructive-foreground"
                       data-ocid="test.button"
                     >
-                      <Mic className="w-4 h-4" />
-                      Start Recording
+                      <Mic className="w-4 h-4" /> Start Recording
                     </Button>
                   )}
                   {recorder.isRecording && (
@@ -777,8 +776,8 @@ export function StudentTest({ onNavigate }: StudentTestProps) {
                         className="gap-2 border-destructive text-destructive"
                         data-ocid="test.button"
                       >
-                        <Square className="w-4 h-4" />
-                        Stop — {recorder.formatTime(recorder.seconds)}
+                        <Square className="w-4 h-4" /> Stop —{" "}
+                        {recorder.formatTime(recorder.seconds)}
                       </Button>
                       <div className="flex items-center gap-2 text-sm text-destructive font-medium">
                         <span className="w-2 h-2 rounded-full bg-destructive animate-pulse" />
@@ -817,7 +816,6 @@ export function StudentTest({ onNavigate }: StudentTestProps) {
                   </div>
                 )}
 
-                {/* Live Transcript Panel */}
                 <AnimatePresence>
                   {(recorder.isRecording || recorder.audioUrl) &&
                     speech.isSupported && (

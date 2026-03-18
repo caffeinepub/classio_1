@@ -1,7 +1,17 @@
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { BookOpen, ChevronDown, Loader2, Play, Trophy } from "lucide-react";
+import {
+  BarChart2,
+  BookOpen,
+  Calendar,
+  CheckCircle,
+  ChevronDown,
+  FileText,
+  Loader2,
+  Play,
+  Trophy,
+} from "lucide-react";
 import { AppHeader } from "../components/AppHeader";
 import { useAuth } from "../context/AuthContext";
 import { useMyEffectiveLevel, useMyResults } from "../hooks/useQueries";
@@ -30,6 +40,106 @@ export function StudentDashboard({ onNavigate }: StudentDashboardProps) {
             10,
         ) / 10
       : null;
+
+  // Activity progress from localStorage
+  const grade = Number(user?.grade ?? 1n);
+  const todayKey = new Date().toISOString().split("T")[0];
+  const getWeekNumber = () => {
+    const now = new Date();
+    const start = new Date(now.getFullYear(), 0, 1);
+    return Math.ceil(
+      ((now.getTime() - start.getTime()) / 86400000 + start.getDay() + 1) / 7,
+    );
+  };
+  const vocabDone = !!localStorage.getItem(
+    `classio_vocab_${userId}_${grade}_${todayKey}`,
+  );
+  const practiceDone = !!localStorage.getItem(
+    `classio_practice_${userId}_${todayKey}`,
+  );
+  const weeklyDone = !!localStorage.getItem(
+    `classio_weekly_${userId}_${getWeekNumber()}`,
+  );
+  const practiceRaw = localStorage.getItem(
+    `classio_practice_${userId}_${todayKey}`,
+  );
+  const practiceScore = practiceRaw ? JSON.parse(practiceRaw).score : null;
+  const weeklyRaw = localStorage.getItem(
+    `classio_weekly_${userId}_${getWeekNumber()}`,
+  );
+  const weeklyTotal = weeklyRaw ? JSON.parse(weeklyRaw).total : null;
+
+  const activityCards = [
+    {
+      id: "vocab",
+      icon: "📚",
+      title: "Daily Vocab Builder",
+      subtitle: "Build vocabulary for your grade",
+      meta: vocabDone
+        ? "Completed today ✓"
+        : "6 words with pronunciation practice",
+      done: vocabDone,
+      path: "/student/vocab",
+      ocid: "student.primary_button",
+    },
+    {
+      id: "practice",
+      icon: "📖",
+      title: "Practice Reading Test",
+      subtitle: "Test your comprehension",
+      meta:
+        practiceScore !== null
+          ? `Last score: ${practiceScore}/5`
+          : "5 comprehension questions",
+      done: practiceDone,
+      path: "/student/practice",
+      ocid: "student.secondary_button",
+    },
+    {
+      id: "weekly",
+      icon: "🏆",
+      title: "Weekly Assessment",
+      subtitle: "This week's combined test",
+      meta:
+        weeklyTotal !== null
+          ? `This week: ${weeklyTotal}/10`
+          : "Vocab + comprehension",
+      done: weeklyDone,
+      path: "/student/weekly-test",
+      ocid: "student.tab",
+    },
+    {
+      id: "report",
+      icon: "📊",
+      title: "Weekly Report",
+      subtitle: "View your weekly progress",
+      meta: "Consolidated skill report",
+      done: false,
+      path: "/student/weekly-report",
+      ocid: "student.link",
+    },
+  ];
+
+  const hasTest = (results?.length ?? 0) > 0;
+  const learningSteps = [
+    { label: "Proficiency Test", done: hasTest, current: !hasTest },
+    { label: "Vocab Builder", done: vocabDone, current: hasTest && !vocabDone },
+    {
+      label: "Practice Test",
+      done: practiceDone,
+      current: hasTest && vocabDone && !practiceDone,
+    },
+    {
+      label: "Weekly Test",
+      done: weeklyDone,
+      current: hasTest && vocabDone && practiceDone && !weeklyDone,
+    },
+    {
+      label: "Weekly Report",
+      done: false,
+      current: hasTest && vocabDone && practiceDone && weeklyDone,
+    },
+  ];
 
   return (
     <div className="min-h-screen bg-background">
@@ -229,6 +339,80 @@ export function StudentDashboard({ onNavigate }: StudentDashboardProps) {
             )}
           </CardContent>
         </Card>
+        {/* Activity Cards */}
+        <div className="mt-8">
+          <h3 className="text-lg font-bold mb-4">📚 Learning Activities</h3>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
+            {activityCards.map((card) => (
+              <Card
+                key={card.id}
+                className="rounded-xl border-border shadow-card hover:shadow-card-lg transition-shadow"
+              >
+                <CardContent className="pt-5 pb-5">
+                  <div className="flex items-start justify-between mb-3">
+                    <div className="flex items-center gap-2">
+                      <span className="text-2xl">{card.icon}</span>
+                      <div>
+                        <p className="font-semibold text-sm">{card.title}</p>
+                        <p className="text-xs text-muted-foreground">
+                          {card.subtitle}
+                        </p>
+                      </div>
+                    </div>
+                    {card.done && (
+                      <CheckCircle className="w-5 h-5 text-green-500 shrink-0" />
+                    )}
+                  </div>
+                  {card.meta && (
+                    <p className="text-xs text-muted-foreground mb-3">
+                      {card.meta}
+                    </p>
+                  )}
+                  <Button
+                    size="sm"
+                    className="w-full bg-classio-blue hover:bg-classio-blue/90 text-white"
+                    onClick={() => onNavigate(card.path)}
+                    data-ocid={card.ocid}
+                  >
+                    {card.done ? "Review" : "Start"}
+                  </Button>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+
+          {/* Learning Path */}
+          <Card className="rounded-xl border-border shadow-card">
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm">🗺️ Learning Path</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="flex items-center gap-1 flex-wrap">
+                {learningSteps.map((step, i) => (
+                  <div key={step.label} className="flex items-center gap-1">
+                    <div
+                      className={`flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-medium transition-all ${
+                        step.done
+                          ? "bg-green-500/15 text-green-700"
+                          : step.current
+                            ? "bg-primary/15 text-primary ring-2 ring-primary/30"
+                            : "bg-muted text-muted-foreground"
+                      }`}
+                      data-ocid={`student.item.${i + 1}`}
+                    >
+                      {step.done ? "✓" : step.current ? "→" : "○"} {step.label}
+                    </div>
+                    {i < learningSteps.length - 1 && (
+                      <span className="text-muted-foreground/40 text-xs">
+                        ›
+                      </span>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        </div>
       </main>
     </div>
   );

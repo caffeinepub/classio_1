@@ -86,8 +86,7 @@ export function useMyResults(userId: string) {
     queryKey: ["myResults", userId],
     queryFn: async () => {
       if (!actor || !userId) return [];
-      // biome-ignore lint/suspicious/noExplicitAny: new backend method not yet in generated types
-      return (actor as any).getResultsForStudent(userId);
+      return actor.getResultsForStudent(userId);
     },
     enabled: !!actor && !isFetching && !!userId,
   });
@@ -99,8 +98,7 @@ export function usePassageForTest(userId: string) {
     queryKey: ["passageForTest", userId],
     queryFn: async () => {
       if (!actor || !userId) return null;
-      // biome-ignore lint/suspicious/noExplicitAny: new backend method not yet in generated types
-      const raw = await (actor as any).getPassageForStudent(userId);
+      const raw = await actor.getPassageForStudent(userId);
       // Candid returns ?T as [] | [T] — unwrap to null | T
       return unwrapOptional<{
         id: bigint;
@@ -132,8 +130,7 @@ export function useMyEffectiveLevel(userId: string) {
     queryKey: ["effectiveLevel", userId],
     queryFn: async () => {
       if (!actor || !userId) return null;
-      // biome-ignore lint/suspicious/noExplicitAny: new backend method not yet in generated types
-      const raw = await (actor as any).getStudentEffectiveLevel(userId);
+      const raw = await actor.getStudentEffectiveLevel(userId);
       // May return the record directly (non-optional), but handle both cases
       return unwrapOptional<{
         enrolledGrade: bigint;
@@ -167,12 +164,11 @@ export function useSubmitTestWithSkills() {
       audioBlobId: string | null;
     }) => {
       if (!actor) throw new Error("No actor");
-      // biome-ignore lint/suspicious/noExplicitAny: new backend method not yet in generated types
-      return (actor as any).submitTestWithSkills(
+      return actor.submitTestWithSkills(
         userId,
         passageId,
         skillScores,
-        audioBlobId ? [audioBlobId] : [],
+        audioBlobId,
       ) as Promise<bigint>;
     },
     onSuccess: (_data, variables) => {
@@ -199,8 +195,7 @@ export function useSubmitTest() {
       audioBlobId: string | null;
     }) => {
       if (!actor) throw new Error("No actor");
-      // biome-ignore lint/suspicious/noExplicitAny: new backend method not yet in generated types
-      return (actor as any).submitTest(userId, passageId, answers, audioBlobId);
+      return actor.submitTest(userId, passageId, answers, audioBlobId);
     },
     onSuccess: (_data, variables) =>
       qc.invalidateQueries({ queryKey: ["myResults", variables.userId] }),

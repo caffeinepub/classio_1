@@ -7,7 +7,10 @@ import Text "mo:core/Text";
 import Runtime "mo:core/Runtime";
 import Time "mo:core/Time";
 import Nat "mo:core/Nat";
+import Iter "mo:core/Iter";
 import Principal "mo:core/Principal";
+
+
 
 actor {
   include MixinStorage();
@@ -84,25 +87,58 @@ actor {
 
   public type LoginResponse = { role : UserRole; userId : Text };
 
-  let users      = Map.empty<UserId,    User>();
-  let passages   = Map.empty<PassageId, Passage>();
-  let questions  = Map.empty<PassageId, List.List<Question>>();
-  let results    = Map.empty<ResultId,  TestResult>();
-  let sessionMap = Map.empty<Principal, UserId>();
+  // New types for analytics
+  type VocabActivity = {
+    id        : Nat;
+    studentId : UserId;
+    grade     : Nat;
+    words     : [Text];
+    timestamp : Int;
+  };
 
-  var nextPassageId  = 1;
-  var nextQuestionId = 1;
-  var nextResultId   = 1;
-  let baseBlobPath   = "/audio-responses/";
+  type PracticeTest = {
+    id        : Nat;
+    studentId : UserId;
+    passageId : PassageId;
+    score     : Nat;
+    answers   : [Nat];
+    timestamp : Int;
+  };
 
-  let passageSubjects   = Map.empty<PassageId, Text>();
-  let effectiveLevels   = Map.empty<UserId,    Nat>();
-  let resultSkillScores = Map.empty<ResultId,  SkillScores>();
+  type WeeklyTest = {
+    id          : Nat;
+    studentId   : UserId;
+    vocabScore  : Nat;
+    compScore   : Nat;
+    totalScore  : Nat;
+    timestamp   : Int;
+  };
 
+  // New state fields (persistent)
+  let vocabActivities      = Map.empty<UserId, List.List<VocabActivity>>();
+  let practiceTestResults  = Map.empty<UserId, List.List<PracticeTest>>();
+  let weeklyTestResults    = Map.empty<UserId, List.List<WeeklyTest>>();
+
+  // Stable persistent state fields
+  let users       = Map.empty<UserId,      User>();
+  let passages    = Map.empty<PassageId,   Passage>();
+  let questions   = Map.empty<PassageId,   List.List<Question>>();
+  let results     = Map.empty<ResultId,    TestResult>();
+  let sessionMap  = Map.empty<Principal,   UserId>();
+  let passageSubjects = Map.empty<PassageId, Text>();
+  let effectiveLevels = Map.empty<UserId, Nat>();
+  let resultSkillScores = Map.empty<ResultId, SkillScores>();
+
+  var nextPassageId      = 1;
+  var nextQuestionId     = 1;
+  var nextResultId       = 1;
+  let baseBlobPath       = "/audio-responses/";
+
+  // Access control state (persistent)
   let accessControlState = AccessControl.initState();
   include MixinAuthorization(accessControlState);
 
-  // Upsert helper: remove then add
+  // Upsert helper: remove then add (to avoid persistent let hot reload issues)
   func upsertUser(id : UserId, u : User) {
     users.remove(id);
     users.add(id, u);
@@ -130,7 +166,7 @@ actor {
     passageSubjects.add(pid, subject);
   };
 
-  // ── Seed ────────────────────────────────────────────────────────────────────────────
+  // ── Seed ────────────────────────────────────────────────────────────────────────
   do {
     upsertUser("admin1", {
       id = "admin1"; username = "Classio1"; password = "Classio@11";
@@ -186,7 +222,7 @@ actor {
     nextResultId  := 1;
   };
 
-  // ── Internal helpers ────────────────────────────────────────────────────────────────────
+  // ── Internal helpers ────────────────────────────────────────────────────────────
   func getCurrentUser(caller : Principal) : ?User {
     switch (sessionMap.get(caller)) {
       case (null) null;
@@ -217,7 +253,41 @@ actor {
     s[n % 3];
   };
 
-  // ── Auth endpoints ────────────────────────────────────────────────────────────────────────────
+  // Authorization helper for student data access
+  // Allows: the student themselves, their teacher, or any admin
+  func authorizeStudentAccess(caller : Principal, studentId : UserId) {
+    let student = switch (users.get(studentId)) {
+      case (null) Runtime.trap("Student not found");
+      case (?u) {
+        if (u.role != #student) Runtime.trap("Not a student");
+        u;
+      };
+    };
+
+    // Check if caller is the student via session
+    switch (sessionMap.get(caller)) {
+      case (?uid) {
+        if (uid == studentId) return; // Student accessing their own data
+      };
+      case null {};
+    };
+
+    // Check if caller is authenticated and has permission
+    switch (getCurrentUser(caller)) {
+      case (?callerUser) {
+        // Admin can access any student
+        if (callerUser.role == #admin) return;
+        
+        // Teacher can access their own students
+        if (callerUser.role == #teacher and student.teacherId == ?callerUser.id) return;
+      };
+      case null {};
+    };
+
+    Runtime.trap("Unauthorized: Cannot access this student's data");
+  };
+
+  // ── Auth endpoints ─────────────────────────────────────────────────────────────
   public shared ({ caller }) func login(username : Text, password : Text) : async LoginResponse {
     let found = users.values().toArray().find(func(u) {
       u.username == username and u.password == password
@@ -235,7 +305,7 @@ actor {
     sessionMap.remove(caller);
   };
 
-  // ── Admin endpoints ───────────────────────────────────────────────────────────────────────────
+  // ── Admin endpoints ────────────────────────────────────────────────────────────
   public shared ({ caller }) func createTeacher(username : Text, password : Text) : async UserId {
     let _ = requireRole(caller, #admin);
     let id = "teacher" # (users.size() + 1).toText();
@@ -248,7 +318,7 @@ actor {
     users.values().toArray().filter(func(u) { u.role == #teacher });
   };
 
-  // ── Teacher endpoints ──────────────────────────────────────────────────────────────────────────
+  // ── Teacher endpoints ──────────────────────────────────────────────────────────
   public shared ({ caller }) func createStudent(username : Text, password : Text, grade : Nat) : async UserId {
     let teacher = requireRole(caller, #teacher);
     if (grade < 1 or grade > 10) Runtime.trap("Invalid grade: must be 1-10");
@@ -270,29 +340,25 @@ actor {
       case (null) Runtime.trap("Student not found");
       case (?s) {
         if (s.role != #student) Runtime.trap("Invalid student ID");
-        if (s.teacherId != ?teacher.id) Runtime.trap("Unauthorized");
+        if (s.teacherId != ?teacher.id) Runtime.trap("Unauthorized: Not your student");
       };
     };
     results.values().toArray().filter(func(r) { r.studentId == studentId });
   };
 
-  // ── Student test endpoints ──────────────────────────────────────────────────────────────────────
-  // Passages are auto-assigned by grade; no teacher assignment needed.
+  // ── Student test endpoints ─────────────────────────────────────────────────────
   // These endpoints take userId directly because all browser sessions share the
   // same anonymous ICP principal when username/password auth is used.
+  // CRITICAL: Must verify caller has permission to access this student's data.
 
-  func requireStudent(userId : UserId) : User {
-    switch (users.get(userId)) {
-      case (null) Runtime.trap("Student not found");
-      case (?u) {
-        if (u.role != #student) Runtime.trap("Not a student");
-        u;
-      };
+  public query ({ caller }) func getPassageForStudent(userId : UserId) : async ?PassageInfo {
+    authorizeStudentAccess(caller, userId);
+    
+    let student = switch (users.get(userId)) {
+      case (?u) u;
+      case null Runtime.trap("Student not found");
     };
-  };
-
-  public query func getPassageForStudent(userId : UserId) : async ?PassageInfo {
-    let student = requireStudent(userId);
+    
     let level   = getEffectiveLevel(student);
     let count   = results.values().toArray().filter(func(r) { r.studentId == student.id }).size();
     let subject = subjectForIndex(count);
@@ -320,20 +386,32 @@ actor {
     };
   };
 
-  public query func getStudentEffectiveLevel(userId : UserId) : async StudentLevel {
-    let student  = requireStudent(userId);
+  public query ({ caller }) func getStudentEffectiveLevel(userId : UserId) : async StudentLevel {
+    authorizeStudentAccess(caller, userId);
+    
+    let student = switch (users.get(userId)) {
+      case (?u) u;
+      case null Runtime.trap("Student not found");
+    };
+    
     let enrolled = switch (student.grade) { case (?g) g; case null 1 };
     let effective = getEffectiveLevel(student);
     { enrolledGrade = enrolled; effectiveLevel = effective };
   };
 
-  public shared func submitTestWithSkills(
+  public shared ({ caller }) func submitTestWithSkills(
     userId       : UserId,
     passageId    : PassageId,
     skillScores  : SkillScores,
     audioBlobId  : ?ExternalBlobId
   ) : async Nat {
-    let student  = requireStudent(userId);
+    authorizeStudentAccess(caller, userId);
+    
+    let student = switch (users.get(userId)) {
+      case (?u) u;
+      case null Runtime.trap("Student not found");
+    };
+    
     let enrolled = switch (student.grade) { case (?g) g; case null 1 };
     let current  = getEffectiveLevel(student);
 
@@ -356,13 +434,19 @@ actor {
     total;
   };
 
-  public shared func submitTest(
+  public shared ({ caller }) func submitTest(
     userId      : UserId,
     passageId   : PassageId,
     answers     : [Nat],
     audioBlobId : ?ExternalBlobId
   ) : async Nat {
-    let student = requireStudent(userId);
+    authorizeStudentAccess(caller, userId);
+    
+    let student = switch (users.get(userId)) {
+      case (?u) u;
+      case null Runtime.trap("Student not found");
+    };
+    
     let rid = nextResultId;
     upsertResult(rid, {
       id = rid; studentId = student.id; passageId;
@@ -372,17 +456,26 @@ actor {
     0;
   };
 
-  public query func getResultsForStudent(userId : UserId) : async [TestResult] {
-    let student = requireStudent(userId);
+  public query ({ caller }) func getResultsForStudent(userId : UserId) : async [TestResult] {
+    authorizeStudentAccess(caller, userId);
+    
+    let student = switch (users.get(userId)) {
+      case (?u) u;
+      case null Runtime.trap("Student not found");
+    };
+    
     results.values().toArray().filter(func(r) { r.studentId == student.id });
   };
 
-  public query func getPassageForGrade(grade : Nat) : async ?Passage {
+  public query ({ caller }) func getPassageForGrade(grade : Nat) : async ?Passage {
+    // This function should require authentication since it accesses educational content
+    let _ = requireAuth(caller);
+    
     let arr = passages.values().toArray().filter(func(p) { p.gradeLevel == grade });
     if (arr.size() > 0) ?arr[0] else null;
   };
 
-  // ── Profile endpoints ───────────────────────────────────────────────────────────────────────────
+  // ── Profile endpoints ──────────────────────────────────────────────────────────
   public query ({ caller }) func getCallerUserProfile() : async ?UserProfile {
     switch (getCurrentUser(caller)) {
       case (null) null;
@@ -396,7 +489,7 @@ actor {
 
   public query ({ caller }) func getUserProfile(userId : UserId) : async ?UserProfile {
     let cu = requireAuth(caller);
-    if (cu.id != userId and cu.role != #admin) Runtime.trap("Unauthorized");
+    if (cu.id != userId and cu.role != #admin) Runtime.trap("Unauthorized: Can only view your own profile or admin can view any");
     switch (users.get(userId)) {
       case (null) null;
       case (?u) {
@@ -409,7 +502,7 @@ actor {
 
   public shared ({ caller }) func saveCallerUserProfile(profile : UserProfile) : async () {
     let cu = requireAuth(caller);
-    if (cu.id != profile.userId) Runtime.trap("Unauthorized");
+    if (cu.id != profile.userId) Runtime.trap("Unauthorized: Can only save your own profile");
     switch (users.get(profile.userId)) {
       case (null) Runtime.trap("User not found");
       case (?u) {
@@ -421,7 +514,15 @@ actor {
     };
   };
 
-  // ── Compatibility stubs ────────────────────────────────────────────────────────────────────────
+  // ── Analytics stub (will be implemented with proper authorization) ────────────
+  public query ({ caller }) func getWeeklyReport(studentId : UserId) : async Text {
+    // Require authorization to access student data
+    authorizeStudentAccess(caller, studentId);
+    Runtime.trap("Not implemented yet, will be added in upcoming version");
+  };
+
+  // ── Compatibility stubs ────────────────────────────────────────────────────────
   public shared func initializeSystem()    : async () {};
   public shared func ensureClassio1Admin() : async () {};
 };
+

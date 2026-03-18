@@ -19,15 +19,24 @@ export interface Passage {
   'gradeLevel' : bigint,
 }
 export type PassageId = bigint;
-export interface Question {
-  'id' : QuestionId,
-  'correctIndex' : bigint,
-  'questionText' : string,
-  'passageId' : PassageId,
-  'options' : Array<string>,
+export interface PassageInfo {
+  'id' : PassageId,
+  'title' : string,
+  'content' : string,
+  'subject' : string,
+  'gradeLevel' : bigint,
 }
-export type QuestionId = bigint;
 export type ResultId = bigint;
+export interface SkillScores {
+  'chunking' : bigint,
+  'pronunciation' : bigint,
+  'intonation' : bigint,
+  'rhythm' : bigint,
+}
+export interface StudentLevel {
+  'enrolledGrade' : bigint,
+  'effectiveLevel' : bigint,
+}
 export interface TestResult {
   'id' : ResultId,
   'studentId' : UserId,
@@ -51,6 +60,7 @@ export interface UserProfile {
   'userId' : UserId,
   'role' : UserRole,
   'grade' : [] | [bigint],
+  'effectiveLevel' : [] | [bigint],
 }
 export type UserRole = { 'admin' : null } |
   { 'teacher' : null } |
@@ -89,13 +99,16 @@ export interface _SERVICE {
   'assignCallerUserRole' : ActorMethod<[Principal, UserRole__1], undefined>,
   'createStudent' : ActorMethod<[string, string, bigint], UserId>,
   'createTeacher' : ActorMethod<[string, string], UserId>,
+  'ensureClassio1Admin' : ActorMethod<[], undefined>,
   'getCallerUserProfile' : ActorMethod<[], [] | [UserProfile]>,
   'getCallerUserRole' : ActorMethod<[], UserRole__1>,
-  'getMyResults' : ActorMethod<[], Array<TestResult>>,
   'getPassageForGrade' : ActorMethod<[bigint], [] | [Passage]>,
-  'getQuestionsForPassage' : ActorMethod<[PassageId], Array<Question>>,
+  'getPassageForStudent' : ActorMethod<[UserId], [] | [PassageInfo]>,
+  'getResultsForStudent' : ActorMethod<[UserId], Array<TestResult>>,
+  'getStudentEffectiveLevel' : ActorMethod<[UserId], StudentLevel>,
   'getStudentResults' : ActorMethod<[UserId], Array<TestResult>>,
   'getUserProfile' : ActorMethod<[UserId], [] | [UserProfile]>,
+  'getWeeklyReport' : ActorMethod<[UserId], string>,
   'initializeSystem' : ActorMethod<[], undefined>,
   'isCallerAdmin' : ActorMethod<[], boolean>,
   'listMyStudents' : ActorMethod<[], Array<User>>,
@@ -104,7 +117,11 @@ export interface _SERVICE {
   'logout' : ActorMethod<[], undefined>,
   'saveCallerUserProfile' : ActorMethod<[UserProfile], undefined>,
   'submitTest' : ActorMethod<
-    [PassageId, Array<bigint>, [] | [ExternalBlobId]],
+    [UserId, PassageId, Array<bigint>, [] | [ExternalBlobId]],
+    bigint
+  >,
+  'submitTestWithSkills' : ActorMethod<
+    [UserId, PassageId, SkillScores, [] | [ExternalBlobId]],
     bigint
   >,
 }
