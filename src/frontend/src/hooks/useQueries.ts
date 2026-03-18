@@ -80,26 +80,27 @@ export function useStudentResults(studentId: UserId | null) {
   });
 }
 
-export function useMyResults() {
+export function useMyResults(userId: string) {
   const { actor, isFetching } = useActor();
   return useQuery({
-    queryKey: ["myResults"],
+    queryKey: ["myResults", userId],
     queryFn: async () => {
-      if (!actor) return [];
-      return actor.getMyResults();
+      if (!actor || !userId) return [];
+      // biome-ignore lint/suspicious/noExplicitAny: new backend method not yet in generated types
+      return (actor as any).getResultsForStudent(userId);
     },
-    enabled: !!actor && !isFetching,
+    enabled: !!actor && !isFetching && !!userId,
   });
 }
 
-export function usePassageForTest() {
+export function usePassageForTest(userId: string) {
   const { actor, isFetching } = useActor();
   return useQuery({
-    queryKey: ["passageForTest"],
+    queryKey: ["passageForTest", userId],
     queryFn: async () => {
-      if (!actor) return null;
+      if (!actor || !userId) return null;
       // biome-ignore lint/suspicious/noExplicitAny: new backend method not yet in generated types
-      const raw = await (actor as any).getPassageForTest();
+      const raw = await (actor as any).getPassageForStudent(userId);
       // Candid returns ?T as [] | [T] — unwrap to null | T
       return unwrapOptional<{
         id: bigint;
@@ -109,7 +110,7 @@ export function usePassageForTest() {
         subject: string;
       }>(raw);
     },
-    enabled: !!actor && !isFetching,
+    enabled: !!actor && !isFetching && !!userId,
   });
 }
 
@@ -125,21 +126,21 @@ export function usePassageForGrade(grade: bigint | undefined) {
   });
 }
 
-export function useMyEffectiveLevel() {
+export function useMyEffectiveLevel(userId: string) {
   const { actor, isFetching } = useActor();
   return useQuery({
-    queryKey: ["effectiveLevel"],
+    queryKey: ["effectiveLevel", userId],
     queryFn: async () => {
-      if (!actor) return null;
+      if (!actor || !userId) return null;
       // biome-ignore lint/suspicious/noExplicitAny: new backend method not yet in generated types
-      const raw = await (actor as any).getMyEffectiveLevel();
+      const raw = await (actor as any).getStudentEffectiveLevel(userId);
       // May return the record directly (non-optional), but handle both cases
       return unwrapOptional<{
         enrolledGrade: bigint;
         effectiveLevel: bigint;
       }>(raw);
     },
-    enabled: !!actor && !isFetching,
+    enabled: !!actor && !isFetching && !!userId,
   });
 }
 
@@ -155,10 +156,12 @@ export function useSubmitTestWithSkills() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: async ({
+      userId,
       passageId,
       skillScores,
       audioBlobId,
     }: {
+      userId: string;
       passageId: bigint;
       skillScores: SkillScoresInput;
       audioBlobId: string | null;
@@ -166,15 +169,16 @@ export function useSubmitTestWithSkills() {
       if (!actor) throw new Error("No actor");
       // biome-ignore lint/suspicious/noExplicitAny: new backend method not yet in generated types
       return (actor as any).submitTestWithSkills(
+        userId,
         passageId,
         skillScores,
         audioBlobId ? [audioBlobId] : [],
       ) as Promise<bigint>;
     },
-    onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ["myResults"] });
-      qc.invalidateQueries({ queryKey: ["effectiveLevel"] });
-      qc.invalidateQueries({ queryKey: ["passageForTest"] });
+    onSuccess: (_data, variables) => {
+      qc.invalidateQueries({ queryKey: ["myResults", variables.userId] });
+      qc.invalidateQueries({ queryKey: ["effectiveLevel", variables.userId] });
+      qc.invalidateQueries({ queryKey: ["passageForTest", variables.userId] });
     },
   });
 }
@@ -184,17 +188,21 @@ export function useSubmitTest() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: async ({
+      userId,
       passageId,
       answers,
       audioBlobId,
     }: {
+      userId: string;
       passageId: bigint;
       answers: bigint[];
       audioBlobId: string | null;
     }) => {
       if (!actor) throw new Error("No actor");
-      return actor.submitTest(passageId, answers, audioBlobId);
+      // biome-ignore lint/suspicious/noExplicitAny: new backend method not yet in generated types
+      return (actor as any).submitTest(userId, passageId, answers, audioBlobId);
     },
-    onSuccess: () => qc.invalidateQueries({ queryKey: ["myResults"] }),
+    onSuccess: (_data, variables) =>
+      qc.invalidateQueries({ queryKey: ["myResults", variables.userId] }),
   });
 }

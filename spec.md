@@ -1,37 +1,27 @@
-# Classio — Voice Recognition & Consolidated Report
+# Classio
 
 ## Current State
-- Student proficiency test shows a reading passage and lets students record audio.
-- No voice recognition or automatic skill scoring exists.
-- After submit, student is told teacher will review the recording.
-- TestResult stores score (quiz answers), passageId, timestamp, audioBlobId — no skill scores.
+Student proficiency test endpoints (`getPassageForTest`, `getMyEffectiveLevel`, `submitTestWithSkills`, `getMyResults`) authenticate via ICP `caller` principal session lookup. Since the app uses username/password auth (not Internet Identity), all browser sessions share the same anonymous principal, causing session conflicts when multiple roles are used — the passage query silently fails and shows "No passage available for your grade level". The teacher dashboard has a misleading "Available for assignment" card implying teacher-controlled passage assignment.
 
 ## Requested Changes (Diff)
 
 ### Add
-- Web Speech API integration in the test page to transcribe the student's reading in real time.
-- Automated skill scoring engine (client-side) that computes scores (1–5) for:
-  - Pronunciation: word-accuracy vs expected passage text
-  - Rhythm: speaking pace consistency (words per minute)
-  - Chunking: pauses at natural boundaries (commas, periods)
-  - Intonation: sentence-completion confidence
-- Consolidated skill report card shown to the student immediately after submission.
-- Backend `SkillScores` type and updated `TestResult` to persist skill scores.
-- `submitTest` now accepts optional skill scores.
-- StudentDashboard results history shows per-skill badges on each past result.
+- Student endpoints accept `userId: Text` parameter for direct user lookup (bypassing broken principal-based session)
 
 ### Modify
-- `TestResult` type in Motoko: add `skillScores: ?SkillScores`.
-- `submitTest` function: accept `skillScores: ?SkillScores` parameter.
-- `StudentTest.tsx`: add speech recognition hook, compute scores, pass to submit, show report card.
-- `StudentDashboard.tsx`: show skill score breakdown in result rows.
+- `getPassageForTest()` → `getPassageForStudent(userId)` — look up student by ID, no caller session required
+- `getMyEffectiveLevel()` → `getStudentEffectiveLevel(userId)` — same pattern
+- `submitTestWithSkills(...)` → add `userId` as first param
+- `getMyResults()` → `getResultsForStudent(userId)` — same pattern
+- Frontend hooks pass `user.userId` from AuthContext to all student endpoints
+- Teacher dashboard: remove "Available for assignment" card and any passage-assignment-related wording; make clear passages are auto-assigned by grade
 
 ### Remove
-- "Your teacher will review your recording" message on the success screen — replaced by the automated report.
+- `caller`-based session lookup in student-facing endpoints
+- Misleading teacher passage assignment UI/copy
 
 ## Implementation Plan
-1. Update `main.mo`: add `SkillScores` record type; extend `TestResult` and `submitTest`.
-2. Update `backend.d.ts` (TypeScript bindings) to reflect new types.
-3. Rewrite `StudentTest.tsx`: add `useSpeechRecognition` hook; scoring logic; report card UI.
-4. Update `StudentDashboard.tsx`: show skill scores per result row.
-5. Validate (lint + typecheck + build) and fix any errors.
+1. Update backend: change all student endpoints to accept userId param, look up user by ID
+2. Update frontend hooks: pass userId from auth context to student endpoint calls
+3. Update StudentTest and StudentDashboard to pass userId to hooks
+4. Clean up TeacherDashboard: remove assignment wording, update stats card

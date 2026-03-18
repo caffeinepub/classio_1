@@ -531,8 +531,10 @@ export function StudentTest({ onNavigate }: StudentTestProps) {
   const [recordingDuration, setRecordingDuration] = useState(0);
   const startTimeRef = useRef<number>(0);
 
-  const { data: passage, isLoading: passageLoading } = usePassageForTest();
-  const { data: levelData } = useMyEffectiveLevel();
+  const userId = user?.userId ?? "";
+  const { data: passage, isLoading: passageLoading } =
+    usePassageForTest(userId);
+  const { data: levelData } = useMyEffectiveLevel(userId);
   const submitTest = useSubmitTestWithSkills();
   const recorder = useAudioRecorder();
   const speech = useSpeechRecognition();
@@ -585,6 +587,7 @@ export function StudentTest({ onNavigate }: StudentTestProps) {
     };
     try {
       await submitTest.mutateAsync({
+        userId,
         passageId: passage.id,
         skillScores: {
           rhythm: BigInt(scores.rhythm),
@@ -681,7 +684,8 @@ export function StudentTest({ onNavigate }: StudentTestProps) {
                 No passage available for your grade level
               </p>
               <p className="text-sm text-muted-foreground mt-1">
-                Please ask your teacher to assign appropriate content.
+                Passages are auto-assigned based on your grade level. Please
+                contact your teacher if this issue persists.
               </p>
               <Button
                 variant="outline"

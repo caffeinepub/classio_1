@@ -130,7 +130,7 @@ actor {
     passageSubjects.add(pid, subject);
   };
 
-  // ── Seed ─────────────────────────────────────────────────────────────────────
+  // ── Seed ────────────────────────────────────────────────────────────────────────────
   do {
     upsertUser("admin1", {
       id = "admin1"; username = "Classio1"; password = "Classio@11";
@@ -186,7 +186,7 @@ actor {
     nextResultId  := 1;
   };
 
-  // ── Internal helpers ──────────────────────────────────────────────────────────
+  // ── Internal helpers ────────────────────────────────────────────────────────────────────
   func getCurrentUser(caller : Principal) : ?User {
     switch (sessionMap.get(caller)) {
       case (null) null;
@@ -196,7 +196,7 @@ actor {
 
   func requireAuth(caller : Principal) : User {
     switch (getCurrentUser(caller)) {
-      case (null) Runtime.trap("Unauthorized: Not logged in");
+      case (null) Runtime.trap("Not authenticated");
       case (?u)   u;
     };
   };
@@ -217,7 +217,7 @@ actor {
     s[n % 3];
   };
 
-  // ── Auth endpoints ────────────────────────────────────────────────────────────
+  // ── Auth endpoints ────────────────────────────────────────────────────────────────────────────
   public shared ({ caller }) func login(username : Text, password : Text) : async LoginResponse {
     let found = users.values().toArray().find(func(u) {
       u.username == username and u.password == password
@@ -235,7 +235,7 @@ actor {
     sessionMap.remove(caller);
   };
 
-  // ── Admin endpoints ───────────────────────────────────────────────────────────
+  // ── Admin endpoints ───────────────────────────────────────────────────────────────────────────
   public shared ({ caller }) func createTeacher(username : Text, password : Text) : async UserId {
     let _ = requireRole(caller, #admin);
     let id = "teacher" # (users.size() + 1).toText();
@@ -248,7 +248,7 @@ actor {
     users.values().toArray().filter(func(u) { u.role == #teacher });
   };
 
-  // ── Teacher endpoints ─────────────────────────────────────────────────────────
+  // ── Teacher endpoints ──────────────────────────────────────────────────────────────────────────
   public shared ({ caller }) func createStudent(username : Text, password : Text, grade : Nat) : async UserId {
     let teacher = requireRole(caller, #teacher);
     if (grade < 1 or grade > 10) Runtime.trap("Invalid grade: must be 1-10");
@@ -276,9 +276,23 @@ actor {
     results.values().toArray().filter(func(r) { r.studentId == studentId });
   };
 
-  // ── Student test endpoints ────────────────────────────────────────────────────
-  public query ({ caller }) func getPassageForTest() : async ?PassageInfo {
-    let student = requireRole(caller, #student);
+  // ── Student test endpoints ──────────────────────────────────────────────────────────────────────
+  // Passages are auto-assigned by grade; no teacher assignment needed.
+  // These endpoints take userId directly because all browser sessions share the
+  // same anonymous ICP principal when username/password auth is used.
+
+  func requireStudent(userId : UserId) : User {
+    switch (users.get(userId)) {
+      case (null) Runtime.trap("Student not found");
+      case (?u) {
+        if (u.role != #student) Runtime.trap("Not a student");
+        u;
+      };
+    };
+  };
+
+  public query func getPassageForStudent(userId : UserId) : async ?PassageInfo {
+    let student = requireStudent(userId);
     let level   = getEffectiveLevel(student);
     let count   = results.values().toArray().filter(func(r) { r.studentId == student.id }).size();
     let subject = subjectForIndex(count);
@@ -293,6 +307,7 @@ actor {
         ?{ id = p.id; title = p.title; content = p.content; gradeLevel = p.gradeLevel; subject = sub };
       };
       case (null) {
+        // Fallback: any passage at this level
         let any = passages.values().toArray().find(func(p) { p.gradeLevel == level });
         switch (any) {
           case (null) null;
@@ -305,19 +320,20 @@ actor {
     };
   };
 
-  public query ({ caller }) func getMyEffectiveLevel() : async StudentLevel {
-    let student  = requireRole(caller, #student);
+  public query func getStudentEffectiveLevel(userId : UserId) : async StudentLevel {
+    let student  = requireStudent(userId);
     let enrolled = switch (student.grade) { case (?g) g; case null 1 };
     let effective = getEffectiveLevel(student);
     { enrolledGrade = enrolled; effectiveLevel = effective };
   };
 
-  public shared ({ caller }) func submitTestWithSkills(
+  public shared func submitTestWithSkills(
+    userId       : UserId,
     passageId    : PassageId,
     skillScores  : SkillScores,
     audioBlobId  : ?ExternalBlobId
   ) : async Nat {
-    let student  = requireRole(caller, #student);
+    let student  = requireStudent(userId);
     let enrolled = switch (student.grade) { case (?g) g; case null 1 };
     let current  = getEffectiveLevel(student);
 
@@ -340,12 +356,13 @@ actor {
     total;
   };
 
-  public shared ({ caller }) func submitTest(
+  public shared func submitTest(
+    userId      : UserId,
     passageId   : PassageId,
     answers     : [Nat],
     audioBlobId : ?ExternalBlobId
   ) : async Nat {
-    let student = requireRole(caller, #student);
+    let student = requireStudent(userId);
     let rid = nextResultId;
     upsertResult(rid, {
       id = rid; studentId = student.id; passageId;
@@ -355,18 +372,17 @@ actor {
     0;
   };
 
-  public query ({ caller }) func getMyResults() : async [TestResult] {
-    let student = requireRole(caller, #student);
+  public query func getResultsForStudent(userId : UserId) : async [TestResult] {
+    let student = requireStudent(userId);
     results.values().toArray().filter(func(r) { r.studentId == student.id });
   };
 
-  public query ({ caller }) func getPassageForGrade(grade : Nat) : async ?Passage {
-    let _ = requireAuth(caller);
+  public query func getPassageForGrade(grade : Nat) : async ?Passage {
     let arr = passages.values().toArray().filter(func(p) { p.gradeLevel == grade });
     if (arr.size() > 0) ?arr[0] else null;
   };
 
-  // ── Profile endpoints ─────────────────────────────────────────────────────────
+  // ── Profile endpoints ───────────────────────────────────────────────────────────────────────────
   public query ({ caller }) func getCallerUserProfile() : async ?UserProfile {
     switch (getCurrentUser(caller)) {
       case (null) null;
@@ -405,7 +421,7 @@ actor {
     };
   };
 
-  // ── Compatibility stubs ───────────────────────────────────────────────────────
+  // ── Compatibility stubs ────────────────────────────────────────────────────────────────────────
   public shared func initializeSystem()    : async () {};
   public shared func ensureClassio1Admin() : async () {};
 };

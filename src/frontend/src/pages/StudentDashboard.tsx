@@ -12,8 +12,9 @@ interface StudentDashboardProps {
 
 export function StudentDashboard({ onNavigate }: StudentDashboardProps) {
   const { user } = useAuth();
-  const { data: results, isLoading } = useMyResults();
-  const { data: levelData } = useMyEffectiveLevel();
+  const userId = user?.userId ?? "";
+  const { data: results, isLoading } = useMyResults(userId);
+  const { data: levelData } = useMyEffectiveLevel(userId);
 
   const enrolledGrade = levelData?.enrolledGrade;
   const effectiveLevel = levelData?.effectiveLevel;

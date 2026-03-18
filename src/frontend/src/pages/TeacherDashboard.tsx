@@ -167,13 +167,13 @@ export function TeacherDashboard() {
           <Card className="rounded-xl shadow-card border-border">
             <CardContent className="pt-5">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
-                  <span className="text-primary font-bold text-sm">1–10</span>
+                <div className="w-10 h-10 rounded-lg bg-emerald-500/10 flex items-center justify-center">
+                  <span className="text-emerald-600 font-bold text-sm">✓</span>
                 </div>
                 <div>
-                  <p className="text-sm font-semibold">Grade Levels</p>
+                  <p className="text-sm font-semibold">Auto Passages</p>
                   <p className="text-sm text-muted-foreground">
-                    Available for assignment
+                    Assigned by grade level
                   </p>
                 </div>
               </div>
