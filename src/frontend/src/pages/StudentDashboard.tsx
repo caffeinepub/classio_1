@@ -1,10 +1,10 @@
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { BookOpen, Loader2, Play, Trophy } from "lucide-react";
+import { BookOpen, ChevronDown, Loader2, Play, Trophy } from "lucide-react";
 import { AppHeader } from "../components/AppHeader";
 import { useAuth } from "../context/AuthContext";
-import { useMyResults } from "../hooks/useQueries";
+import { useMyEffectiveLevel, useMyResults } from "../hooks/useQueries";
 
 interface StudentDashboardProps {
   onNavigate: (page: string) => void;
@@ -13,6 +13,14 @@ interface StudentDashboardProps {
 export function StudentDashboard({ onNavigate }: StudentDashboardProps) {
   const { user } = useAuth();
   const { data: results, isLoading } = useMyResults();
+  const { data: levelData } = useMyEffectiveLevel();
+
+  const enrolledGrade = levelData?.enrolledGrade;
+  const effectiveLevel = levelData?.effectiveLevel;
+  const isLevelDown =
+    enrolledGrade !== undefined &&
+    effectiveLevel !== undefined &&
+    effectiveLevel < enrolledGrade;
 
   const avg =
     results && results.length > 0
@@ -36,6 +44,7 @@ export function StudentDashboard({ onNavigate }: StudentDashboardProps) {
 
         {/* Stats */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
+          {/* Tests taken */}
           <Card className="rounded-xl shadow-card border-border">
             <CardContent className="pt-5">
               <div className="flex items-center gap-3">
@@ -49,6 +58,8 @@ export function StudentDashboard({ onNavigate }: StudentDashboardProps) {
               </div>
             </CardContent>
           </Card>
+
+          {/* Average score */}
           <Card className="rounded-xl shadow-card border-border">
             <CardContent className="pt-5">
               <div className="flex items-center gap-3">
@@ -64,23 +75,68 @@ export function StudentDashboard({ onNavigate }: StudentDashboardProps) {
               </div>
             </CardContent>
           </Card>
+
+          {/* Grade + Reading Level */}
           <Card className="rounded-xl shadow-card border-border">
             <CardContent className="pt-5">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
-                  <span className="text-primary font-bold text-sm">
-                    G{user?.grade?.toString()}
-                  </span>
-                </div>
-                <div>
-                  <p className="text-sm font-semibold">
-                    Grade {user?.grade?.toString()}
+              <div className="flex flex-col gap-2">
+                <div className="flex items-center justify-between">
+                  <p className="text-xs text-muted-foreground font-medium uppercase tracking-wide">
+                    Enrolled Grade
                   </p>
-                  <p className="text-sm text-muted-foreground">Current Level</p>
+                  <Badge className="bg-primary/10 text-primary border-0 text-xs">
+                    Grade{" "}
+                    {enrolledGrade?.toString() ??
+                      user?.grade?.toString() ??
+                      "—"}
+                  </Badge>
                 </div>
+                <div className="flex items-center justify-between">
+                  <p className="text-xs text-muted-foreground font-medium uppercase tracking-wide">
+                    Reading Level
+                  </p>
+                  {effectiveLevel !== undefined ? (
+                    <Badge
+                      className={`text-xs border-0 flex items-center gap-1 ${
+                        isLevelDown
+                          ? "bg-amber-500/15 text-amber-700"
+                          : "bg-emerald-500/15 text-emerald-700"
+                      }`}
+                    >
+                      {isLevelDown && <ChevronDown className="w-3 h-3" />}
+                      Level {effectiveLevel.toString()}
+                    </Badge>
+                  ) : (
+                    <Badge className="bg-muted text-muted-foreground border-0 text-xs">
+                      —
+                    </Badge>
+                  )}
+                </div>
+                <p className="text-xs text-muted-foreground mt-1">
+                  {isLevelDown
+                    ? "Adapting passages to find your best level"
+                    : "Reading at your enrolled grade level"}
+                </p>
               </div>
             </CardContent>
           </Card>
+        </div>
+
+        {/* Adaptive system info banner */}
+        <div className="rounded-xl border border-border bg-muted/30 p-4 mb-6 flex items-start gap-3">
+          <span className="text-xl shrink-0">🧠</span>
+          <div>
+            <p className="text-sm font-semibold text-foreground">
+              Adaptive Reading System
+            </p>
+            <p className="text-xs text-muted-foreground mt-0.5">
+              Every passage is selected from Science, History, or Geography
+              based on your reading level. Score 80% or above to stay at your
+              grade. If you score below 80%, the system finds an easier passage
+              so it can accurately measure your Rhythm, Intonation, Chunking,
+              and Pronunciation skills.
+            </p>
+          </div>
         </div>
 
         {/* Take test CTA */}

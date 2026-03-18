@@ -5,19 +5,26 @@ import {
   AlertCircle,
   CheckCircle,
   ChevronLeft,
+  Info,
   Loader2,
   Mic,
   MicOff,
   Pause,
   Play,
   Square,
+  TrendingDown,
+  TrendingUp,
 } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
 import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import { AppHeader } from "../components/AppHeader";
 import { useAuth } from "../context/AuthContext";
-import { usePassageForGrade, useSubmitTest } from "../hooks/useQueries";
+import {
+  useMyEffectiveLevel,
+  usePassageForTest,
+  useSubmitTestWithSkills,
+} from "../hooks/useQueries";
 
 interface StudentTestProps {
   onNavigate: (page: string) => void;
@@ -33,6 +40,16 @@ interface SkillScores {
 interface Segment {
   text: string;
   time: number;
+}
+
+// ── Subject badge colours ──────────────────────────────────────────────────────
+
+function subjectBadgeClass(subject: string): string {
+  const s = subject.toLowerCase();
+  if (s === "science") return "bg-teal-500/15 text-teal-700 border-teal-200";
+  if (s === "history") return "bg-amber-500/15 text-amber-700 border-amber-200";
+  if (s === "geography") return "bg-blue-500/15 text-blue-700 border-blue-200";
+  return "bg-muted text-muted-foreground border-border";
 }
 
 // ── Skill Scoring ─────────────────────────────────────────────────────────────
@@ -298,26 +315,107 @@ function StarRating({ score }: { score: number }) {
   );
 }
 
+function AdaptiveBanner({
+  total,
+  enrolledGrade,
+  effectiveLevel,
+}: {
+  total: number;
+  enrolledGrade: bigint | undefined;
+  effectiveLevel: bigint | undefined;
+}) {
+  const avg = total / 4;
+  const isImproving =
+    avg >= 4 &&
+    enrolledGrade !== undefined &&
+    effectiveLevel !== undefined &&
+    effectiveLevel < enrolledGrade;
+
+  if (isImproving) {
+    return (
+      <motion.div
+        initial={{ opacity: 0, y: -8 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.35 }}
+        className="flex items-start gap-3 rounded-xl border border-emerald-200 bg-emerald-50 dark:bg-emerald-900/20 dark:border-emerald-800 p-4 mb-5"
+        data-ocid="test.success_state"
+      >
+        <TrendingUp className="w-5 h-5 text-emerald-600 dark:text-emerald-400 shrink-0 mt-0.5" />
+        <div>
+          <p className="text-sm font-semibold text-emerald-800 dark:text-emerald-300">
+            Excellent! You are improving 🎉
+          </p>
+          <p className="text-xs text-emerald-700 dark:text-emerald-400 mt-0.5">
+            Your level is being raised back toward your enrolled grade.
+          </p>
+        </div>
+      </motion.div>
+    );
+  }
+
+  if (avg >= 4) {
+    return (
+      <motion.div
+        initial={{ opacity: 0, y: -8 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.35 }}
+        className="flex items-start gap-3 rounded-xl border border-teal-200 bg-teal-50 dark:bg-teal-900/20 dark:border-teal-800 p-4 mb-5"
+        data-ocid="test.success_state"
+      >
+        <CheckCircle className="w-5 h-5 text-teal-600 dark:text-teal-400 shrink-0 mt-0.5" />
+        <div>
+          <p className="text-sm font-semibold text-teal-800 dark:text-teal-300">
+            Great job! Keep it up ✨
+          </p>
+          <p className="text-xs text-teal-700 dark:text-teal-400 mt-0.5">
+            Your level is being maintained — you are reading at the right level.
+          </p>
+        </div>
+      </motion.div>
+    );
+  }
+
+  // Below 80% (total < 16)
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: -8 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.35 }}
+      className="flex items-start gap-3 rounded-xl border border-blue-200 bg-blue-50 dark:bg-blue-900/20 dark:border-blue-800 p-4 mb-5"
+      data-ocid="test.error_state"
+    >
+      <Info className="w-5 h-5 text-blue-600 dark:text-blue-400 shrink-0 mt-0.5" />
+      <div>
+        <p className="text-sm font-semibold text-blue-800 dark:text-blue-300">
+          Adjusting difficulty for you
+        </p>
+        <p className="text-xs text-blue-700 dark:text-blue-400 mt-0.5">
+          Your next passage will be slightly easier — keep practicing and you
+          will level up soon!
+        </p>
+      </div>
+    </motion.div>
+  );
+}
+
 function ReportCard({
   scores,
   studentName,
   grade,
+  enrolledGrade,
+  effectiveLevel,
   onBack,
 }: {
   scores: SkillScores;
   studentName: string;
   grade: string;
+  enrolledGrade: bigint | undefined;
+  effectiveLevel: bigint | undefined;
   onBack: () => void;
 }) {
-  const avg =
-    Math.round(
-      ((scores.rhythm +
-        scores.intonation +
-        scores.chunking +
-        scores.pronunciation) /
-        4) *
-        10,
-    ) / 10;
+  const total =
+    scores.rhythm + scores.intonation + scores.chunking + scores.pronunciation;
+  const avg = Math.round((total / 4) * 10) / 10;
   const avgMsg =
     avg >= 4.5
       ? "Outstanding performance!"
@@ -339,6 +437,13 @@ function ReportCard({
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.4 }}
         >
+          {/* Adaptive notice banner */}
+          <AdaptiveBanner
+            total={total}
+            enrolledGrade={enrolledGrade}
+            effectiveLevel={effectiveLevel}
+          />
+
           {/* Header */}
           <div className="text-center mb-8">
             <div className="w-16 h-16 rounded-full mx-auto mb-4 flex items-center justify-center bg-primary/10 text-3xl">
@@ -426,10 +531,9 @@ export function StudentTest({ onNavigate }: StudentTestProps) {
   const [recordingDuration, setRecordingDuration] = useState(0);
   const startTimeRef = useRef<number>(0);
 
-  const { data: passage, isLoading: passageLoading } = usePassageForGrade(
-    user?.grade,
-  );
-  const submitTest = useSubmitTest();
+  const { data: passage, isLoading: passageLoading } = usePassageForTest();
+  const { data: levelData } = useMyEffectiveLevel();
+  const submitTest = useSubmitTestWithSkills();
   const recorder = useAudioRecorder();
   const speech = useSpeechRecognition();
 
@@ -473,10 +577,21 @@ export function StudentTest({ onNavigate }: StudentTestProps) {
 
   const handleSubmit = async () => {
     if (!passage) return;
+    const scores = computedScores ?? {
+      rhythm: 1,
+      intonation: 1,
+      chunking: 1,
+      pronunciation: 1,
+    };
     try {
       await submitTest.mutateAsync({
         passageId: passage.id,
-        answers: [],
+        skillScores: {
+          rhythm: BigInt(scores.rhythm),
+          intonation: BigInt(scores.intonation),
+          chunking: BigInt(scores.chunking),
+          pronunciation: BigInt(scores.pronunciation),
+        },
         audioBlobId: null,
       });
     } catch {
@@ -492,6 +607,8 @@ export function StudentTest({ onNavigate }: StudentTestProps) {
           scores={computedScores}
           studentName={user?.username ?? "Student"}
           grade={user?.grade?.toString() ?? "—"}
+          enrolledGrade={levelData?.enrolledGrade}
+          effectiveLevel={levelData?.effectiveLevel}
           onBack={() => onNavigate("/student")}
         />
       );
@@ -581,11 +698,22 @@ export function StudentTest({ onNavigate }: StudentTestProps) {
             {/* 1. Passage */}
             <Card className="rounded-xl shadow-card border-border">
               <CardHeader className="border-b border-border pb-4">
-                <div className="flex items-start justify-between gap-3">
+                <div className="flex items-start justify-between gap-3 flex-wrap">
                   <CardTitle className="text-lg">{passage.title}</CardTitle>
-                  <Badge className="shrink-0 bg-primary/10 text-primary border-0">
-                    Grade {passage.gradeLevel.toString()}
-                  </Badge>
+                  <div className="flex items-center gap-2 shrink-0">
+                    {passage.subject && (
+                      <Badge
+                        className={`text-xs border ${subjectBadgeClass(
+                          passage.subject,
+                        )}`}
+                      >
+                        {passage.subject}
+                      </Badge>
+                    )}
+                    <Badge className="bg-primary/10 text-primary border-0">
+                      Grade {passage.gradeLevel.toString()}
+                    </Badge>
+                  </div>
                 </div>
               </CardHeader>
               <CardContent className="pt-5">

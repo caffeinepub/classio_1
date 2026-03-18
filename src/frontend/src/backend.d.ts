@@ -12,6 +12,24 @@ export interface Passage {
     title: string;
     content: string;
     gradeLevel: bigint;
+    subject: string;
+}
+export interface PassageInfo {
+    id: PassageId;
+    title: string;
+    content: string;
+    gradeLevel: bigint;
+    subject: string;
+}
+export interface SkillScores {
+    rhythm: bigint;
+    intonation: bigint;
+    chunking: bigint;
+    pronunciation: bigint;
+}
+export interface StudentLevel {
+    enrolledGrade: bigint;
+    effectiveLevel: bigint;
 }
 export interface User {
     id: UserId;
@@ -20,28 +38,21 @@ export interface User {
     role: UserRole;
     grade?: bigint;
     teacherId?: UserId;
+    effectiveLevel?: bigint;
 }
-export type QuestionId = bigint;
 export type ExternalBlobId = string;
 export type ResultId = bigint;
 export interface TestResult {
     id: ResultId;
     studentId: UserId;
-    answers: Array<bigint>;
     audioBlobId?: ExternalBlobId;
     score: bigint;
+    skillScores?: SkillScores;
     timestamp: bigint;
     passageId: PassageId;
 }
 export type PassageId = bigint;
 export type UserId = string;
-export interface Question {
-    id: QuestionId;
-    correctIndex: bigint;
-    questionText: string;
-    passageId: PassageId;
-    options: Array<string>;
-}
 export interface LoginResponse {
     userId: string;
     role: UserRole;
@@ -51,6 +62,7 @@ export interface UserProfile {
     userId: UserId;
     role: UserRole;
     grade?: bigint;
+    effectiveLevel?: bigint;
 }
 export enum UserRole {
     admin = "admin",
@@ -69,9 +81,10 @@ export interface backendInterface {
     ensureClassio1Admin(): Promise<void>;
     getCallerUserProfile(): Promise<UserProfile | null>;
     getCallerUserRole(): Promise<UserRole__1>;
+    getMyEffectiveLevel(): Promise<StudentLevel>;
     getMyResults(): Promise<Array<TestResult>>;
     getPassageForGrade(grade: bigint): Promise<Passage | null>;
-    getQuestionsForPassage(passageId: PassageId): Promise<Array<Question>>;
+    getPassageForTest(): Promise<PassageInfo | null>;
     getStudentResults(studentId: UserId): Promise<Array<TestResult>>;
     getUserProfile(userId: UserId): Promise<UserProfile | null>;
     initializeSystem(): Promise<void>;
@@ -82,4 +95,5 @@ export interface backendInterface {
     logout(): Promise<void>;
     saveCallerUserProfile(profile: UserProfile): Promise<void>;
     submitTest(passageId: PassageId, answers: Array<bigint>, audioBlobId: ExternalBlobId | null): Promise<bigint>;
+    submitTestWithSkills(passageId: PassageId, skillScores: SkillScores, audioBlobId: ExternalBlobId | null): Promise<bigint>;
 }

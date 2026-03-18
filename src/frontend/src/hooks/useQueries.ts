@@ -2,6 +2,13 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import type { UserId } from "../backend";
 import { useActor } from "./useActor";
 
+// Unwrap Candid optional: backend returns [] | [T] for ?T
+function unwrapOptional<T>(value: [] | [T] | T | null | undefined): T | null {
+  if (value === null || value === undefined) return null;
+  if (Array.isArray(value)) return (value as T[])[0] ?? null;
+  return value as T;
+}
+
 export function useListTeachers() {
   const { actor, isFetching } = useActor();
   return useQuery({
@@ -85,6 +92,27 @@ export function useMyResults() {
   });
 }
 
+export function usePassageForTest() {
+  const { actor, isFetching } = useActor();
+  return useQuery({
+    queryKey: ["passageForTest"],
+    queryFn: async () => {
+      if (!actor) return null;
+      // biome-ignore lint/suspicious/noExplicitAny: new backend method not yet in generated types
+      const raw = await (actor as any).getPassageForTest();
+      // Candid returns ?T as [] | [T] — unwrap to null | T
+      return unwrapOptional<{
+        id: bigint;
+        title: string;
+        content: string;
+        gradeLevel: bigint;
+        subject: string;
+      }>(raw);
+    },
+    enabled: !!actor && !isFetching,
+  });
+}
+
 export function usePassageForGrade(grade: bigint | undefined) {
   const { actor, isFetching } = useActor();
   return useQuery({
@@ -97,15 +125,57 @@ export function usePassageForGrade(grade: bigint | undefined) {
   });
 }
 
-export function useQuestionsForPassage(passageId: bigint | undefined) {
+export function useMyEffectiveLevel() {
   const { actor, isFetching } = useActor();
   return useQuery({
-    queryKey: ["questions", passageId?.toString()],
+    queryKey: ["effectiveLevel"],
     queryFn: async () => {
-      if (!actor || passageId === undefined) return [];
-      return actor.getQuestionsForPassage(passageId);
+      if (!actor) return null;
+      // biome-ignore lint/suspicious/noExplicitAny: new backend method not yet in generated types
+      const raw = await (actor as any).getMyEffectiveLevel();
+      // May return the record directly (non-optional), but handle both cases
+      return unwrapOptional<{
+        enrolledGrade: bigint;
+        effectiveLevel: bigint;
+      }>(raw);
     },
-    enabled: !!actor && !isFetching && passageId !== undefined,
+    enabled: !!actor && !isFetching,
+  });
+}
+
+export interface SkillScoresInput {
+  rhythm: bigint;
+  intonation: bigint;
+  chunking: bigint;
+  pronunciation: bigint;
+}
+
+export function useSubmitTestWithSkills() {
+  const { actor } = useActor();
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async ({
+      passageId,
+      skillScores,
+      audioBlobId,
+    }: {
+      passageId: bigint;
+      skillScores: SkillScoresInput;
+      audioBlobId: string | null;
+    }) => {
+      if (!actor) throw new Error("No actor");
+      // biome-ignore lint/suspicious/noExplicitAny: new backend method not yet in generated types
+      return (actor as any).submitTestWithSkills(
+        passageId,
+        skillScores,
+        audioBlobId ? [audioBlobId] : [],
+      ) as Promise<bigint>;
+    },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["myResults"] });
+      qc.invalidateQueries({ queryKey: ["effectiveLevel"] });
+      qc.invalidateQueries({ queryKey: ["passageForTest"] });
+    },
   });
 }
 
