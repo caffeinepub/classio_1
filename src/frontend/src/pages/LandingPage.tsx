@@ -76,13 +76,15 @@ export function LandingPage({ onNavigate }: LandingPageProps) {
     }
     setLoading(true);
     try {
+      // login() is an update call that creates the session
+      // We do NOT call getUserProfile() right after because it's a query
+      // call that may not yet see the session committed by login()
       const resp = await actor.login(username, password);
-      const profile = await actor.getUserProfile(resp.userId);
       setUser({
         userId: resp.userId,
         role: resp.role,
         username,
-        grade: profile?.grade,
+        grade: undefined,
       });
       if (resp.role === UserRole.admin) onNavigate("/admin");
       else if (resp.role === UserRole.teacher) onNavigate("/teacher");
