@@ -1,16 +1,15 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import type { UserId } from "../backend";
+import { createActorWithConfig } from "../config";
 import { useAuth } from "../context/AuthContext";
 import { useActor } from "./useActor";
 
-// Unwrap Candid optional: backend returns [] | [T] for ?T
 function unwrapOptional<T>(value: [] | [T] | T | null | undefined): T | null {
   if (value === null || value === undefined) return null;
   if (Array.isArray(value)) return (value as T[])[0] ?? null;
   return value as T;
 }
 
-// Returns the session actor (from login) if available, else falls back to the anonymous actor
 function useEffectiveActor() {
   const { sessionActor } = useAuth();
   const { actor: anonymousActor, isFetching } = useActor();
@@ -19,24 +18,19 @@ function useEffectiveActor() {
 }
 
 export function useListTeachers() {
-  const { actor, isFetching } = useEffectiveActor();
   const { credentials } = useAuth();
   return useQuery({
     queryKey: ["teachers", credentials?.username],
     queryFn: async () => {
-      if (!actor || !credentials) return [];
-      try {
-        return await (actor as any).listTeachersWithCreds(credentials.password);
-      } catch {
-        return actor.listTeachers();
-      }
+      if (!credentials) return [];
+      const freshActor = await createActorWithConfig();
+      return (freshActor as any).listTeachersWithCreds(credentials.password);
     },
-    enabled: !!actor && !isFetching && !!credentials,
+    enabled: !!credentials,
   });
 }
 
 export function useCreateTeacher() {
-  const { actor } = useEffectiveActor();
   const { credentials } = useAuth();
   const qc = useQueryClient();
   return useMutation({
@@ -44,42 +38,35 @@ export function useCreateTeacher() {
       username,
       password,
     }: { username: string; password: string }) => {
-      if (!actor) throw new Error("Not authenticated. Please log in again.");
-      if (credentials) {
-        return (actor as any).createTeacherWithCreds(
-          credentials.password,
-          username,
-          password,
-        );
-      }
-      return actor.createTeacher(username, password);
+      if (!credentials) throw new Error("Not logged in. Please log in again.");
+      const freshActor = await createActorWithConfig();
+      return (freshActor as any).createTeacherWithCreds(
+        credentials.password,
+        username,
+        password,
+      );
     },
     onSuccess: () => qc.invalidateQueries({ queryKey: ["teachers"] }),
   });
 }
 
 export function useListMyStudents() {
-  const { actor, isFetching } = useEffectiveActor();
   const { credentials } = useAuth();
   return useQuery({
     queryKey: ["myStudents", credentials?.username],
     queryFn: async () => {
-      if (!actor || !credentials) return [];
-      try {
-        return await (actor as any).listStudentsWithCreds(
-          credentials.username,
-          credentials.password,
-        );
-      } catch {
-        return actor.listMyStudents();
-      }
+      if (!credentials) return [];
+      const freshActor = await createActorWithConfig();
+      return (freshActor as any).listStudentsWithCreds(
+        credentials.username,
+        credentials.password,
+      );
     },
-    enabled: !!actor && !isFetching && !!credentials,
+    enabled: !!credentials,
   });
 }
 
 export function useCreateStudent() {
-  const { actor } = useEffectiveActor();
   const { credentials } = useAuth();
   const qc = useQueryClient();
   return useMutation({
@@ -87,22 +74,16 @@ export function useCreateStudent() {
       username,
       password,
       grade,
-    }: {
-      username: string;
-      password: string;
-      grade: number;
-    }) => {
-      if (!actor) throw new Error("Not authenticated. Please log in again.");
-      if (credentials) {
-        return (actor as any).createStudentWithCreds(
-          credentials.username,
-          credentials.password,
-          username,
-          password,
-          BigInt(grade),
-        );
-      }
-      return actor.createStudent(username, password, BigInt(grade));
+    }: { username: string; password: string; grade: number }) => {
+      if (!credentials) throw new Error("Not logged in. Please log in again.");
+      const freshActor = await createActorWithConfig();
+      return (freshActor as any).createStudentWithCreds(
+        credentials.username,
+        credentials.password,
+        username,
+        password,
+        BigInt(grade),
+      );
     },
     onSuccess: () => qc.invalidateQueries({ queryKey: ["myStudents"] }),
   });
@@ -182,10 +163,9 @@ export function useMyEffectiveLevel(userId: string) {
     queryFn: async () => {
       if (!actor || !userId) return null;
       const raw = await actor.getStudentEffectiveLevel(userId);
-      return unwrapOptional<{
-        enrolledGrade: bigint;
-        effectiveLevel: bigint;
-      }>(raw);
+      return unwrapOptional<{ enrolledGrade: bigint; effectiveLevel: bigint }>(
+        raw,
+      );
     },
     enabled: !!actor && !isFetching && !!userId,
   });
