@@ -32,10 +32,10 @@ function toChartData(records: ScoreRecord[]) {
 }
 
 const chartTooltipStyle = {
-  backgroundColor: "#0f172a",
-  border: "1px solid rgba(99,102,241,0.3)",
+  backgroundColor: "#ffffff",
+  border: "1px solid #e2e8f0",
   borderRadius: "8px",
-  color: "#e2e8f0",
+  color: "#1e293b",
 };
 
 interface Props {
@@ -45,22 +45,22 @@ interface Props {
 export function ReadingGrowthTimeline({ records }: Props) {
   const data = toChartData(records);
   return (
-    <div className="rounded-2xl border border-slate-700/50 bg-slate-900/50 p-5">
-      <h3 className="text-sm font-bold text-white mb-4 flex items-center gap-2">
+    <div className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm">
+      <h3 className="text-sm font-bold text-gray-900 mb-4 flex items-center gap-2">
         <span>📈</span> Reading Growth Timeline
       </h3>
       <ResponsiveContainer width="100%" height={200}>
         <LineChart data={data}>
-          <CartesianGrid strokeDasharray="3 3" stroke="rgba(99,102,241,0.15)" />
+          <CartesianGrid strokeDasharray="3 3" stroke="rgba(99,102,241,0.2)" />
           <XAxis
             dataKey="week"
-            tick={{ fill: "#94a3b8", fontSize: 11 }}
+            tick={{ fill: "#64748b", fontSize: 11 }}
             axisLine={false}
             tickLine={false}
           />
           <YAxis
             domain={[0, 100]}
-            tick={{ fill: "#94a3b8", fontSize: 11 }}
+            tick={{ fill: "#64748b", fontSize: 11 }}
             axisLine={false}
             tickLine={false}
           />
@@ -84,11 +84,11 @@ export function ReadingGrowthTimeline({ records }: Props) {
         </LineChart>
       </ResponsiveContainer>
       <div className="flex gap-4 mt-3 justify-center">
-        <span className="text-xs text-slate-400 flex items-center gap-1">
+        <span className="text-xs text-gray-500 flex items-center gap-1">
           <span className="w-3 h-0.5 bg-violet-400 inline-block rounded" />{" "}
           Comprehension
         </span>
-        <span className="text-xs text-slate-400 flex items-center gap-1">
+        <span className="text-xs text-gray-500 flex items-center gap-1">
           <span className="w-3 h-0.5 bg-cyan-400 inline-block rounded" />{" "}
           Fluency
         </span>
@@ -100,21 +100,21 @@ export function ReadingGrowthTimeline({ records }: Props) {
 export function WPMTracker({ records }: Props) {
   const data = toChartData(records);
   return (
-    <div className="rounded-2xl border border-slate-700/50 bg-slate-900/50 p-5">
-      <h3 className="text-sm font-bold text-white mb-4 flex items-center gap-2">
+    <div className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm">
+      <h3 className="text-sm font-bold text-gray-900 mb-4 flex items-center gap-2">
         <span>⚡</span> Reading Speed (WPM)
       </h3>
       <ResponsiveContainer width="100%" height={200}>
         <BarChart data={data}>
-          <CartesianGrid strokeDasharray="3 3" stroke="rgba(99,102,241,0.15)" />
+          <CartesianGrid strokeDasharray="3 3" stroke="rgba(99,102,241,0.2)" />
           <XAxis
             dataKey="week"
-            tick={{ fill: "#94a3b8", fontSize: 11 }}
+            tick={{ fill: "#64748b", fontSize: 11 }}
             axisLine={false}
             tickLine={false}
           />
           <YAxis
-            tick={{ fill: "#94a3b8", fontSize: 11 }}
+            tick={{ fill: "#64748b", fontSize: 11 }}
             axisLine={false}
             tickLine={false}
           />
@@ -140,8 +140,8 @@ export function WPMTracker({ records }: Props) {
 export function ComprehensionAccuracyTrend({ records }: Props) {
   const data = toChartData(records);
   return (
-    <div className="rounded-2xl border border-slate-700/50 bg-slate-900/50 p-5">
-      <h3 className="text-sm font-bold text-white mb-4 flex items-center gap-2">
+    <div className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm">
+      <h3 className="text-sm font-bold text-gray-900 mb-4 flex items-center gap-2">
         <span>🧠</span> Comprehension Accuracy Trend
       </h3>
       <ResponsiveContainer width="100%" height={200}>
@@ -152,16 +152,16 @@ export function ComprehensionAccuracyTrend({ records }: Props) {
               <stop offset="95%" stopColor="#a78bfa" stopOpacity={0} />
             </linearGradient>
           </defs>
-          <CartesianGrid strokeDasharray="3 3" stroke="rgba(99,102,241,0.15)" />
+          <CartesianGrid strokeDasharray="3 3" stroke="rgba(99,102,241,0.2)" />
           <XAxis
             dataKey="week"
-            tick={{ fill: "#94a3b8", fontSize: 11 }}
+            tick={{ fill: "#64748b", fontSize: 11 }}
             axisLine={false}
             tickLine={false}
           />
           <YAxis
             domain={[0, 100]}
-            tick={{ fill: "#94a3b8", fontSize: 11 }}
+            tick={{ fill: "#64748b", fontSize: 11 }}
             axisLine={false}
             tickLine={false}
           />

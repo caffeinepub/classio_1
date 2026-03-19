@@ -56,12 +56,10 @@ interface Segment {
 
 function subjectBadgeClass(subject: string): string {
   const s = subject.toLowerCase();
-  if (s === "science") return "bg-teal-500/20 text-teal-300 border-teal-500/30";
-  if (s === "history")
-    return "bg-amber-500/20 text-amber-300 border-amber-500/30";
-  if (s === "geography")
-    return "bg-blue-500/20 text-blue-300 border-blue-500/30";
-  return "bg-white/10 text-gray-400 border-white/10";
+  if (s === "science") return "bg-teal-100 text-teal-700 border-teal-200";
+  if (s === "history") return "bg-amber-100 text-amber-700 border-amber-200";
+  if (s === "geography") return "bg-blue-100 text-blue-700 border-blue-200";
+  return "bg-gray-100 text-gray-500 border-gray-200";
 }
 
 // ── Skill Scoring ─────────────────────────────────────────────────────────────
@@ -535,10 +533,7 @@ export function StudentTest({ onNavigate }: StudentTestProps) {
     };
 
     return (
-      <div className="min-h-screen bg-gray-950 relative overflow-hidden">
-        <div className="fixed top-0 left-1/3 w-96 h-96 bg-indigo-500/10 rounded-full blur-3xl pointer-events-none" />
-        <div className="fixed bottom-1/4 right-1/3 w-80 h-80 bg-purple-500/10 rounded-full blur-3xl pointer-events-none" />
-        <div className="fixed top-1/2 right-0 w-72 h-72 bg-cyan-500/8 rounded-full blur-3xl pointer-events-none" />
+      <div className="min-h-screen bg-gray-50">
         <AppHeader title="Reading Comprehension Check" />
         <main className="max-w-3xl mx-auto px-4 py-6">
           {/* Passage card */}
@@ -547,9 +542,9 @@ export function StudentTest({ onNavigate }: StudentTestProps) {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.4 }}
           >
-            <div className="rounded-2xl border border-indigo-500/20 bg-gray-900/80 backdrop-blur-sm p-5 mb-6">
+            <div className="rounded-2xl border border-indigo-200 bg-indigo-50 p-5 mb-6">
               <div className="flex items-center gap-3 mb-3">
-                <h2 className="text-base font-bold text-white">
+                <h2 className="text-base font-bold text-gray-900">
                   {passage.title}
                 </h2>
                 <span
@@ -559,7 +554,7 @@ export function StudentTest({ onNavigate }: StudentTestProps) {
                 </span>
               </div>
               <div className="max-h-40 overflow-y-auto pr-1">
-                <p className="text-sm text-gray-300 leading-relaxed whitespace-pre-line">
+                <p className="text-sm text-gray-700 leading-relaxed whitespace-pre-line">
                   {passage.content}
                 </p>
               </div>
@@ -572,17 +567,17 @@ export function StudentTest({ onNavigate }: StudentTestProps) {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.4, delay: 0.1 }}
           >
-            <p className="text-sm font-semibold text-indigo-300 mb-4">
+            <p className="text-sm font-semibold text-indigo-600 mb-4">
               Answer these {mcqs.length} questions about the passage:
             </p>
             <div className="space-y-4">
               {mcqs.map((mcq, qi) => (
                 <div
                   key={mcq.question}
-                  className="rounded-xl border border-indigo-500/10 bg-gray-900/60 p-4 backdrop-blur-sm"
+                  className="rounded-xl border border-gray-200 bg-white p-4 shadow-sm"
                 >
-                  <p className="text-sm font-semibold text-white mb-3">
-                    <span className="text-indigo-400 mr-1.5">Q{qi + 1}.</span>
+                  <p className="text-sm font-semibold text-gray-900 mb-3">
+                    <span className="text-indigo-500 mr-1.5">Q{qi + 1}.</span>
                     {mcq.question}
                   </p>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
@@ -599,11 +594,11 @@ export function StudentTest({ onNavigate }: StudentTestProps) {
                           }}
                           className={`text-left px-3 py-2 rounded-lg border text-sm transition-all duration-150 ${
                             isSelected
-                              ? "bg-indigo-500/20 border-indigo-500 text-indigo-200 font-medium"
-                              : "bg-gray-800/60 border-gray-700 text-gray-300 hover:border-indigo-500/50 hover:text-white"
+                              ? "bg-indigo-100 border-indigo-500 text-indigo-800 font-medium"
+                              : "bg-white border-gray-200 text-gray-700 hover:border-indigo-400 hover:text-gray-900"
                           }`}
                         >
-                          <span className="font-bold text-xs text-indigo-400 mr-1.5">
+                          <span className="font-bold text-xs text-indigo-500 mr-1.5">
                             {String.fromCharCode(65 + oi)}.
                           </span>
                           {opt}
@@ -644,19 +639,69 @@ export function StudentTest({ onNavigate }: StudentTestProps) {
       // else show try next level
       if (!passed && !levelFound) {
         return (
-          <div className="min-h-screen bg-gray-950 relative overflow-hidden flex items-center justify-center p-4">
-            <div className="fixed top-0 left-1/3 w-96 h-96 bg-indigo-500/10 rounded-full blur-3xl pointer-events-none" />
-            <div className="fixed bottom-1/4 right-1/3 w-80 h-80 bg-purple-500/10 rounded-full blur-3xl pointer-events-none" />
-            <div className="relative z-10 max-w-sm w-full text-center bg-gray-900/80 border border-indigo-500/20 rounded-3xl p-10 shadow-2xl backdrop-blur-sm">
-              <div className="text-5xl mb-4">🔍</div>
-              <h2 className="text-2xl font-bold text-white mb-2">
-                Adjusting to your level...
+          <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
+            <div className="max-w-sm w-full text-center bg-white border border-gray-200 rounded-3xl p-10 shadow-lg">
+              <div className="w-16 h-16 rounded-full bg-indigo-100 flex items-center justify-center mx-auto mb-6">
+                <Loader2 className="w-8 h-8 text-indigo-500 animate-spin" />
+              </div>
+              <h2 className="text-2xl font-bold text-gray-900 mb-2">
+                Creating Your Learning Journey...
               </h2>
-              <p className="text-indigo-200 mb-6 text-sm">
-                Finding the perfect passage for you...
+              <p className="text-gray-500 mb-8 text-sm">
+                We&apos;re building the perfect path for you
               </p>
-              <div className="flex justify-center">
-                <Loader2 className="w-8 h-8 text-indigo-400 animate-spin" />
+              <div className="space-y-3 text-left">
+                {[
+                  {
+                    icon: "📚",
+                    label: "Vocab Builder",
+                    sub: "Building your word power",
+                    delay: 0,
+                  },
+                  {
+                    icon: "📖",
+                    label: "Practice Reading",
+                    sub: "Read and record sessions",
+                    delay: 0.3,
+                  },
+                  {
+                    icon: "📝",
+                    label: "Weekly Assessment",
+                    sub: "Test your progress",
+                    delay: 0.6,
+                  },
+                  {
+                    icon: "📊",
+                    label: "Progress Reports",
+                    sub: "Track your growth",
+                    delay: 0.9,
+                  },
+                ].map((step) => (
+                  <motion.div
+                    key={step.label}
+                    initial={{ opacity: 0, x: -16 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: step.delay, duration: 0.4 }}
+                    className="flex items-center gap-3 bg-indigo-50 border border-indigo-100 rounded-xl px-4 py-3"
+                  >
+                    <span className="text-xl">{step.icon}</span>
+                    <div>
+                      <p className="text-sm font-semibold text-gray-900">
+                        {step.label}
+                      </p>
+                      <p className="text-xs text-gray-500">{step.sub}</p>
+                    </div>
+                    <motion.div
+                      className="ml-auto w-2 h-2 rounded-full bg-indigo-400"
+                      animate={{ scale: [1, 1.4, 1] }}
+                      transition={{
+                        repeat: Number.POSITIVE_INFINITY,
+                        duration: 1.2,
+                        delay: step.delay,
+                      }}
+                    />
+                  </motion.div>
+                ))}
               </div>
             </div>
           </div>
@@ -675,68 +720,132 @@ export function StudentTest({ onNavigate }: StudentTestProps) {
         LEVEL_BADGES.find((b) => avgScoreForBadge >= b.min) ??
         LEVEL_BADGES[LEVEL_BADGES.length - 1];
       return (
-        <div className="min-h-screen bg-gray-950 relative overflow-hidden flex items-center justify-center p-4">
-          <div className="fixed top-0 left-1/3 w-96 h-96 bg-indigo-500/10 rounded-full blur-3xl pointer-events-none" />
-          <div className="fixed bottom-1/4 right-1/3 w-80 h-80 bg-purple-500/10 rounded-full blur-3xl pointer-events-none" />
-          <div className="fixed top-1/2 left-0 w-72 h-72 bg-cyan-500/8 rounded-full blur-3xl pointer-events-none" />
-          <div className="relative z-10 max-w-md w-full text-center bg-gray-900/80 border border-indigo-500/20 rounded-3xl p-10 shadow-2xl backdrop-blur-sm">
-            <div className="w-20 h-20 rounded-full bg-emerald-500/20 border-2 border-emerald-400 flex items-center justify-center mx-auto mb-5 shadow-lg shadow-emerald-500/20">
-              <svg
-                aria-hidden="true"
-                className="w-10 h-10 text-emerald-400"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-                strokeWidth={2.5}
+        <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.5 }}
+            className="max-w-lg w-full bg-white border border-gray-200 rounded-3xl p-8 shadow-xl"
+          >
+            <div className="flex flex-col items-center mb-6">
+              <motion.div
+                initial={{ scale: 0 }}
+                animate={{ scale: 1 }}
+                transition={{ type: "spring", bounce: 0.4, delay: 0.2 }}
+                className="w-20 h-20 rounded-full bg-emerald-100 border-2 border-emerald-400 flex items-center justify-center mb-4"
               >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="M5 13l4 4L19 7"
-                />
-              </svg>
+                <svg
+                  aria-hidden="true"
+                  className="w-10 h-10 text-emerald-500"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                  strokeWidth={2.5}
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M5 13l4 4L19 7"
+                  />
+                </svg>
+              </motion.div>
+              <h2 className="text-2xl font-bold text-gray-900 mb-1">
+                Your Learning Journey is Ready! 🎉
+              </h2>
+              <div className="mt-2 mb-2">
+                <span
+                  className={`inline-flex items-center px-4 py-1.5 rounded-full text-sm font-bold border ${earnedBadge.cls}`}
+                >
+                  {earnedBadge.label}
+                </span>
+              </div>
+              <p className="text-gray-500 text-sm text-center mt-1 max-w-xs">
+                We&apos;ve personalised your learning path. Here&apos;s what
+                your journey looks like:
+              </p>
             </div>
-            <h2 className="text-3xl font-bold text-white mb-2">
-              Level Found! 🎉
-            </h2>
-            <div className="mt-3 mb-5">
-              <span
-                className={`inline-flex items-center px-4 py-2 rounded-full text-base font-bold border ${earnedBadge.cls}`}
-              >
-                {earnedBadge.label}
-              </span>
+
+            <div className="flex items-start justify-between gap-2 mb-8">
+              {[
+                {
+                  icon: "📚",
+                  title: "Vocab Builder",
+                  sub: "Week 1–2",
+                  color: "border-indigo-200",
+                },
+                {
+                  icon: "📖",
+                  title: "Practice Tests",
+                  sub: "Week 2–3",
+                  color: "border-violet-200",
+                },
+                {
+                  icon: "📝",
+                  title: "Weekly Assess.",
+                  sub: "Week 3–4",
+                  color: "border-sky-200",
+                },
+                {
+                  icon: "📊",
+                  title: "Progress Reports",
+                  sub: "Ongoing",
+                  color: "border-emerald-200",
+                },
+              ].map((step, i) => (
+                <div
+                  key={step.title}
+                  className="flex-1 flex flex-col items-center relative"
+                >
+                  {i < 3 && (
+                    <div className="absolute top-5 left-1/2 w-full h-0.5 bg-gray-200 z-0" />
+                  )}
+                  <motion.div
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.4 + i * 0.15 }}
+                    className="flex flex-col items-center z-10"
+                  >
+                    <div
+                      className={`w-10 h-10 rounded-full border-2 ${step.color} bg-white flex items-center justify-center text-lg mb-1`}
+                    >
+                      {step.icon}
+                    </div>
+                    <p className="text-xs font-semibold text-gray-900 text-center leading-tight">
+                      {step.title}
+                    </p>
+                    <p className="text-xs text-gray-400 mt-0.5">{step.sub}</p>
+                  </motion.div>
+                </div>
+              ))}
             </div>
-            <p className="text-indigo-200 leading-relaxed mb-8">
-              Great job! We&apos;ve found your reading level. Your personalised
-              learning journey is ready.
-            </p>
-            <button
+
+            <motion.button
               type="button"
               onClick={() => onNavigate("/student")}
-              className="w-full py-4 rounded-xl font-bold text-white text-lg bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-400 hover:to-purple-500 shadow-lg shadow-indigo-500/30 transition-all duration-200"
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.9 }}
+              className="w-full py-4 rounded-xl font-bold text-white text-base bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-500 hover:to-violet-500 shadow-md transition-all duration-200"
+              data-ocid="test.primary_button"
             >
-              Go to My Courses →
-            </button>
-          </div>
+              Start My Learning Journey →
+            </motion.button>
+          </motion.div>
         </div>
       );
     }
 
     return (
-      <div className="min-h-screen bg-gray-950 relative overflow-hidden">
-        {/* Background glow effects */}
-        <div className="fixed top-0 left-1/3 w-96 h-96 bg-indigo-500/10 rounded-full blur-3xl pointer-events-none" />
-        <div className="fixed bottom-1/4 right-1/3 w-80 h-80 bg-purple-500/10 rounded-full blur-3xl pointer-events-none" />
-        <div className="fixed top-1/2 right-0 w-72 h-72 bg-cyan-500/8 rounded-full blur-3xl pointer-events-none" />
+      <div className="min-h-screen bg-gray-50">
         <AppHeader title="Test Complete" />
         <main
           className="max-w-xl mx-auto px-6 py-16 text-center"
           data-ocid="test.success_state"
         >
-          <div className="w-20 h-20 rounded-full mx-auto mb-6 flex items-center justify-center bg-green-500/15">
+          <div className="w-20 h-20 rounded-full mx-auto mb-6 flex items-center justify-center bg-green-100">
             <CheckCircle className="w-10 h-10 text-green-600" />
           </div>
-          <h2 className="text-3xl font-bold mb-3 text-white">
+          <h2 className="text-3xl font-bold mb-3 text-gray-900">
             Test Submitted!
           </h2>
           <p className="text-gray-400 mb-8">
@@ -756,11 +865,7 @@ export function StudentTest({ onNavigate }: StudentTestProps) {
   }
 
   return (
-    <div className="min-h-screen bg-gray-950 relative overflow-hidden">
-      {/* Background glow effects */}
-      <div className="fixed top-0 left-1/3 w-96 h-96 bg-indigo-500/10 rounded-full blur-3xl pointer-events-none" />
-      <div className="fixed bottom-1/4 right-1/3 w-80 h-80 bg-purple-500/10 rounded-full blur-3xl pointer-events-none" />
-      <div className="fixed top-1/2 right-0 w-72 h-72 bg-cyan-500/8 rounded-full blur-3xl pointer-events-none" />
+    <div className="min-h-screen bg-gray-50">
       <AppHeader title="Reading Test" />
       <main className="max-w-3xl mx-auto px-6 py-8">
         <div className="flex items-center gap-3 mb-6">
@@ -774,13 +879,15 @@ export function StudentTest({ onNavigate }: StudentTestProps) {
             <ChevronLeft className="w-4 h-4" /> Back
           </Button>
           <div>
-            <h2 className="text-xl font-bold">Reading Proficiency Test</h2>
+            <h2 className="text-xl font-bold text-gray-900">
+              Reading Proficiency Test
+            </h2>
             <div className="flex items-center gap-2 mt-0.5">
               <p className="text-sm text-gray-400">
                 Grade {user?.grade?.toString()} — Read the passage aloud and
                 record yourself
               </p>
-              <span className="inline-flex items-center px-2 py-0.5 rounded-full bg-amber-100 text-amber-300 border border-amber-500/30 text-xs font-semibold">
+              <span className="inline-flex items-center px-2 py-0.5 rounded-full bg-amber-100 text-amber-700 border border-amber-200 text-xs font-semibold">
                 Attempt {attemptsMade}/{enrolledGrade}
               </span>
             </div>
@@ -789,7 +896,7 @@ export function StudentTest({ onNavigate }: StudentTestProps) {
 
         {!passage ? (
           <Card
-            className="rounded-xl bg-white/5 backdrop-blur-sm border border-white/10"
+            className="rounded-xl bg-white border border-gray-200"
             data-ocid="test.error_state"
           >
             <CardContent className="py-12 text-center">
@@ -800,8 +907,8 @@ export function StudentTest({ onNavigate }: StudentTestProps) {
         ) : (
           <div className="space-y-5">
             {/* 1. Passage */}
-            <Card className="rounded-xl bg-white/5 backdrop-blur-sm border border-white/10 shadow-lg shadow-black/20">
-              <CardHeader className="border-b border-white/10 pb-4 bg-transparent">
+            <Card className="rounded-xl bg-white border border-gray-200 shadow-sm">
+              <CardHeader className="border-b border-gray-200 pb-4 bg-transparent">
                 <div className="flex items-start justify-between gap-3 flex-wrap">
                   <CardTitle className="text-lg">{passage.title}</CardTitle>
                   <div className="flex items-center gap-2 shrink-0">
@@ -819,15 +926,15 @@ export function StudentTest({ onNavigate }: StudentTestProps) {
                 </div>
               </CardHeader>
               <CardContent className="pt-5">
-                <p className="text-base leading-8 text-white whitespace-pre-wrap">
+                <p className="text-base leading-8 text-gray-800 whitespace-pre-wrap">
                   {passage.content}
                 </p>
               </CardContent>
             </Card>
 
             {/* 2. Recording */}
-            <Card className="rounded-xl bg-white/5 backdrop-blur-sm border border-white/10 shadow-lg shadow-black/20">
-              <CardHeader className="border-b border-white/10 pb-4 bg-transparent">
+            <Card className="rounded-xl bg-white border border-gray-200 shadow-sm">
+              <CardHeader className="border-b border-gray-200 pb-4 bg-transparent">
                 <CardTitle className="text-base flex items-center gap-2">
                   <Mic className="w-4 h-4" />
                   Record Your Reading
@@ -923,8 +1030,8 @@ export function StudentTest({ onNavigate }: StudentTestProps) {
                         exit={{ opacity: 0, height: 0 }}
                         transition={{ duration: 0.25 }}
                       >
-                        <div className="rounded-lg border border-white/10 bg-white/5 p-3">
-                          <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-2">
+                        <div className="rounded-lg border border-gray-200 bg-gray-50 p-3">
+                          <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">
                             Live Transcript
                           </p>
                           <p className="text-sm leading-relaxed min-h-[2rem]">
@@ -959,8 +1066,8 @@ export function StudentTest({ onNavigate }: StudentTestProps) {
                   exit={{ opacity: 0 }}
                   transition={{ duration: 0.3 }}
                 >
-                  <Card className="rounded-xl bg-white/5 backdrop-blur-sm border border-white/10 shadow-lg shadow-black/20">
-                    <CardHeader className="border-b border-white/10 pb-4 bg-transparent">
+                  <Card className="rounded-xl bg-white border border-gray-200 shadow-sm">
+                    <CardHeader className="border-b border-gray-200 pb-4 bg-transparent">
                       <CardTitle className="text-base">
                         Skill Score Preview
                       </CardTitle>
@@ -992,9 +1099,9 @@ export function StudentTest({ onNavigate }: StudentTestProps) {
                           const score = computedScores[skill.key];
                           const colorMap: Record<number, string> = {
                             5: "bg-emerald-500/20 text-emerald-300 border-emerald-500/30",
-                            4: "bg-teal-500/20 text-teal-300 border-teal-500/30",
-                            3: "bg-blue-500/20 text-blue-300 border-blue-500/30",
-                            2: "bg-amber-500/20 text-amber-300 border-amber-500/30",
+                            4: "bg-teal-100 text-teal-700 border-teal-200",
+                            3: "bg-blue-100 text-blue-700 border-blue-200",
+                            2: "bg-amber-100 text-amber-700 border-amber-200",
                             1: "bg-red-500/20 text-red-300 border-red-200",
                           };
                           const colorCls = colorMap[score] || colorMap[1];
@@ -1006,7 +1113,7 @@ export function StudentTest({ onNavigate }: StudentTestProps) {
                               <p className="text-xs font-semibold mb-1">
                                 {skill.label}
                               </p>
-                              <p className="text-xl font-bold">
+                              <p className="text-xl font-bold text-gray-900">
                                 {score}
                                 <span className="text-xs">/5</span>
                               </p>

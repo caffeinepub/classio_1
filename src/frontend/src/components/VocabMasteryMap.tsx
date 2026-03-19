@@ -40,12 +40,12 @@ export function VocabMasteryMap({ words, grade }: Props) {
   const totalCount = display.length;
 
   return (
-    <div className="rounded-2xl border border-slate-700/50 bg-slate-900/50 p-5 space-y-4">
+    <div className="rounded-2xl border border-gray-200 bg-white p-5 space-y-4 shadow-sm">
       <div className="flex items-center justify-between">
-        <h3 className="text-sm font-bold text-white flex items-center gap-2">
+        <h3 className="text-sm font-bold text-gray-900 flex items-center gap-2">
           <span>📝</span> Vocabulary Mastery Map
         </h3>
-        <span className="text-xs text-slate-400">
+        <span className="text-xs text-gray-500">
           {masteredCount}/{totalCount} mastered
         </span>
       </div>
@@ -53,22 +53,22 @@ export function VocabMasteryMap({ words, grade }: Props) {
       <div className="flex gap-3 text-xs flex-wrap">
         <span className="flex items-center gap-1.5">
           <span className="w-3 h-3 rounded-sm bg-emerald-500/70 inline-block" />
-          <span className="text-slate-400">Mastered</span>
+          <span className="text-gray-500">Mastered</span>
         </span>
         <span className="flex items-center gap-1.5">
-          <span className="w-3 h-3 rounded-sm bg-amber-500/70 inline-block" />
-          <span className="text-slate-400">In Progress</span>
+          <span className="w-3 h-3 rounded-sm bg-amber-400/70 inline-block" />
+          <span className="text-gray-500">In Progress</span>
         </span>
         <span className="flex items-center gap-1.5">
-          <span className="w-3 h-3 rounded-sm bg-slate-700 inline-block" />
-          <span className="text-slate-400">Not Started</span>
+          <span className="w-3 h-3 rounded-sm bg-gray-200 inline-block" />
+          <span className="text-gray-500">Not Started</span>
         </span>
       </div>
 
       <div className="space-y-3">
         {grades.map((g) => (
           <div key={g}>
-            <p className="text-xs font-semibold text-slate-500 mb-1.5">
+            <p className="text-xs font-semibold text-gray-400 mb-1.5">
               Grade {g} {g === grade ? "(Your Grade)" : ""}
             </p>
             <div className="flex flex-wrap gap-1.5">
@@ -77,8 +77,8 @@ export function VocabMasteryMap({ words, grade }: Props) {
                   key={w.word}
                   className={`px-2.5 py-1 rounded-md text-xs font-medium transition-all ${
                     w.mastered
-                      ? "bg-emerald-500/20 text-emerald-300 border border-emerald-500/30"
-                      : "bg-amber-500/15 text-amber-300 border border-amber-500/25"
+                      ? "bg-emerald-100 text-emerald-700 border border-emerald-200"
+                      : "bg-amber-100 text-amber-700 border border-amber-200"
                   }`}
                 >
                   {w.word}

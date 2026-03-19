@@ -41,27 +41,27 @@ const LEVEL_BADGES = [
   {
     min: 4.5,
     label: "⭐ Master Reader",
-    cls: "bg-violet-500/20 text-violet-300 border border-violet-500/30",
+    cls: "bg-violet-100 text-violet-700 border border-violet-200",
   },
   {
     min: 4.0,
     label: "🏆 Advanced",
-    cls: "bg-blue-500/20 text-blue-300 border border-blue-500/30",
+    cls: "bg-blue-100 text-blue-700 border border-blue-200",
   },
   {
     min: 3.0,
     label: "📈 Developing",
-    cls: "bg-teal-500/20 text-teal-300 border border-teal-500/30",
+    cls: "bg-teal-100 text-teal-700 border border-teal-200",
   },
   {
     min: 2.0,
     label: "🌱 Growing",
-    cls: "bg-amber-500/20 text-amber-300 border border-amber-500/30",
+    cls: "bg-amber-100 text-amber-700 border border-amber-200",
   },
   {
     min: 0,
     label: "🔰 Beginner",
-    cls: "bg-red-500/20 text-red-300 border border-red-500/30",
+    cls: "bg-red-100 text-red-700 border border-red-200",
   },
 ];
 
@@ -210,16 +210,11 @@ export function StudentDashboard({ onNavigate }: StudentDashboardProps) {
   const completedCount = achievementDefs.filter((a) => a.done).length;
 
   return (
-    <div className="min-h-screen bg-gray-950 relative overflow-hidden">
-      {/* Ambient glow orbs */}
-      <div className="fixed top-0 left-1/3 w-96 h-96 bg-indigo-500/10 rounded-full blur-3xl pointer-events-none" />
-      <div className="fixed bottom-1/4 right-1/3 w-80 h-80 bg-purple-500/10 rounded-full blur-3xl pointer-events-none" />
-      <div className="fixed top-1/2 right-0 w-72 h-72 bg-cyan-500/8 rounded-full blur-3xl pointer-events-none" />
-
+    <div className="min-h-screen bg-gray-50">
       <AppHeader title="Student Dashboard" />
 
       {/* Tab Navigation Bar */}
-      <div className="bg-gray-900/90 border-b border-indigo-500/20 sticky top-16 z-10 backdrop-blur-sm">
+      <div className="bg-white border-b border-gray-200 sticky top-16 z-10 shadow-sm">
         <div className="max-w-4xl mx-auto px-4">
           <div className="flex items-center justify-between">
             {/* Tabs */}
@@ -232,8 +227,8 @@ export function StudentDashboard({ onNavigate }: StudentDashboardProps) {
                   data-ocid={`student.${tab.id}.tab`}
                   className={`px-5 py-4 text-sm font-semibold transition-colors border-b-2 ${
                     activeTab === tab.id
-                      ? "text-indigo-400 border-indigo-400"
-                      : "text-gray-500 border-transparent hover:text-gray-300"
+                      ? "text-indigo-600 border-indigo-600"
+                      : "text-gray-500 border-transparent hover:text-gray-700"
                   }`}
                 >
                   {tab.label}
@@ -243,15 +238,15 @@ export function StudentDashboard({ onNavigate }: StudentDashboardProps) {
 
             {/* Right side: badge + bell + avatar */}
             <div className="flex items-center gap-2">
-              <span className="hidden sm:inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-indigo-500/20 text-indigo-300 border border-indigo-500/30">
+              <span className="hidden sm:inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-indigo-100 text-indigo-700 border border-indigo-200">
                 Student
               </span>
               <button
                 type="button"
-                className="w-8 h-8 rounded-full flex items-center justify-center hover:bg-indigo-500/10 transition-colors"
+                className="w-8 h-8 rounded-full flex items-center justify-center hover:bg-gray-100 transition-colors"
                 data-ocid="student.bell.button"
               >
-                <Bell className="w-4 h-4 text-gray-400" />
+                <Bell className="w-4 h-4 text-gray-500" />
               </button>
               <div className="w-8 h-8 rounded-full bg-gradient-to-br from-indigo-500 to-cyan-500 flex items-center justify-center">
                 <UserCircle2 className="w-5 h-5 text-white" />
@@ -272,12 +267,12 @@ export function StudentDashboard({ onNavigate }: StudentDashboardProps) {
               exit={{ opacity: 0, y: -8 }}
               transition={{ duration: 0.25 }}
             >
-              <h2 className="text-xl font-bold text-white mb-4">
+              <h2 className="text-xl font-bold text-gray-900 mb-4">
                 Course Overview
               </h2>
 
               {/* A. Proficiency Path Card */}
-              <div className="bg-gradient-to-r from-indigo-500/20 to-purple-500/20 border border-indigo-500/30 rounded-2xl p-4 flex items-center justify-between mb-4">
+              <div className="bg-gradient-to-r from-indigo-600 to-violet-600 rounded-2xl p-4 flex items-center justify-between mb-4">
                 <div>
                   {badgeInfo ? (
                     <span
@@ -286,15 +281,15 @@ export function StudentDashboard({ onNavigate }: StudentDashboardProps) {
                       {badgeInfo.label}
                     </span>
                   ) : (
-                    <p className="text-lg font-bold text-indigo-300">
+                    <p className="text-lg font-bold text-indigo-100">
                       Proficiency Learner
                     </p>
                   )}
-                  <p className="text-sm text-indigo-400 mt-1">
+                  <p className="text-sm text-indigo-200 mt-1">
                     Proficiency Learning Path
                   </p>
                 </div>
-                <div className="w-16 h-16 rounded-full border-4 border-yellow-400 bg-indigo-900/50 flex items-center justify-center text-2xl shrink-0 shadow-lg shadow-indigo-500/20">
+                <div className="w-16 h-16 rounded-full border-4 border-yellow-400 bg-indigo-700 flex items-center justify-center text-2xl shrink-0 shadow-lg shadow-indigo-500/20">
                   🐺
                 </div>
               </div>
@@ -304,18 +299,16 @@ export function StudentDashboard({ onNavigate }: StudentDashboardProps) {
                 <motion.div
                   initial={{ opacity: 0, scale: 0.97 }}
                   animate={{ opacity: 1, scale: 1 }}
-                  className="relative rounded-2xl overflow-hidden border border-indigo-500/30 bg-gray-900/80 p-8 mb-4 flex flex-col items-center text-center shadow-2xl"
+                  className="relative rounded-2xl overflow-hidden border border-indigo-200 bg-white p-8 mb-4 flex flex-col items-center text-center shadow-md"
                 >
-                  <div className="absolute top-0 left-1/3 w-72 h-72 bg-indigo-500/10 rounded-full blur-3xl pointer-events-none" />
-                  <div className="absolute bottom-0 right-1/4 w-56 h-56 bg-purple-500/10 rounded-full blur-3xl pointer-events-none" />
                   <div className="relative z-10 flex flex-col items-center">
                     <div className="w-20 h-20 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-4xl mb-5 shadow-lg shadow-indigo-500/40">
                       🎯
                     </div>
-                    <h3 className="text-2xl font-bold text-white mb-3">
+                    <h3 className="text-2xl font-bold text-gray-900 mb-3">
                       Start Your Proficiency Test
                     </h3>
-                    <p className="text-indigo-200 max-w-md mb-7 leading-relaxed">
+                    <p className="text-gray-600 max-w-md mb-7 leading-relaxed">
                       Before beginning your courses, take a short proficiency
                       test so we can find your current reading level and build
                       the right learning path for you.
@@ -334,11 +327,11 @@ export function StudentDashboard({ onNavigate }: StudentDashboardProps) {
               {proficiencyLevelFound && (
                 <>
                   {/* B. Large Course Card */}
-                  <Card className="rounded-2xl bg-gray-900/80 border border-indigo-500/20 shadow-xl overflow-hidden">
+                  <Card className="rounded-2xl bg-white border border-gray-200 shadow-md overflow-hidden">
                     <CardContent className="p-0">
                       <div className="flex flex-col sm:flex-row">
                         {/* Left illustration column */}
-                        <div className="sm:w-[35%] bg-gradient-to-br from-indigo-900/80 to-blue-900/80 border-r border-indigo-500/20 flex flex-col items-center justify-center p-6 min-h-[200px] relative">
+                        <div className="sm:w-[35%] bg-gradient-to-br from-indigo-600 to-blue-700 border-r border-indigo-500 flex flex-col items-center justify-center p-6 min-h-[200px] relative">
                           <span className="text-6xl">📚</span>
                           <span className="absolute top-4 right-4 w-8 h-8 rounded-full bg-indigo-600 flex items-center justify-center text-white text-sm">
                             ✓
@@ -371,15 +364,15 @@ export function StudentDashboard({ onNavigate }: StudentDashboardProps) {
                         </div>
 
                         {/* Right content column */}
-                        <div className="flex-1 divide-y divide-indigo-500/10">
+                        <div className="flex-1 divide-y divide-gray-100">
                           {/* Row 1: Vocabulary */}
                           <div className="p-4">
                             <div className="flex items-start justify-between gap-3">
-                              <div className="bg-violet-500/20 rounded-xl p-2 shrink-0 border border-violet-500/30">
+                              <div className="bg-violet-100 rounded-xl p-2 shrink-0 border border-violet-200">
                                 <span className="text-xl">📖</span>
                               </div>
                               <div className="flex-1 min-w-0">
-                                <p className="font-bold text-white text-sm">
+                                <p className="font-bold text-gray-900 text-sm">
                                   Go to Vocabulary
                                 </p>
                                 <p className="text-xs text-gray-400 flex items-center gap-1 mt-0.5">
@@ -390,7 +383,7 @@ export function StudentDashboard({ onNavigate }: StudentDashboardProps) {
                               <Button
                                 variant="outline"
                                 size="sm"
-                                className="shrink-0 bg-transparent border-indigo-500/40 text-indigo-300 hover:bg-indigo-500/10 rounded-full text-xs px-3"
+                                className="shrink-0 bg-transparent border-indigo-300 text-indigo-600 hover:bg-indigo-50 rounded-full text-xs px-3"
                                 onClick={() => onNavigate("/student/vocab")}
                                 data-ocid="student.vocab.button"
                               >
@@ -399,13 +392,13 @@ export function StudentDashboard({ onNavigate }: StudentDashboardProps) {
                             </div>
                             {/* Progress bar */}
                             <div className="mt-3 flex items-center gap-2">
-                              <div className="flex-1 h-2 bg-gray-800 rounded-full overflow-hidden">
+                              <div className="flex-1 h-2 bg-gray-200 rounded-full overflow-hidden">
                                 <div
                                   className="h-full bg-gradient-to-r from-indigo-500 to-purple-500 rounded-full transition-all duration-500"
                                   style={{ width: `${vocabPercent}%` }}
                                 />
                               </div>
-                              <span className="text-xs text-gray-500 w-12 text-right">
+                              <span className="text-xs text-gray-400 w-12 text-right">
                                 {vocabPercent.toFixed(2)}%
                               </span>
                             </div>
@@ -414,11 +407,11 @@ export function StudentDashboard({ onNavigate }: StudentDashboardProps) {
                           {/* Row 2: RCA */}
                           <div className="p-4">
                             <div className="flex items-start justify-between gap-3">
-                              <div className="bg-emerald-500/20 rounded-xl p-2 shrink-0 border border-emerald-500/30">
+                              <div className="bg-emerald-100 rounded-xl p-2 shrink-0 border border-emerald-200">
                                 <span className="text-xl">📋</span>
                               </div>
                               <div className="flex-1 min-w-0">
-                                <p className="font-bold text-white text-sm">
+                                <p className="font-bold text-gray-900 text-sm">
                                   Go to RCA
                                 </p>
                                 <p className="text-xs text-gray-400 flex items-center gap-1 mt-0.5">
@@ -437,7 +430,7 @@ export function StudentDashboard({ onNavigate }: StudentDashboardProps) {
                                   <Button
                                     variant="outline"
                                     size="sm"
-                                    className="bg-transparent border-cyan-500/40 text-cyan-300 hover:bg-cyan-500/10 rounded-full text-xs px-3 h-7"
+                                    className="bg-transparent border-cyan-500 text-cyan-700 hover:bg-cyan-50 rounded-full text-xs px-3 h-7"
                                     onClick={() =>
                                       onNavigate("/student/practice")
                                     }
@@ -450,13 +443,13 @@ export function StudentDashboard({ onNavigate }: StudentDashboardProps) {
                             </div>
                             {/* Progress bar */}
                             <div className="mt-3 flex items-center gap-2">
-                              <div className="flex-1 h-2 bg-gray-800 rounded-full overflow-hidden">
+                              <div className="flex-1 h-2 bg-gray-200 rounded-full overflow-hidden">
                                 <div
                                   className="h-full bg-gradient-to-r from-cyan-500 to-blue-500 rounded-full transition-all duration-500"
                                   style={{ width: `${rcaPercent}%` }}
                                 />
                               </div>
-                              <span className="text-xs text-gray-500 w-12 text-right">
+                              <span className="text-xs text-gray-400 w-12 text-right">
                                 {rcaPercent.toFixed(2)}%
                               </span>
                             </div>
@@ -531,7 +524,7 @@ export function StudentDashboard({ onNavigate }: StudentDashboardProps) {
                 >
                   <CheckCircle className="w-5 h-5 text-emerald-400 shrink-0 mt-0.5" />
                   <div>
-                    <p className="text-sm font-semibold text-emerald-300">
+                    <p className="text-sm font-semibold text-emerald-600">
                       Week {currentWeekNumber} complete! 🎉
                     </p>
                     <p className="text-xs text-emerald-400 mt-0.5">
@@ -554,12 +547,12 @@ export function StudentDashboard({ onNavigate }: StudentDashboardProps) {
               transition={{ duration: 0.25 }}
               className="space-y-6"
             >
-              <h2 className="text-xl font-bold text-white">My Reports</h2>
+              <h2 className="text-xl font-bold text-gray-900">My Reports</h2>
 
               {/* Proficiency Test Results */}
-              <Card className="rounded-xl bg-gray-900/80 border border-indigo-500/20 shadow-lg">
-                <CardHeader className="pb-3 border-b border-indigo-500/20">
-                  <CardTitle className="text-base flex items-center gap-2 text-white">
+              <Card className="rounded-xl bg-white border border-gray-200 shadow-sm">
+                <CardHeader className="pb-3 border-b border-gray-200">
+                  <CardTitle className="text-base flex items-center gap-2 text-gray-900">
                     <Trophy className="w-4 h-4 text-violet-400" />
                     Proficiency Test Results
                   </CardTitle>
@@ -570,18 +563,18 @@ export function StudentDashboard({ onNavigate }: StudentDashboardProps) {
                       className="flex justify-center py-8"
                       data-ocid="student.loading_state"
                     >
-                      <Loader2 className="w-5 h-5 animate-spin text-indigo-400" />
+                      <Loader2 className="w-5 h-5 animate-spin text-indigo-500" />
                     </div>
                   ) : results && results.length > 0 ? (
-                    <div className="divide-y divide-indigo-500/10">
+                    <div className="divide-y divide-gray-100">
                       {results.map((r, i) => (
                         <div
                           key={r.id.toString()}
-                          className="flex items-center justify-between px-5 py-3"
+                          className="flex items-center justify-between px-5 py-3 hover:bg-gray-50"
                           data-ocid={`student.item.${i + 1}`}
                         >
                           <div>
-                            <p className="text-sm font-medium text-white">
+                            <p className="text-sm font-medium text-gray-900">
                               Test #{i + 1}
                             </p>
                             <p className="text-xs text-gray-400">
@@ -593,10 +586,10 @@ export function StudentDashboard({ onNavigate }: StudentDashboardProps) {
                           <Badge
                             className={
                               Number(r.score) >= 4
-                                ? "bg-emerald-500/20 text-emerald-300 border border-emerald-500/30"
+                                ? "bg-emerald-100 text-emerald-700 border border-emerald-200"
                                 : Number(r.score) >= 2
-                                  ? "bg-blue-500/20 text-blue-300 border border-blue-500/30"
-                                  : "bg-red-500/20 text-red-300 border border-red-500/30"
+                                  ? "bg-blue-100 text-blue-700 border border-blue-200"
+                                  : "bg-red-100 text-red-700 border border-red-200"
                             }
                           >
                             {r.score.toString()}/5
@@ -606,7 +599,7 @@ export function StudentDashboard({ onNavigate }: StudentDashboardProps) {
                     </div>
                   ) : (
                     <div
-                      className="text-center py-10 text-gray-500"
+                      className="text-center py-10 text-gray-400"
                       data-ocid="student.empty_state"
                     >
                       <BookOpen className="w-8 h-8 mx-auto mb-2 opacity-40" />
@@ -617,9 +610,9 @@ export function StudentDashboard({ onNavigate }: StudentDashboardProps) {
               </Card>
 
               {/* Practice Report */}
-              <Card className="rounded-xl bg-gray-900/80 border border-indigo-500/20 shadow-lg">
-                <CardHeader className="pb-3 border-b border-indigo-500/20">
-                  <CardTitle className="text-base flex items-center gap-2 text-white">
+              <Card className="rounded-xl bg-white border border-gray-200 shadow-sm">
+                <CardHeader className="pb-3 border-b border-gray-200">
+                  <CardTitle className="text-base flex items-center gap-2 text-gray-900">
                     <span className="text-base">📖</span> Practice Report
                   </CardTitle>
                 </CardHeader>
@@ -650,7 +643,7 @@ export function StudentDashboard({ onNavigate }: StudentDashboardProps) {
                     </div>
                   ) : (
                     <div
-                      className="text-center py-8 text-gray-500"
+                      className="text-center py-8 text-gray-400"
                       data-ocid="report.practice.empty_state"
                     >
                       <p className="text-sm">
@@ -662,9 +655,9 @@ export function StudentDashboard({ onNavigate }: StudentDashboardProps) {
               </Card>
 
               {/* Weekly Report */}
-              <Card className="rounded-xl bg-gray-900/80 border border-indigo-500/20 shadow-lg">
-                <CardHeader className="pb-3 border-b border-indigo-500/20">
-                  <CardTitle className="text-base flex items-center gap-2 text-white">
+              <Card className="rounded-xl bg-white border border-gray-200 shadow-sm">
+                <CardHeader className="pb-3 border-b border-gray-200">
+                  <CardTitle className="text-base flex items-center gap-2 text-gray-900">
                     <span className="text-base">📊</span> Weekly Report
                   </CardTitle>
                 </CardHeader>
@@ -762,7 +755,7 @@ export function StudentDashboard({ onNavigate }: StudentDashboardProps) {
                     </div>
                   ) : (
                     <div
-                      className="text-center py-8 text-gray-500"
+                      className="text-center py-8 text-gray-400"
                       data-ocid="report.weekly.empty_state"
                     >
                       <p className="text-sm">
@@ -807,29 +800,29 @@ export function StudentDashboard({ onNavigate }: StudentDashboardProps) {
               exit={{ opacity: 0, y: -8 }}
               transition={{ duration: 0.25 }}
             >
-              <h2 className="text-xl font-bold text-white mb-4">
+              <h2 className="text-xl font-bold text-gray-900 mb-4">
                 Achievements
               </h2>
 
               {/* Summary row */}
-              <div className="flex flex-wrap items-center gap-4 bg-gray-900/80 border border-indigo-500/20 rounded-xl px-5 py-3 mb-6 shadow-lg">
+              <div className="flex flex-wrap items-center gap-4 bg-white border border-gray-200 rounded-xl px-5 py-3 mb-6 shadow-sm">
                 <div className="flex items-center gap-2">
                   <span className="text-xl">🥇</span>
-                  <span className="text-sm font-semibold text-yellow-400">
+                  <span className="text-sm font-semibold text-yellow-600">
                     {goldCount} Gold Coin{goldCount !== 1 ? "s" : ""}
                   </span>
                 </div>
-                <span className="text-indigo-500/40">|</span>
+                <span className="text-gray-300">|</span>
                 <div className="flex items-center gap-2">
                   <span className="text-xl">🥈</span>
-                  <span className="text-sm font-semibold text-gray-300">
+                  <span className="text-sm font-semibold text-gray-600">
                     {silverCount} Silver Coin{silverCount !== 1 ? "s" : ""}
                   </span>
                 </div>
-                <span className="text-indigo-500/40">|</span>
+                <span className="text-gray-300">|</span>
                 <div className="flex items-center gap-2">
                   <CheckCircle className="w-4 h-4 text-emerald-400" />
-                  <span className="text-sm font-semibold text-emerald-300">
+                  <span className="text-sm font-semibold text-emerald-600">
                     {completedCount} Activit{completedCount !== 1 ? "ies" : "y"}{" "}
                     Completed
                   </span>
@@ -855,20 +848,19 @@ export function StudentDashboard({ onNavigate }: StudentDashboardProps) {
                   let coinLabel = "";
 
                   if (!ach.done) {
-                    cardCls += " border-gray-700/50 bg-gray-800/30 opacity-60";
+                    cardCls += " border-gray-200 bg-gray-50 opacity-60";
                     coinEl = <span className="text-2xl">🔒</span>;
                     coinLabel = "Locked";
                   } else if (isGold) {
-                    cardCls +=
-                      " border-yellow-500/40 bg-yellow-500/10 shadow-lg shadow-yellow-500/10";
+                    cardCls += " border-yellow-300 bg-yellow-50 shadow-sm";
                     coinEl = <span className="text-2xl">🥇</span>;
                     coinLabel = "Gold Coin";
                   } else if (isSilver) {
-                    cardCls += " border-gray-400/40 bg-gray-700/30 shadow-lg";
+                    cardCls += " border-gray-300 bg-gray-50 shadow-sm";
                     coinEl = <span className="text-2xl">🥈</span>;
                     coinLabel = "Silver Coin";
                   } else if (isBronze) {
-                    cardCls += " border-amber-500/40 bg-amber-500/10 shadow-lg";
+                    cardCls += " border-amber-300 bg-amber-50 shadow-sm";
                     coinEl = <span className="text-2xl">🎖️</span>;
                     coinLabel = "Completed";
                   }
@@ -889,14 +881,14 @@ export function StudentDashboard({ onNavigate }: StudentDashboardProps) {
                       <div>
                         <p
                           className={`text-sm font-bold ${
-                            ach.done ? "text-white" : "text-gray-500"
+                            ach.done ? "text-gray-900" : "text-gray-400"
                           }`}
                         >
                           {ach.title}
                         </p>
                         <p
                           className={`text-xs mt-0.5 ${
-                            ach.done ? "text-gray-400" : "text-gray-600"
+                            ach.done ? "text-gray-500" : "text-gray-400"
                           }`}
                         >
                           {ach.desc}
@@ -916,7 +908,7 @@ export function StudentDashboard({ onNavigate }: StudentDashboardProps) {
                             {coinLabel}
                           </span>
                           {ach.score !== null && (
-                            <span className="text-xs text-gray-500">
+                            <span className="text-xs text-gray-400">
                               Score: {ach.score.toFixed(1)}/5
                             </span>
                           )}

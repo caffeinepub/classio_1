@@ -1,43 +1,46 @@
-# Classio Reading Comprehension Master
+# Classio
 
 ## Current State
-Classio is a hierarchical adaptive reading platform (admin > teacher > student) for grades 1–10. The platform supports proficiency tests with voice recording, adaptive passages, vocabulary building activities, weekly tests, and report cards. The student dashboard has three tabs: My Courses, My Reports, and Achievements. Teacher dashboard allows creating and viewing students. All data persists via stable storage. Dark high-tech theme applied across all pages.
+All student-facing pages (StudentTest, StudentDashboard, PracticeTest, VocabActivity, WeeklyTest, WeeklyReport) use a dark high-tech space theme: `bg-gray-950`, `bg-gray-900/80`, indigo/purple glow orbs, white text on dark backgrounds, glass-morphism dark cards.
+
+After the proficiency test, when the system is searching for the student's level (score < 80%, still stepping down), it shows a dark loader screen with:
+- "Adjusting to your level..."
+- "Finding the perfect passage for you..."
+- Spinning loader
+
+When the level is found, it shows a success screen then navigates to the dashboard.
 
 ## Requested Changes (Diff)
 
 ### Add
-1. **Reading Growth Timeline** – Line chart showing student comprehension and fluency scores week-by-week over time, visible to both student (in My Reports) and teacher (in student detail view).
-2. **Words Per Minute (WPM) Tracker** – Chart tracking fluency speed (wpm) over test attempts; displayed in student reports and teacher view.
-3. **Vocabulary Mastery Map** – Grid/table showing which words the student has mastered vs. still learning, organized by grade level; visible in student My Reports.
-4. **Teacher Progress Dashboard** – Class-wide view in TeacherDashboard showing each student's current reading level, weekly score trend (sparkline), and a flag indicator for students falling behind (score < 60%). 
-5. **Comprehension Accuracy Trend** – Separate trend chart for MCQ/comprehension scores over time, distinct from fluency, shown in student reports.
-6. **Monthly Progress Report (PDF-style printable view)** – A printable/shareable summary page accessible in My Reports showing starting level, current level, skills mastered, and areas still developing.
-7. **Skill-Specific Progress Bars** – For each of the 4 skills (Pronunciation, Rhythm, Intonation, Fluency), show a progress bar indicating how close the student is to the next badge level, displayed in My Courses and the proficiency badge card.
+- After proficiency test level is found, instead of just a success screen, show a "Your Learning Journey is Ready!" screen that previews the learning path: Vocab Building -> Practice Tests -> Weekly Test -> Report. Include a CTA button "Start My Learning Journey" that navigates to the dashboard My Courses tab.
+- The learning journey preview should show the course structure with donut-style progress indicators for each stage.
 
 ### Modify
-- **StudentDashboard (My Reports tab)**: Add Reading Growth Timeline, WPM Tracker, Vocabulary Mastery Map, Comprehension Accuracy Trend, and Monthly Progress Report sections.
-- **StudentDashboard (My Courses tab)**: Add Skill-Specific Progress Bars to the proficiency badge card.
-- **TeacherDashboard**: Add a new "Class Progress" tab with the Teacher Progress Dashboard (student table with level, trend sparkline, flag).
-- **Backend**: Add data types and query functions for storing/retrieving weekly score history, wpm history, vocab mastery, and monthly progress summaries.
+- Replace the dark theme (bg-gray-950, bg-gray-900, deep space backgrounds, dark glass cards) with a light theme across all student-facing pages:
+  - Use white/light gray backgrounds (bg-white, bg-gray-50, bg-slate-50)
+  - Use indigo/violet/blue as accent colors on light backgrounds
+  - Cards: white with subtle shadows and light borders
+  - Text: dark gray/slate on light backgrounds
+  - Keep the brand identity (indigo/blue accents) but on a clean light canvas
+- Replace the "Adjusting to your level... Finding the perfect passage for you..." loader screen with: "Creating Your Learning Journey..." with a light-themed animated screen showing the journey stages being set up (Vocab Builder, Practice Tests, Weekly Assessment, Progress Reports)
+- The level-found success screen should transition smoothly into the learning journey preview before navigating to My Courses
+- Apply light theme to: StudentTest, StudentDashboard, PracticeTest, VocabActivity, WeeklyTest, WeeklyReport, ReportCardLayout, SkillProgressBars, ReadingGrowthCharts, VocabMasteryMap, MonthlyProgressReport
 
 ### Remove
-- Nothing removed.
+- Dark glow orb decorations (fixed bg-indigo-500/10 blur-3xl divs) from student-facing pages
+- bg-gray-950, bg-gray-900/80, bg-gray-800 backgrounds on student pages
 
 ## Implementation Plan
-1. Update Motoko backend:
-   - Add `ScoreHistory` record: `{ week: Nat; comprehensionScore: Float; fluencyScore: Float; wpm: Float; pronunciationScore: Float; rhythmScore: Float }`
-   - Add `VocabMastery` record: `{ word: Text; grade: Nat; mastered: Bool }`
-   - Add stable storage for `scoreHistories: HashMap<UserId, [ScoreHistory]>` and `vocabMasteries: HashMap<UserId, [VocabMastery]>`
-   - Add functions: `addScoreHistory`, `getScoreHistory`, `updateVocabMastery`, `getVocabMastery`, `getClassProgress` (returns all students with latest scores for a teacher)
-   - Update `postupgrade`/`preupgrade` to persist new maps
-2. Frontend - StudentDashboard My Reports:
-   - Reading Growth Timeline: recharts LineChart with weeks on X-axis, comprehension + fluency lines
-   - WPM Tracker: recharts BarChart or LineChart for wpm per attempt
-   - Vocab Mastery Map: color-coded grid (green=mastered, amber=in-progress, gray=not started)
-   - Comprehension Accuracy Trend: separate LineChart for MCQ scores
-   - Monthly Progress Report: printable panel with window.print() button
-3. Frontend - StudentDashboard My Courses:
-   - Add 4 skill progress bars below the proficiency badge
-4. Frontend - TeacherDashboard:
-   - Add "Class Progress" tab with a table: student name, grade, reading level badge, weekly trend sparkline, flag icon if behind
-5. Seed mock historical data in frontend for demonstration when no real data exists yet
+1. Update index.css or global styles if needed for light theme base
+2. Restyle StudentTest.tsx:
+   - Main test container: light background
+   - Cards: white with border-gray-200 shadows
+   - Replace dark loader screen with light "Creating Your Learning Journey" animated screen
+   - Replace dark level-found screen with a light learning journey preview showing: Vocab Builder -> Practice Test -> Weekly Assessment -> Report (with small donut progress circles)
+3. Restyle StudentDashboard.tsx to light theme
+4. Restyle PracticeTest.tsx to light theme
+5. Restyle VocabActivity.tsx to light theme
+6. Restyle WeeklyTest.tsx to light theme
+7. Restyle WeeklyReport.tsx to light theme (keep donut charts, make them pop on white background)
+8. Restyle shared components: ReportCardLayout, SkillProgressBars, ReadingGrowthCharts, VocabMasteryMap, MonthlyProgressReport

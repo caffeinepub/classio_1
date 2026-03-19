@@ -199,11 +199,7 @@ export function WeeklyReport({ onNavigate }: WeeklyReportProps) {
   const wpmEstimate = Math.round(65 + (pronScore / 5) * 60 + grade * 5);
 
   return (
-    <div className="min-h-screen bg-gray-950 relative overflow-hidden">
-      {/* Background glow effects */}
-      <div className="fixed top-0 left-1/3 w-96 h-96 bg-indigo-500/10 rounded-full blur-3xl pointer-events-none" />
-      <div className="fixed bottom-1/4 right-1/3 w-80 h-80 bg-purple-500/10 rounded-full blur-3xl pointer-events-none" />
-      <div className="fixed top-1/2 right-0 w-72 h-72 bg-cyan-500/8 rounded-full blur-3xl pointer-events-none" />
+    <div className="min-h-screen bg-gray-50">
       <AppHeader title="Weekly Report" />
       <main className="max-w-5xl mx-auto px-4 py-8">
         {/* Top bar */}
@@ -233,12 +229,12 @@ export function WeeklyReport({ onNavigate }: WeeklyReportProps) {
           className="space-y-6"
         >
           {/* Report Header */}
-          <div className="bg-gradient-to-r from-indigo-500/20 to-purple-500/20 rounded-2xl p-6">
-            <p className="text-sm text-gray-400">Week of {getWeekStart()}</p>
+          <div className="bg-gradient-to-r from-indigo-600 to-violet-600 rounded-2xl p-6">
+            <p className="text-sm text-indigo-100">Week of {getWeekStart()}</p>
             <h2 className="text-2xl font-bold mt-1">
               {user?.username ?? "Student"}'s Weekly Report Card
             </h2>
-            <p className="text-sm text-gray-400 mt-1">
+            <p className="text-sm text-gray-600 mt-1">
               Grade {grade} · Reading Comprehension Progress
             </p>
           </div>
@@ -325,7 +321,7 @@ export function WeeklyReport({ onNavigate }: WeeklyReportProps) {
                     {report.avgPronunciation !== null ? `${wpmEstimate}` : "—"}
                   </p>
                   <p className="text-xs text-sky-400/70">words/min</p>
-                  <Badge className="mt-2 bg-sky-500/20 text-sky-300 border-0 text-xs">
+                  <Badge className="mt-2 bg-sky-100 text-sky-700 border-0 text-xs">
                     Grade {grade}: {fluencyRange}
                   </Badge>
                 </div>
@@ -335,9 +331,9 @@ export function WeeklyReport({ onNavigate }: WeeklyReportProps) {
 
           {/* Achievements */}
           {earnedBadges.length > 0 && (
-            <Card className="rounded-2xl bg-white/5 backdrop-blur-sm border border-white/10 shadow-lg">
+            <Card className="rounded-2xl bg-white border border-gray-200 shadow-lg">
               <CardHeader className="pb-2">
-                <CardTitle className="text-base flex items-center gap-2">
+                <CardTitle className="text-base flex items-center gap-2 text-gray-900">
                   <span>🎖️</span> This Week's Achievements
                 </CardTitle>
               </CardHeader>
@@ -349,10 +345,10 @@ export function WeeklyReport({ onNavigate }: WeeklyReportProps) {
                       initial={{ scale: 0 }}
                       animate={{ scale: 1 }}
                       transition={{ type: "spring", bounce: 0.5 }}
-                      className="flex items-center gap-2 bg-indigo-500/20 rounded-full px-4 py-2"
+                      className="flex items-center gap-2 bg-indigo-100 rounded-full px-4 py-2"
                     >
                       <span className="text-lg">{badge.emoji}</span>
-                      <span className="text-sm font-semibold text-primary">
+                      <span className="text-sm font-semibold text-indigo-700">
                         {badge.label}
                       </span>
                     </motion.div>
@@ -365,9 +361,11 @@ export function WeeklyReport({ onNavigate }: WeeklyReportProps) {
           <Separator />
 
           {/* Teacher's Note */}
-          <div className="bg-white/5 rounded-2xl p-5">
-            <p className="text-sm font-semibold mb-1">📋 Teacher's Note</p>
-            <p className="text-sm text-gray-400">{recommendation}</p>
+          <div className="bg-white border border-gray-200 rounded-2xl p-5">
+            <p className="text-sm font-semibold mb-1 text-gray-900">
+              📋 Teacher's Note
+            </p>
+            <p className="text-sm text-gray-600">{recommendation}</p>
           </div>
 
           <Button

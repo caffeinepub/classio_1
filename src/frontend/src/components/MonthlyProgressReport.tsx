@@ -2,11 +2,11 @@ import { Button } from "@/components/ui/button";
 import { Printer } from "lucide-react";
 
 const LEVEL_BADGES = [
-  { min: 80, label: "⭐ Master Reader", cls: "text-violet-300" },
-  { min: 65, label: "🏆 Advanced", cls: "text-blue-300" },
-  { min: 50, label: "📈 Developing", cls: "text-teal-300" },
-  { min: 35, label: "🌱 Growing", cls: "text-amber-300" },
-  { min: 0, label: "🔰 Beginner", cls: "text-red-300" },
+  { min: 80, label: "⭐ Master Reader", cls: "text-violet-700" },
+  { min: 65, label: "🏆 Advanced", cls: "text-blue-700" },
+  { min: 50, label: "📈 Developing", cls: "text-teal-700" },
+  { min: 35, label: "🌱 Growing", cls: "text-amber-700" },
+  { min: 0, label: "🔰 Beginner", cls: "text-red-700" },
 ];
 
 function getBadge(score: number | null) {
@@ -52,15 +52,15 @@ export function MonthlyProgressReport({
   ].filter(Boolean) as string[];
 
   return (
-    <div className="rounded-2xl border border-slate-700/50 bg-slate-900/50 p-5 space-y-4">
+    <div className="rounded-2xl border border-gray-200 bg-white p-5 space-y-4 shadow-sm">
       <div className="flex items-center justify-between">
-        <h3 className="text-sm font-bold text-white flex items-center gap-2">
+        <h3 className="text-sm font-bold text-gray-900 flex items-center gap-2">
           <span>📋</span> Monthly Progress Report
         </h3>
         <Button
           size="sm"
           variant="outline"
-          className="gap-1.5 bg-transparent border-indigo-500/40 text-indigo-300 hover:bg-indigo-500/10 text-xs h-7"
+          className="gap-1.5 bg-transparent border-indigo-300 text-indigo-600 hover:bg-indigo-50 text-xs h-7"
           onClick={() => window.print()}
           data-ocid="report.print_button"
         >
@@ -73,12 +73,10 @@ export function MonthlyProgressReport({
         id="monthly-report-printable"
         className="print:fixed print:inset-0 print:z-50 print:bg-white print:p-8"
       >
-        <div className="mb-3 pb-3 border-b border-slate-700/50 print:border-gray-200">
-          <p className="text-xs text-slate-400 print:text-gray-600">
+        <div className="mb-3 pb-3 border-b border-gray-200">
+          <p className="text-xs text-gray-500">
             Student:{" "}
-            <span className="font-semibold text-white print:text-black">
-              {username}
-            </span>
+            <span className="font-semibold text-gray-900">{username}</span>
             {" · "}
             Grade {grade} ·{" "}
             {new Date().toLocaleDateString("en-US", {
@@ -89,29 +87,25 @@ export function MonthlyProgressReport({
         </div>
 
         <div className="grid grid-cols-2 gap-4 mb-4">
-          <div className="rounded-xl border border-slate-700/40 bg-slate-800/50 p-4 print:border-gray-200 print:bg-gray-50">
-            <p className="text-xs text-slate-500 mb-1 print:text-gray-500">
-              Starting Level
-            </p>
+          <div className="rounded-xl border border-gray-200 bg-gray-50 p-4">
+            <p className="text-xs text-gray-500 mb-1">Starting Level</p>
             <p
               className={`text-base font-bold ${startBadge.cls} print:text-gray-900`}
             >
               {startBadge.label}
             </p>
-            <p className="text-xs text-slate-500 mt-1 print:text-gray-500">
+            <p className="text-xs text-gray-500 mt-1">
               Score: {startScore !== null ? `${startScore}%` : "N/A"}
             </p>
           </div>
-          <div className="rounded-xl border border-indigo-500/30 bg-indigo-500/10 p-4 print:border-indigo-200 print:bg-indigo-50">
-            <p className="text-xs text-slate-500 mb-1 print:text-gray-500">
-              Current Level
-            </p>
+          <div className="rounded-xl border border-indigo-200 bg-indigo-50 p-4">
+            <p className="text-xs text-gray-500 mb-1">Current Level</p>
             <p
               className={`text-base font-bold ${currentBadge.cls} print:text-gray-900`}
             >
               {currentBadge.label}
             </p>
-            <p className="text-xs text-slate-500 mt-1 print:text-gray-500">
+            <p className="text-xs text-gray-500 mt-1">
               Score: {currentScore !== null ? `${currentScore}%` : "N/A"}
             </p>
           </div>
@@ -119,32 +113,32 @@ export function MonthlyProgressReport({
 
         <div className="grid grid-cols-2 gap-4">
           <div className="space-y-2">
-            <p className="text-xs font-semibold text-emerald-400 print:text-emerald-700">
+            <p className="text-xs font-semibold text-emerald-600">
               ✅ Skills Mastered
             </p>
             {skillsMastered.length > 0 ? (
               skillsMastered.map((s) => (
                 <p
                   key={s}
-                  className="text-xs text-slate-300 flex items-center gap-1.5 print:text-gray-700"
+                  className="text-xs text-gray-600 flex items-center gap-1.5"
                 >
                   <span className="text-emerald-400">✓</span> {s}
                 </p>
               ))
             ) : (
-              <p className="text-xs text-slate-500 print:text-gray-400">
+              <p className="text-xs text-gray-400">
                 Keep practicing to unlock mastered skills
               </p>
             )}
           </div>
           <div className="space-y-2">
-            <p className="text-xs font-semibold text-amber-400 print:text-amber-700">
+            <p className="text-xs font-semibold text-amber-600">
               🎯 Areas to Improve
             </p>
             {areasToImprove.map((s) => (
               <p
                 key={s}
-                className="text-xs text-slate-300 flex items-center gap-1.5 print:text-gray-700"
+                className="text-xs text-gray-600 flex items-center gap-1.5"
               >
                 <span className="text-amber-400">→</span> {s}
               </p>

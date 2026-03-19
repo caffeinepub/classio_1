@@ -146,35 +146,33 @@ export function VocabActivity({ onNavigate }: VocabActivityProps) {
 
   if (phase === "done") {
     return (
-      <div className="min-h-screen bg-gray-950 relative overflow-hidden">
-        {/* Background glow effects */}
-        <div className="fixed top-0 left-1/3 w-96 h-96 bg-indigo-500/10 rounded-full blur-3xl pointer-events-none" />
-        <div className="fixed bottom-1/4 right-1/3 w-80 h-80 bg-purple-500/10 rounded-full blur-3xl pointer-events-none" />
-        <div className="fixed top-1/2 right-0 w-72 h-72 bg-cyan-500/8 rounded-full blur-3xl pointer-events-none" />
+      <div className="min-h-screen bg-gray-50">
         <AppHeader title="Vocab Builder" />
         <main className="max-w-xl mx-auto px-6 py-12 text-center">
           <motion.div
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
           >
-            <div className="w-20 h-20 rounded-full bg-green-500/20 flex items-center justify-center text-4xl mx-auto mb-4">
+            <div className="w-20 h-20 rounded-full bg-green-100 flex items-center justify-center text-4xl mx-auto mb-4">
               ✅
             </div>
-            <h2 className="text-2xl font-bold mb-2 text-white">
+            <h2 className="text-2xl font-bold mb-2 text-gray-900">
               Today's Vocab Done!
             </h2>
-            <p className="text-gray-400 mb-6">
+            <p className="text-gray-500 mb-6">
               You've already completed today's vocabulary activity.
             </p>
             <div className="grid grid-cols-2 gap-3 mb-8">
               {words.map((w) => (
                 <div
                   key={w.word}
-                  className="bg-white/5 border border-white/10 rounded-xl p-3 text-left"
+                  className="bg-gray-50 border border-gray-200 rounded-xl p-3 text-left"
                 >
                   <div className="text-xl mb-1">{w.emoji}</div>
-                  <p className="font-semibold text-sm">{w.word}</p>
-                  <p className="text-xs text-gray-400">{w.syllables}</p>
+                  <p className="font-semibold text-sm text-gray-800 text-gray-800">
+                    {w.word}
+                  </p>
+                  <p className="text-xs text-gray-500">{w.syllables}</p>
                 </div>
               ))}
             </div>
@@ -203,27 +201,23 @@ export function VocabActivity({ onNavigate }: VocabActivityProps) {
     if (quizDone) {
       const pct = Math.round((quizScore / words.length) * 100);
       return (
-        <div className="min-h-screen bg-gray-950 relative overflow-hidden">
-          {/* Background glow effects */}
-          <div className="fixed top-0 left-1/3 w-96 h-96 bg-indigo-500/10 rounded-full blur-3xl pointer-events-none" />
-          <div className="fixed bottom-1/4 right-1/3 w-80 h-80 bg-purple-500/10 rounded-full blur-3xl pointer-events-none" />
-          <div className="fixed top-1/2 right-0 w-72 h-72 bg-cyan-500/8 rounded-full blur-3xl pointer-events-none" />
+        <div className="min-h-screen bg-gray-50">
           <AppHeader title="Vocab Quiz Results" />
           <main className="max-w-xl mx-auto px-6 py-12 text-center">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
             >
-              <div className="w-20 h-20 rounded-full bg-indigo-500/20 flex items-center justify-center text-4xl mx-auto mb-4">
+              <div className="w-20 h-20 rounded-full bg-indigo-100 flex items-center justify-center text-4xl mx-auto mb-4">
                 🏆
               </div>
-              <h2 className="text-2xl font-bold mb-1 text-white">
+              <h2 className="text-2xl font-bold mb-1 text-gray-900">
                 Quiz Complete!
               </h2>
-              <p className="text-4xl font-bold text-primary mb-1">
+              <p className="text-4xl font-bold text-indigo-600 mb-1">
                 {quizScore}/{words.length}
               </p>
-              <p className="text-gray-400 mb-2">{pct}% correct</p>
+              <p className="text-gray-500 mb-2">{pct}% correct</p>
               <Badge
                 className={`mb-8 text-sm px-4 py-1 ${
                   pct >= 80
@@ -263,11 +257,7 @@ export function VocabActivity({ onNavigate }: VocabActivityProps) {
     const q = quizQuestions[quizIndex];
     if (!q) return null;
     return (
-      <div className="min-h-screen bg-gray-950 relative overflow-hidden">
-        {/* Background glow effects */}
-        <div className="fixed top-0 left-1/3 w-96 h-96 bg-indigo-500/10 rounded-full blur-3xl pointer-events-none" />
-        <div className="fixed bottom-1/4 right-1/3 w-80 h-80 bg-purple-500/10 rounded-full blur-3xl pointer-events-none" />
-        <div className="fixed top-1/2 right-0 w-72 h-72 bg-cyan-500/8 rounded-full blur-3xl pointer-events-none" />
+      <div className="min-h-screen bg-gray-50">
         <AppHeader title="Vocab Quiz" />
         <main className="max-w-xl mx-auto px-6 py-8">
           <div className="flex items-center gap-3 mb-6">
@@ -285,7 +275,7 @@ export function VocabActivity({ onNavigate }: VocabActivityProps) {
             className="mb-6 h-2"
             data-ocid="vocab.loading_state"
           />
-          <p className="text-xs text-gray-400 mb-2">
+          <p className="text-xs text-gray-500 mb-2">
             Question {quizIndex + 1} of {words.length}
           </p>
           <AnimatePresence mode="wait">
@@ -296,20 +286,20 @@ export function VocabActivity({ onNavigate }: VocabActivityProps) {
               exit={{ opacity: 0, x: -30 }}
               transition={{ duration: 0.25 }}
             >
-              <Card className="rounded-2xl bg-white/5 backdrop-blur-sm border border-white/10 shadow-lg shadow-black/20 mb-6">
+              <Card className="rounded-2xl bg-white border border-gray-200 shadow-sm mb-6">
                 <CardContent className="pt-8 pb-8 text-center">
-                  <p className="text-sm text-gray-400 mb-2">Definition:</p>
-                  <p className="text-lg font-semibold">
+                  <p className="text-sm text-gray-500 mb-2">Definition:</p>
+                  <p className="text-lg font-semibold text-gray-900">
                     &ldquo;{q.definition}&rdquo;
                   </p>
-                  <p className="text-sm text-gray-400 mt-2">
+                  <p className="text-sm text-gray-500 mt-2">
                     Which word matches this definition?
                   </p>
                 </CardContent>
               </Card>
               <div className="grid grid-cols-2 gap-3">
                 {q.choices.map((choice, i) => {
-                  let cls = "border-white/10 bg-white/5 hover:bg-white/10";
+                  let cls = "border-gray-200 bg-white hover:bg-gray-50";
                   if (selectedAnswer !== null) {
                     if (i === q.correctIndex)
                       cls = "border-green-500 bg-green-500/15 text-green-300";
@@ -321,7 +311,7 @@ export function VocabActivity({ onNavigate }: VocabActivityProps) {
                       type="button"
                       key={choice}
                       onClick={() => handleQuizAnswer(i)}
-                      className={`rounded-xl border p-4 text-sm font-semibold transition-all text-left ${cls}`}
+                      className={`rounded-xl border p-4 text-sm font-semibold transition-all text-left text-gray-800 ${cls}`}
                       data-ocid={`vocab.item.${i + 1}`}
                     >
                       {choice}
@@ -356,11 +346,7 @@ export function VocabActivity({ onNavigate }: VocabActivityProps) {
   // Learn phase
   const practiced = practicedWords.size;
   return (
-    <div className="min-h-screen bg-gray-950 relative overflow-hidden">
-      {/* Background glow effects */}
-      <div className="fixed top-0 left-1/3 w-96 h-96 bg-indigo-500/10 rounded-full blur-3xl pointer-events-none" />
-      <div className="fixed bottom-1/4 right-1/3 w-80 h-80 bg-purple-500/10 rounded-full blur-3xl pointer-events-none" />
-      <div className="fixed top-1/2 right-0 w-72 h-72 bg-cyan-500/8 rounded-full blur-3xl pointer-events-none" />
+    <div className="min-h-screen bg-gray-50">
       <AppHeader title="Daily Vocab Builder" />
       <main className="max-w-xl mx-auto px-6 py-8">
         <div className="flex items-center gap-3 mb-4">
@@ -373,7 +359,7 @@ export function VocabActivity({ onNavigate }: VocabActivityProps) {
             <ChevronLeft className="w-4 h-4" /> Back
           </Button>
           <div className="flex-1">
-            <p className="text-xs text-gray-400">
+            <p className="text-xs text-gray-500">
               Grade {grade} · {practiced}/{words.length} words practiced
             </p>
           </div>
@@ -393,41 +379,43 @@ export function VocabActivity({ onNavigate }: VocabActivityProps) {
             exit={{ opacity: 0, x: -40 }}
             transition={{ duration: 0.3 }}
           >
-            <Card className="rounded-2xl bg-white/5 backdrop-blur-sm border border-white/10 shadow-lg shadow-black/20 overflow-hidden mb-4">
-              <div className="bg-gradient-to-br from-indigo-500/20 to-purple-500/20 p-8 text-center">
+            <Card className="rounded-2xl bg-white border border-gray-200 shadow-sm overflow-hidden mb-4">
+              <div className="bg-gradient-to-br from-indigo-100 to-violet-100 p-8 text-center">
                 <div className="text-7xl mb-4">{word.emoji}</div>
-                <h2 className="text-4xl font-bold mb-1 tracking-tight">
+                <h2 className="text-4xl font-bold mb-1 tracking-tight text-gray-900">
                   {word.word}
                 </h2>
-                <p className="text-gray-400 text-sm tracking-widest font-mono">
+                <p className="text-gray-500 text-sm tracking-widest font-mono">
                   {word.syllables}
                 </p>
               </div>
               <CardContent className="pt-6 pb-6">
                 <div className="mb-4">
-                  <Badge className="bg-indigo-500/20 text-primary border-0 mb-2 text-xs">
+                  <Badge className="bg-indigo-100 text-indigo-700 border-0 mb-2 text-xs">
                     Definition
                   </Badge>
-                  <p className="text-sm font-medium">{word.definition}</p>
+                  <p className="text-sm font-medium text-gray-800">
+                    {word.definition}
+                  </p>
                 </div>
                 <div className="mb-6">
-                  <Badge className="bg-purple-500/20 text-purple-300 border-0 mb-2 text-xs">
+                  <Badge className="bg-violet-100 text-violet-700 border-0 mb-2 text-xs">
                     Example
                   </Badge>
-                  <p className="text-sm italic text-gray-400">
+                  <p className="text-sm italic text-gray-500">
                     "{word.example}"
                   </p>
                 </div>
 
                 {/* Pronunciation Practice */}
-                <div className="border border-white/10 rounded-xl p-4 bg-white/5">
+                <div className="border border-gray-200 rounded-xl p-4 bg-gray-50">
                   <div className="flex items-center gap-2 mb-3">
                     <BookOpen className="w-4 h-4 text-primary" />
                     <p className="text-sm font-semibold">
                       Pronunciation Practice
                     </p>
                   </div>
-                  <p className="text-xs text-gray-400 mb-3">
+                  <p className="text-xs text-gray-500 mb-3">
                     Record yourself saying:{" "}
                     <strong>&ldquo;{word.syllables}&rdquo;</strong>
                   </p>

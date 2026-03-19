@@ -111,11 +111,7 @@ export function WeeklyTest({ onNavigate }: WeeklyTestProps) {
     const total = vocabScore + compScore;
     const pct = Math.round((total / totalQ) * 100);
     return (
-      <div className="min-h-screen bg-gray-950 relative overflow-hidden">
-        {/* Background glow effects */}
-        <div className="fixed top-0 left-1/3 w-96 h-96 bg-indigo-500/10 rounded-full blur-3xl pointer-events-none" />
-        <div className="fixed bottom-1/4 right-1/3 w-80 h-80 bg-purple-500/10 rounded-full blur-3xl pointer-events-none" />
-        <div className="fixed top-1/2 right-0 w-72 h-72 bg-cyan-500/8 rounded-full blur-3xl pointer-events-none" />
+      <div className="min-h-screen bg-gray-50">
         <AppHeader title="Weekly Test Results" />
         <main
           className="max-w-xl mx-auto px-6 py-12 text-center"
@@ -125,31 +121,31 @@ export function WeeklyTest({ onNavigate }: WeeklyTestProps) {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
           >
-            <div className="w-20 h-20 rounded-full bg-indigo-500/20 flex items-center justify-center text-4xl mx-auto mb-4">
+            <div className="w-20 h-20 rounded-full bg-indigo-100 flex items-center justify-center text-4xl mx-auto mb-4">
               🏆
             </div>
-            <h2 className="text-2xl font-bold mb-2 text-white">
+            <h2 className="text-2xl font-bold mb-2 text-gray-900">
               Weekly Test Complete!
             </h2>
-            <p className="text-4xl font-bold text-primary mb-1">
+            <p className="text-4xl font-bold text-indigo-600 mb-1">
               {total}/{totalQ}
             </p>
-            <p className="text-gray-400 mb-4">{pct}% overall</p>
+            <p className="text-gray-500 mb-4">{pct}% overall</p>
             <div className="grid grid-cols-2 gap-4 mb-6">
-              <Card className="rounded-xl bg-white/5 backdrop-blur-sm border border-white/10">
+              <Card className="rounded-xl bg-white border border-gray-200">
                 <CardContent className="pt-4 pb-4 text-center">
-                  <p className="text-2xl font-bold text-primary">
+                  <p className="text-2xl font-bold text-indigo-600">
                     {vocabScore}/{vocabQs.length}
                   </p>
-                  <p className="text-xs text-gray-400">Vocabulary</p>
+                  <p className="text-xs text-gray-500">Vocabulary</p>
                 </CardContent>
               </Card>
-              <Card className="rounded-xl bg-white/5 backdrop-blur-sm border border-white/10">
+              <Card className="rounded-xl bg-white border border-gray-200">
                 <CardContent className="pt-4 pb-4 text-center">
-                  <p className="text-2xl font-bold text-primary">
+                  <p className="text-2xl font-bold text-indigo-600">
                     {compScore}/{questions.length}
                   </p>
-                  <p className="text-xs text-gray-400">Comprehension</p>
+                  <p className="text-xs text-gray-500">Comprehension</p>
                 </CardContent>
               </Card>
             </div>
@@ -186,11 +182,7 @@ export function WeeklyTest({ onNavigate }: WeeklyTestProps) {
     : questions[compIdx].question;
 
   return (
-    <div className="min-h-screen bg-gray-950 relative overflow-hidden">
-      {/* Background glow effects */}
-      <div className="fixed top-0 left-1/3 w-96 h-96 bg-indigo-500/10 rounded-full blur-3xl pointer-events-none" />
-      <div className="fixed bottom-1/4 right-1/3 w-80 h-80 bg-purple-500/10 rounded-full blur-3xl pointer-events-none" />
-      <div className="fixed top-1/2 right-0 w-72 h-72 bg-cyan-500/8 rounded-full blur-3xl pointer-events-none" />
+    <div className="min-h-screen bg-gray-50">
       <AppHeader title="Weekly Assessment" />
       <main className="max-w-xl mx-auto px-6 py-8">
         <div className="flex items-center gap-3 mb-4">
@@ -206,8 +198,8 @@ export function WeeklyTest({ onNavigate }: WeeklyTestProps) {
             <Badge
               className={
                 isVocabSection
-                  ? "bg-indigo-500/20 text-primary"
-                  : "bg-white/10 text-gray-400"
+                  ? "bg-indigo-100 text-indigo-700"
+                  : "bg-gray-100 text-gray-500"
               }
             >
               Section 1: Vocabulary
@@ -215,8 +207,8 @@ export function WeeklyTest({ onNavigate }: WeeklyTestProps) {
             <Badge
               className={
                 !isVocabSection
-                  ? "bg-indigo-500/20 text-primary"
-                  : "bg-white/10 text-gray-400"
+                  ? "bg-indigo-100 text-indigo-700"
+                  : "bg-gray-100 text-gray-500"
               }
             >
               Section 2: Comprehension
@@ -229,7 +221,7 @@ export function WeeklyTest({ onNavigate }: WeeklyTestProps) {
           className="mb-4 h-2"
           data-ocid="weekly.loading_state"
         />
-        <p className="text-xs text-gray-400 mb-4">
+        <p className="text-xs text-gray-500 mb-4">
           {isVocabSection ? "Vocabulary" : "Comprehension"} — Question{" "}
           {isVocabSection ? vocabIdx + 1 : compIdx + 1} of{" "}
           {isVocabSection ? vocabQs.length : questions.length}
@@ -243,15 +235,15 @@ export function WeeklyTest({ onNavigate }: WeeklyTestProps) {
             exit={{ opacity: 0, x: -30 }}
             transition={{ duration: 0.25 }}
           >
-            <Card className="rounded-2xl bg-white/5 backdrop-blur-sm border border-white/10 shadow-lg shadow-black/20 mb-6">
+            <Card className="rounded-2xl bg-white border border-gray-200 shadow-sm mb-6">
               <CardContent className="pt-8 pb-6">
-                <p className="font-semibold text-base mb-6">
+                <p className="font-semibold text-base mb-6 text-gray-900">
                   {currentQuestion}
                 </p>
                 <div className="grid gap-3">
                   {currentChoices.map((choice, i) => {
                     let cls =
-                      "border-white/10 bg-white/5 hover:bg-white/10 text-white";
+                      "border-gray-200 bg-white hover:bg-gray-50 text-gray-800";
                     if (selected !== null) {
                       if (i === currentCorrect)
                         cls =

@@ -57,11 +57,9 @@ export function PracticeTest({ onNavigate }: PracticeTestProps) {
 
   if (phase === "read") {
     return (
-      <div className="min-h-screen bg-gray-950 relative overflow-hidden">
+      <div className="min-h-screen bg-gray-50">
         {/* Background glow effects */}
-        <div className="fixed top-0 left-1/3 w-96 h-96 bg-indigo-500/10 rounded-full blur-3xl pointer-events-none" />
-        <div className="fixed bottom-1/4 right-1/3 w-80 h-80 bg-purple-500/10 rounded-full blur-3xl pointer-events-none" />
-        <div className="fixed top-1/2 right-0 w-72 h-72 bg-cyan-500/8 rounded-full blur-3xl pointer-events-none" />
+
         <AppHeader title="Practice Reading Test" />
         <main className="max-w-2xl mx-auto px-6 py-8">
           <div className="flex items-center gap-3 mb-6">
@@ -74,7 +72,7 @@ export function PracticeTest({ onNavigate }: PracticeTestProps) {
               <ChevronLeft className="w-4 h-4" /> Back
             </Button>
           </div>
-          <div className="bg-indigo-500/10 border border-indigo-500/30 rounded-2xl p-6 mb-6">
+          <div className="bg-indigo-50 border border-indigo-200 rounded-2xl p-6 mb-6">
             <div className="flex items-center gap-2 mb-4">
               <BookOpen className="w-5 h-5 text-primary" />
               <h2 className="font-bold text-lg">
@@ -90,12 +88,12 @@ export function PracticeTest({ onNavigate }: PracticeTestProps) {
               {passage?.title ?? "Reading Passage"}
             </h3>
             <ScrollArea className="h-64">
-              <p className="text-sm leading-relaxed text-white whitespace-pre-line">
+              <p className="text-sm leading-relaxed text-gray-800 whitespace-pre-line">
                 {passage?.content ?? "No passage available for your grade."}
               </p>
             </ScrollArea>
           </div>
-          <p className="text-sm text-gray-400 mb-4 text-center">
+          <p className="text-sm text-gray-500 mb-4 text-center">
             Read the passage carefully, then answer {questions.length}{" "}
             comprehension questions.
           </p>
@@ -128,11 +126,9 @@ export function PracticeTest({ onNavigate }: PracticeTestProps) {
           : "Keep practicing! Try re-reading the passage slowly and look for key ideas.";
 
     return (
-      <div className="min-h-screen bg-gray-950 relative overflow-hidden">
+      <div className="min-h-screen bg-gray-50">
         {/* Background glow effects */}
-        <div className="fixed top-0 left-1/3 w-96 h-96 bg-indigo-500/10 rounded-full blur-3xl pointer-events-none" />
-        <div className="fixed bottom-1/4 right-1/3 w-80 h-80 bg-purple-500/10 rounded-full blur-3xl pointer-events-none" />
-        <div className="fixed top-1/2 right-0 w-72 h-72 bg-cyan-500/8 rounded-full blur-3xl pointer-events-none" />
+
         <AppHeader title="Practice Test Results" />
         <main
           className="max-w-xl mx-auto px-6 py-12 text-center"
@@ -142,20 +138,20 @@ export function PracticeTest({ onNavigate }: PracticeTestProps) {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
           >
-            <div className="w-20 h-20 rounded-full bg-indigo-500/20 flex items-center justify-center text-4xl mx-auto mb-4">
+            <div className="w-20 h-20 rounded-full bg-indigo-100 flex items-center justify-center text-4xl mx-auto mb-4">
               📝
             </div>
-            <h2 className="text-2xl font-bold mb-1 text-white">
+            <h2 className="text-2xl font-bold mb-1 text-gray-900">
               Practice Test Complete!
             </h2>
-            <p className="text-4xl font-bold text-primary mt-2 mb-1">
+            <p className="text-4xl font-bold text-indigo-600 mt-2 mb-1">
               {score}/{questions.length}
             </p>
-            <p className="text-gray-400 mb-3">{pct}% correct</p>
+            <p className="text-gray-500 mb-3">{pct}% correct</p>
             <Badge className={`text-sm px-4 py-1 mb-4 ${badge.cls}`}>
               {badge.label}
             </Badge>
-            <p className="text-sm text-gray-400 mb-6 max-w-xs mx-auto">
+            <p className="text-sm text-gray-500 mb-6 max-w-xs mx-auto">
               {tips}
             </p>
 
@@ -203,11 +199,9 @@ export function PracticeTest({ onNavigate }: PracticeTestProps) {
   // Quiz phase
   const q = questions[qIndex];
   return (
-    <div className="min-h-screen bg-gray-950 relative overflow-hidden">
+    <div className="min-h-screen bg-gray-50">
       {/* Background glow effects */}
-      <div className="fixed top-0 left-1/3 w-96 h-96 bg-indigo-500/10 rounded-full blur-3xl pointer-events-none" />
-      <div className="fixed bottom-1/4 right-1/3 w-80 h-80 bg-purple-500/10 rounded-full blur-3xl pointer-events-none" />
-      <div className="fixed top-1/2 right-0 w-72 h-72 bg-cyan-500/8 rounded-full blur-3xl pointer-events-none" />
+
       <AppHeader title="Practice Test" />
       <main className="max-w-xl mx-auto px-6 py-8">
         <div className="flex items-center gap-3 mb-4">
@@ -225,7 +219,7 @@ export function PracticeTest({ onNavigate }: PracticeTestProps) {
           className="mb-6 h-2"
           data-ocid="practice.loading_state"
         />
-        <p className="text-xs text-gray-400 mb-2">
+        <p className="text-xs text-gray-500 mb-2">
           Question {qIndex + 1} of {questions.length}
         </p>
         <AnimatePresence mode="wait">
@@ -236,13 +230,15 @@ export function PracticeTest({ onNavigate }: PracticeTestProps) {
             exit={{ opacity: 0, x: -30 }}
             transition={{ duration: 0.25 }}
           >
-            <Card className="rounded-2xl bg-white/5 backdrop-blur-sm border border-white/10 shadow-lg shadow-black/20 mb-6">
+            <Card className="rounded-2xl bg-white border border-gray-200 shadow-sm mb-6">
               <CardContent className="pt-8 pb-6">
-                <p className="font-semibold text-base mb-6">{q.question}</p>
+                <p className="font-semibold text-base mb-6 text-gray-900">
+                  {q.question}
+                </p>
                 <div className="grid gap-3">
                   {q.options.map((opt, i) => {
                     let cls =
-                      "border-white/10 bg-white/5 hover:bg-white/10 text-white";
+                      "border-gray-200 bg-white hover:bg-gray-50 text-gray-800";
                     if (selected !== null) {
                       if (i === q.correctIndex)
                         cls =
@@ -255,7 +251,7 @@ export function PracticeTest({ onNavigate }: PracticeTestProps) {
                         type="button"
                         key={opt}
                         onClick={() => handleAnswer(i)}
-                        className={`rounded-xl border p-4 text-sm text-left transition-all ${cls}`}
+                        className={`rounded-xl border p-4 text-sm text-left transition-all text-gray-800 ${cls}`}
                         data-ocid={`practice.item.${i + 1}`}
                       >
                         {opt}
