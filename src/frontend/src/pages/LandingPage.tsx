@@ -34,7 +34,7 @@ export function LandingPage({ onNavigate }: LandingPageProps) {
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
-  const { setUser, setSessionActor } = useAuth();
+  const { setUser, setSessionActor, setCredentials } = useAuth();
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -43,10 +43,11 @@ export function LandingPage({ onNavigate }: LandingPageProps) {
       const actor = await createActorWithConfig();
 
       if (username === "Classio1" && password === "Classio@11") {
-        await withTimeout(actor.login(username, password), 15000).catch(
-          () => {},
-        );
+        await withTimeout(actor.login(username, password), 15000).catch(() => {
+          /* session optional for admin */
+        });
         setSessionActor(actor);
+        setCredentials({ username, password });
         setUser({
           userId: "admin1",
           role: UserRole.admin,
@@ -59,6 +60,7 @@ export function LandingPage({ onNavigate }: LandingPageProps) {
 
       const resp = await withTimeout(actor.login(username, password), 15000);
       setSessionActor(actor);
+      setCredentials({ username, password });
 
       let grade: bigint | undefined = undefined;
       try {
@@ -105,30 +107,97 @@ export function LandingPage({ onNavigate }: LandingPageProps) {
 
   return (
     <div className="min-h-screen flex">
-      {/* Left Panel */}
-      <div className="hidden md:flex md:w-1/2 bg-blue-600 flex-col items-center justify-center p-10 relative overflow-hidden">
-        {/* Background decorative circles */}
-        <div className="absolute top-0 left-0 w-64 h-64 bg-blue-500 rounded-full opacity-30 -translate-x-1/2 -translate-y-1/2" />
-        <div className="absolute bottom-0 right-0 w-80 h-80 bg-blue-700 rounded-full opacity-30 translate-x-1/3 translate-y-1/3" />
+      {/* Left Panel - Dark high-tech gradient */}
+      <div
+        className="hidden md:flex md:w-1/2 flex-col items-center justify-center p-10 relative overflow-hidden"
+        style={{
+          background:
+            "linear-gradient(135deg, #0a0e27 0%, #0d1b4b 40%, #1a0a3c 70%, #0a1628 100%)",
+        }}
+      >
+        {/* Glowing orb accents */}
+        <div
+          className="absolute top-10 left-10 w-48 h-48 rounded-full opacity-20"
+          style={{
+            background: "radial-gradient(circle, #6366f1 0%, transparent 70%)",
+            filter: "blur(20px)",
+          }}
+        />
+        <div
+          className="absolute bottom-16 right-8 w-64 h-64 rounded-full opacity-15"
+          style={{
+            background: "radial-gradient(circle, #06b6d4 0%, transparent 70%)",
+            filter: "blur(30px)",
+          }}
+        />
+        <div
+          className="absolute top-1/2 left-1/4 w-32 h-32 rounded-full opacity-10"
+          style={{
+            background: "radial-gradient(circle, #a855f7 0%, transparent 70%)",
+            filter: "blur(15px)",
+          }}
+        />
 
         <div className="relative z-10 flex flex-col items-center text-center max-w-md">
-          {/* Illustration card */}
-          <div className="bg-blue-500 rounded-2xl p-4 mb-8 shadow-2xl w-full">
+          {/* High-tech illustration */}
+          <div
+            className="rounded-2xl mb-8 shadow-2xl w-full overflow-hidden"
+            style={{
+              border: "1px solid rgba(99,102,241,0.3)",
+              boxShadow:
+                "0 0 40px rgba(99,102,241,0.2), 0 25px 50px rgba(0,0,0,0.5)",
+            }}
+          >
             <img
-              src="/assets/generated/edu-illustration.dim_600x500.png"
-              alt="Education illustration"
-              className="w-full rounded-xl object-cover"
+              src="/assets/generated/login-hero.dim_800x900.jpg"
+              alt="Adaptive learning technology"
+              className="w-full object-cover"
+              style={{ maxHeight: "340px" }}
             />
           </div>
 
-          <h2 className="text-3xl font-bold text-white mb-3">
+          <h2 className="text-3xl font-bold text-white mb-3 tracking-tight">
             Welcome to Classio
           </h2>
-          <p className="text-blue-100 text-lg font-medium">Learn and Lead</p>
-          <p className="text-blue-200 text-sm mt-3 leading-relaxed">
-            Experience a dynamic, engaging, and adaptive learning platform
-            designed for every student.
+          <p
+            className="text-lg font-semibold mb-3"
+            style={{
+              background: "linear-gradient(90deg, #06b6d4, #a855f7)",
+              WebkitBackgroundClip: "text",
+              WebkitTextFillColor: "transparent",
+            }}
+          >
+            Learn and Lead
           </p>
+          <p
+            className="text-sm mt-1 leading-relaxed"
+            style={{ color: "rgba(165,180,252,0.8)" }}
+          >
+            Unlock your reading potential with intelligent assessments and
+            personalised learning pathways.
+          </p>
+
+          {/* Feature pills */}
+          <div className="flex flex-wrap gap-2 mt-5 justify-center">
+            {[
+              "Adaptive Tests",
+              "Voice Analysis",
+              "Smart Reports",
+              "Grade 1–10",
+            ].map((tag) => (
+              <span
+                key={tag}
+                className="text-xs px-3 py-1 rounded-full font-medium"
+                style={{
+                  background: "rgba(99,102,241,0.15)",
+                  border: "1px solid rgba(99,102,241,0.3)",
+                  color: "#a5b4fc",
+                }}
+              >
+                {tag}
+              </span>
+            ))}
+          </div>
         </div>
       </div>
 
@@ -213,7 +282,10 @@ export function LandingPage({ onNavigate }: LandingPageProps) {
 
             <Button
               type="submit"
-              className="w-full bg-blue-700 hover:bg-blue-800 text-white font-semibold h-12 rounded-full text-base shadow-md"
+              className="w-full text-white font-semibold h-12 rounded-full text-base shadow-md"
+              style={{
+                background: "linear-gradient(135deg, #4f46e5, #06b6d4)",
+              }}
               disabled={loading}
               data-ocid="login.submit_button"
             >

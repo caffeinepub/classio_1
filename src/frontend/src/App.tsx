@@ -33,6 +33,19 @@ function AppRoutes() {
     return <TeacherDashboard />;
   }
 
+  // For students: check if proficiency test has been completed
+  const userId = user.userId ?? "";
+  const profSearchRaw = localStorage.getItem(
+    `classio_proficiency_search_${userId}`,
+  );
+  const profSearchData = profSearchRaw ? JSON.parse(profSearchRaw) : null;
+  const proficiencyLevelFound: boolean = profSearchData?.levelFound ?? false;
+
+  // If proficiency test not yet completed and not explicitly navigating away, show test first
+  if (!proficiencyLevelFound && page !== "/student/dashboard") {
+    return <StudentTest onNavigate={navigate} />;
+  }
+
   if (page === "/student/test") {
     return <StudentTest onNavigate={navigate} />;
   }

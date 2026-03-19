@@ -317,6 +317,78 @@ actor {
     users.values().toArray().filter(func(u) { u.role == #teacher });
   };
 
+  // ── Admin endpoints (credential-based, no session required) ───────────────
+  public shared func createTeacherWithCreds(adminPass : Text, teacherUsername : Text, teacherPassword : Text) : async UserId {
+    if (adminPass != _adminPassword) Runtime.trap("Invalid admin credentials");
+    let existing = users.values().toArray().find(func(u) { u.username == teacherUsername });
+    switch (existing) {
+      case (?_) Runtime.trap("Username already exists");
+      case null {};
+    };
+    let id = "teacher" # (users.size() + 1).toText();
+    upsertUser(id, { id; username = teacherUsername; password = teacherPassword; role = #teacher; grade = null; teacherId = null });
+    id;
+  };
+
+  public shared func listTeachersWithCreds(adminPass : Text) : async [User] {
+    if (adminPass != _adminPassword) Runtime.trap("Invalid admin credentials");
+    users.values().toArray().filter(func(u) { u.role == #teacher });
+  };
+
+  // ── Teacher endpoints (credential-based, no session required) ─────────────
+  public shared func createStudentWithCreds(teacherUser : Text, teacherPass : Text, studentUsername : Text, studentPassword : Text, grade : Nat) : async UserId {
+    let teacher = users.values().toArray().find(func(u) {
+      u.username == teacherUser and u.password == teacherPass and u.role == #teacher
+    });
+    switch (teacher) {
+      case null Runtime.trap("Invalid teacher credentials");
+      case (?t) {
+        if (grade < 1 or grade > 10) Runtime.trap("Invalid grade: must be 1-10");
+        let existing = users.values().toArray().find(func(u) { u.username == studentUsername });
+        switch (existing) {
+          case (?_) Runtime.trap("Username already exists");
+          case null {};
+        };
+        let id = "student" # (users.size() + 1).toText();
+        upsertUser(id, { id; username = studentUsername; password = studentPassword; role = #student; grade = ?grade; teacherId = ?t.id });
+        id;
+      };
+    };
+  };
+
+  public shared func listStudentsWithCreds(teacherUser : Text, teacherPass : Text) : async [User] {
+    let teacher = users.values().toArray().find(func(u) {
+      u.username == teacherUser and u.password == teacherPass and u.role == #teacher
+    });
+    switch (teacher) {
+      case null Runtime.trap("Invalid teacher credentials");
+      case (?t) {
+        users.values().toArray().filter(func(u) {
+          u.role == #student and u.teacherId == ?t.id
+        });
+      };
+    };
+  };
+
+  public shared func getStudentResultsWithCreds(teacherUser : Text, teacherPass : Text, studentId : UserId) : async [TestResult] {
+    let teacher = users.values().toArray().find(func(u) {
+      u.username == teacherUser and u.password == teacherPass and u.role == #teacher
+    });
+    switch (teacher) {
+      case null Runtime.trap("Invalid teacher credentials");
+      case (?t) {
+        switch (users.get(studentId)) {
+          case (null) Runtime.trap("Student not found");
+          case (?s) {
+            if (s.role != #student) Runtime.trap("Invalid student ID");
+            if (s.teacherId != ?t.id) Runtime.trap("Unauthorized: Not your student");
+          };
+        };
+        results.values().toArray().filter(func(r) { r.studentId == studentId });
+      };
+    };
+  };
+
   // ── Teacher endpoints ──────────────────────────────────────────────────────
   public shared ({ caller }) func createStudent(username : Text, password : Text, grade : Nat) : async UserId {
     let teacher = requireRole(caller, #teacher);

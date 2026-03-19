@@ -132,8 +132,17 @@ export function TeacherDashboard() {
       setUsername("");
       setPassword("");
       setGrade("");
-    } catch {
-      toast.error("Failed to create student");
+    } catch (err: unknown) {
+      let msg = "Failed to create student";
+      if (err && typeof err === "object" && "message" in err) {
+        const raw = String((err as { message: unknown }).message);
+        const trapMatch = raw.match(/trapped explicitly:\s*(.+?)(?:\n|$)/);
+        const withMsgMatch = raw.match(/with message:\s*'([^']+)'/s);
+        if (trapMatch) msg = trapMatch[1].trim().slice(0, 200);
+        else if (withMsgMatch) msg = withMsgMatch[1].trim().slice(0, 200);
+        else msg = raw.slice(0, 200);
+      }
+      toast.error(msg);
     }
   };
 

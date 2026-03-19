@@ -14,18 +14,26 @@ export interface AuthUser {
   grade?: bigint;
 }
 
+export interface AuthCredentials {
+  username: string;
+  password: string;
+}
+
 interface AuthContextValue {
   user: AuthUser | null;
   setUser: (user: AuthUser | null) => void;
   logout: () => void;
   sessionActor: backendInterface | null;
   setSessionActor: (actor: backendInterface | null) => void;
+  credentials: AuthCredentials | null;
+  setCredentials: (creds: AuthCredentials | null) => void;
 }
 
 const AuthContext = createContext<AuthContextValue | null>(null);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<AuthUser | null>(null);
+  const [credentials, setCredentials] = useState<AuthCredentials | null>(null);
   const sessionActorRef = useRef<backendInterface | null>(null);
   const [, forceUpdate] = useState(0);
 
@@ -37,6 +45,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const logout = () => {
     setUser(null);
     setSessionActor(null);
+    setCredentials(null);
   };
 
   return (
@@ -47,6 +56,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         logout,
         sessionActor: sessionActorRef.current,
         setSessionActor,
+        credentials,
+        setCredentials,
       }}
     >
       {children}
