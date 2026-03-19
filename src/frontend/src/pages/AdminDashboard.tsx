@@ -48,62 +48,61 @@ export function AdminDashboard() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-950 relative overflow-hidden">
-      {/* Ambient glow orbs */}
-      <div className="fixed top-0 left-1/4 w-96 h-96 bg-indigo-500/10 rounded-full blur-3xl pointer-events-none" />
-      <div className="fixed bottom-1/4 right-1/4 w-80 h-80 bg-purple-500/10 rounded-full blur-3xl pointer-events-none" />
-      <div className="fixed top-1/2 left-0 w-64 h-64 bg-cyan-500/8 rounded-full blur-3xl pointer-events-none" />
-
+    <div className="min-h-screen bg-slate-50">
       <AppHeader title="Admin Dashboard" />
-      <main className="relative max-w-5xl mx-auto px-6 py-8">
+      <main className="max-w-5xl mx-auto px-6 py-8">
         <div className="mb-6">
-          <h2 className="text-2xl font-bold text-white">Admin Dashboard</h2>
-          <p className="text-gray-400 mt-1">
+          <h2 className="text-2xl font-bold text-gray-900">Admin Dashboard</h2>
+          <p className="text-gray-500 mt-1">
             Manage teacher accounts for your school
           </p>
         </div>
 
         {/* Stats */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
-          <Card className="rounded-xl bg-gray-900/80 border border-indigo-500/20 shadow-lg">
+          <Card className="rounded-xl bg-white border border-gray-200 shadow-sm">
             <CardContent className="pt-5">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-lg bg-indigo-500/20 flex items-center justify-center">
-                  <Users className="w-5 h-5 text-indigo-400" />
+                <div className="w-10 h-10 rounded-lg bg-indigo-50 flex items-center justify-center">
+                  <Users className="w-5 h-5 text-indigo-600" />
                 </div>
                 <div>
-                  <p className="text-2xl font-bold text-white">
+                  <p className="text-2xl font-bold text-gray-900">
                     {teachers?.length ?? 0}
                   </p>
-                  <p className="text-sm text-gray-400">Total Teachers</p>
+                  <p className="text-sm text-gray-500">Total Teachers</p>
                 </div>
               </div>
             </CardContent>
           </Card>
-          <Card className="rounded-xl bg-gray-900/80 border border-indigo-500/20 shadow-lg">
+          <Card className="rounded-xl bg-white border border-gray-200 shadow-sm">
             <CardContent className="pt-5">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-lg bg-cyan-500/20 flex items-center justify-center">
-                  <BookOpen className="w-5 h-5 text-cyan-400" />
+                <div className="w-10 h-10 rounded-lg bg-blue-50 flex items-center justify-center">
+                  <BookOpen className="w-5 h-5 text-blue-600" />
                 </div>
                 <div>
-                  <p className="text-2xl font-bold text-white">Grades 1–10</p>
-                  <p className="text-sm text-gray-400">Supported Levels</p>
+                  <p className="text-2xl font-bold text-gray-900">
+                    Grades 1–10
+                  </p>
+                  <p className="text-sm text-gray-500">Supported Levels</p>
                 </div>
               </div>
             </CardContent>
           </Card>
-          <Card className="rounded-xl bg-gray-900/80 border border-indigo-500/20 shadow-lg">
+          <Card className="rounded-xl bg-white border border-gray-200 shadow-sm">
             <CardContent className="pt-5">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-lg bg-purple-500/20 flex items-center justify-center">
+                <div className="w-10 h-10 rounded-lg bg-purple-50 flex items-center justify-center">
                   <Badge className="text-xs bg-indigo-600 text-white border-0">
                     Admin
                   </Badge>
                 </div>
                 <div>
-                  <p className="text-sm font-semibold text-white">Classio1</p>
-                  <p className="text-sm text-gray-400">Master Account</p>
+                  <p className="text-sm font-semibold text-gray-900">
+                    Classio1
+                  </p>
+                  <p className="text-sm text-gray-500">Master Account</p>
                 </div>
               </div>
             </CardContent>
@@ -112,19 +111,19 @@ export function AdminDashboard() {
 
         <Tabs defaultValue="teachers">
           <TabsList
-            className="mb-6 bg-gray-900/80 border border-indigo-500/20"
+            className="mb-6 bg-white border border-gray-200 shadow-sm"
             data-ocid="admin.tab"
           >
             <TabsTrigger
               value="teachers"
-              className="data-[state=active]:bg-indigo-600 data-[state=active]:text-white text-gray-400"
+              className="data-[state=active]:bg-indigo-600 data-[state=active]:text-white text-gray-600"
               data-ocid="admin.tab"
             >
               Teachers
             </TabsTrigger>
             <TabsTrigger
               value="create"
-              className="data-[state=active]:bg-indigo-600 data-[state=active]:text-white text-gray-400"
+              className="data-[state=active]:bg-indigo-600 data-[state=active]:text-white text-gray-600"
               data-ocid="admin.tab"
             >
               Create Teacher
@@ -132,10 +131,10 @@ export function AdminDashboard() {
           </TabsList>
 
           <TabsContent value="teachers">
-            <Card className="rounded-xl bg-gray-900/80 border border-indigo-500/20 shadow-lg">
-              <CardHeader className="border-b border-indigo-500/20 pb-4">
-                <CardTitle className="text-base flex items-center gap-2 text-white">
-                  <Users className="w-4 h-4 text-indigo-400" />
+            <Card className="rounded-xl bg-white border border-gray-200 shadow-sm">
+              <CardHeader className="border-b border-gray-100 pb-4">
+                <CardTitle className="text-base flex items-center gap-2 text-gray-900">
+                  <Users className="w-4 h-4 text-indigo-600" />
                   All Teachers
                 </CardTitle>
               </CardHeader>
@@ -145,38 +144,38 @@ export function AdminDashboard() {
                     className="flex items-center justify-center py-12"
                     data-ocid="admin.loading_state"
                   >
-                    <Loader2 className="w-6 h-6 animate-spin text-indigo-400" />
+                    <Loader2 className="w-6 h-6 animate-spin text-indigo-600" />
                   </div>
                 ) : teachers && teachers.length > 0 ? (
                   <Table>
                     <TableHeader>
-                      <TableRow className="border-indigo-500/20 hover:bg-indigo-500/5">
-                        <TableHead className="text-gray-400">#</TableHead>
-                        <TableHead className="text-gray-400">
+                      <TableRow className="border-gray-100 hover:bg-slate-50">
+                        <TableHead className="text-gray-500">#</TableHead>
+                        <TableHead className="text-gray-500">
                           Username
                         </TableHead>
-                        <TableHead className="text-gray-400">ID</TableHead>
-                        <TableHead className="text-gray-400">Role</TableHead>
+                        <TableHead className="text-gray-500">ID</TableHead>
+                        <TableHead className="text-gray-500">Role</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
                       {teachers.map((teacher, idx) => (
                         <TableRow
                           key={teacher.id}
-                          className="border-indigo-500/10 hover:bg-indigo-500/5"
+                          className="border-gray-100 hover:bg-indigo-50/50"
                           data-ocid={`admin.item.${idx + 1}`}
                         >
-                          <TableCell className="text-gray-500 text-sm">
+                          <TableCell className="text-gray-400 text-sm">
                             {idx + 1}
                           </TableCell>
-                          <TableCell className="font-medium text-white">
+                          <TableCell className="font-medium text-gray-900">
                             {teacher.username}
                           </TableCell>
                           <TableCell className="text-gray-400 font-mono text-xs">
                             {teacher.id}
                           </TableCell>
                           <TableCell>
-                            <Badge className="bg-indigo-500/20 text-indigo-300 hover:bg-indigo-500/30 border border-indigo-500/30">
+                            <Badge className="bg-indigo-100 text-indigo-700 border border-indigo-200 hover:bg-indigo-100">
                               Teacher
                             </Badge>
                           </TableCell>
@@ -186,11 +185,11 @@ export function AdminDashboard() {
                   </Table>
                 ) : (
                   <div
-                    className="text-center py-12 text-gray-500"
+                    className="text-center py-12 text-gray-400"
                     data-ocid="admin.empty_state"
                   >
                     <Users className="w-10 h-10 mx-auto mb-3 opacity-30" />
-                    <p className="font-medium text-gray-400">No teachers yet</p>
+                    <p className="font-medium text-gray-500">No teachers yet</p>
                     <p className="text-sm">
                       Create a teacher account to get started
                     </p>
@@ -201,17 +200,17 @@ export function AdminDashboard() {
           </TabsContent>
 
           <TabsContent value="create">
-            <Card className="rounded-xl bg-gray-900/80 border border-indigo-500/20 shadow-lg max-w-md">
-              <CardHeader className="border-b border-indigo-500/20 pb-4">
-                <CardTitle className="text-base flex items-center gap-2 text-white">
-                  <Plus className="w-4 h-4 text-indigo-400" />
+            <Card className="rounded-xl bg-white border border-gray-200 shadow-sm max-w-md">
+              <CardHeader className="border-b border-gray-100 pb-4">
+                <CardTitle className="text-base flex items-center gap-2 text-gray-900">
+                  <Plus className="w-4 h-4 text-indigo-600" />
                   Create Teacher Account
                 </CardTitle>
               </CardHeader>
               <CardContent className="pt-5">
                 <form onSubmit={handleCreate} className="space-y-4">
                   <div className="space-y-1.5">
-                    <Label htmlFor="t-username" className="text-gray-300">
+                    <Label htmlFor="t-username" className="text-gray-700">
                       Username
                     </Label>
                     <Input
@@ -220,12 +219,12 @@ export function AdminDashboard() {
                       value={username}
                       onChange={(e) => setUsername(e.target.value)}
                       required
-                      className="bg-gray-800/80 border-indigo-500/30 text-white placeholder:text-gray-500 focus:border-indigo-400"
+                      className="bg-white border-gray-300 text-gray-900 placeholder:text-gray-400 focus:border-indigo-400"
                       data-ocid="admin.input"
                     />
                   </div>
                   <div className="space-y-1.5">
-                    <Label htmlFor="t-password" className="text-gray-300">
+                    <Label htmlFor="t-password" className="text-gray-700">
                       Password
                     </Label>
                     <Input
@@ -235,13 +234,13 @@ export function AdminDashboard() {
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
                       required
-                      className="bg-gray-800/80 border-indigo-500/30 text-white placeholder:text-gray-500 focus:border-indigo-400"
+                      className="bg-white border-gray-300 text-gray-900 placeholder:text-gray-400 focus:border-indigo-400"
                       data-ocid="admin.input"
                     />
                   </div>
                   <Button
                     type="submit"
-                    className="w-full bg-gradient-to-r from-indigo-600 to-cyan-500 hover:from-indigo-500 hover:to-cyan-400 text-white font-semibold border-0"
+                    className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-semibold border-0"
                     disabled={createTeacher.isPending}
                     data-ocid="admin.submit_button"
                   >

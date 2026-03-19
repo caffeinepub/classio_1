@@ -111,7 +111,6 @@ actor {
     timestamp  : Int;
   };
 
-  // New score history type
   type ScoreRecord = {
     weekNumber         : Nat;
     comprehensionScore : Nat;
@@ -121,14 +120,12 @@ actor {
     rhythmScore        : Nat;
   };
 
-  // New vocab mastery type
   type VocabMastery = {
     word     : Text;
     grade    : Nat;
     mastered : Bool;
   };
 
-  // New class progress summary type
   type StudentProgressSummary = {
     studentId                : UserId;
     name                     : Text;
@@ -144,7 +141,6 @@ actor {
   stable var _adminUsername : Text = "Classio1";
   stable var _adminPassword : Text = "Classio@11";
 
-  // New stable arrays for score histories and vocab masteries
   stable var stableScoreHistories   : [(UserId, [ScoreRecord])]   = [];
   stable var stableVocabMasteries   : [(UserId, [VocabMastery])]  = [];
   stable var stableUsers            : [(UserId, User)]            = [];
@@ -196,11 +192,9 @@ actor {
     passages.remove(pid); passages.add(pid, p);
     passageSubjects.remove(pid); passageSubjects.add(pid, subject);
   };
-
   func upsertScoreHistory(userId : UserId, records : List.List<ScoreRecord>) {
     scoreHistories.remove(userId); scoreHistories.add(userId, records);
   };
-
   func upsertVocabMastery(userId : UserId, records : List.List<VocabMastery>) {
     vocabMasteries.remove(userId); vocabMasteries.add(userId, records);
   };
@@ -212,9 +206,30 @@ actor {
     });
   };
 
+  // Seeds default teacher and student accounts so they are always available
+  func seedDefaultAccounts() {
+    // Default teacher
+    upsertUser("teacher_default", {
+      id = "teacher_default";
+      username = "Teacher1";
+      password = "Teacher@11";
+      role = #teacher;
+      grade = null;
+      teacherId = null;
+    });
+    // Default student (Grade 5, assigned to default teacher)
+    upsertUser("student_default", {
+      id = "student_default";
+      username = "Student1";
+      password = "Student@11";
+      role = #student;
+      grade = ?5;
+      teacherId = ?"teacher_default";
+    });
+  };
+
   // ── Upgrade hooks ──────────────────────────────────────────────────────────
   system func preupgrade() {
-    // Convert List.List to arrays for stable storage
     stableScoreHistories := scoreHistories.entries().toArray().map(
       func((userId, list)) {
         let iter = list.values();
@@ -222,7 +237,6 @@ actor {
         (userId, arr);
       }
     );
-
     stableVocabMasteries := vocabMasteries.entries().toArray().map(
       func((userId, list)) {
         let iter = list.values();
@@ -230,7 +244,6 @@ actor {
         (userId, arr);
       }
     );
-
     stableUsers           := users.entries().toArray();
     stableResults         := results.entries().toArray();
     stableSkillScores     := resultSkillScores.entries().toArray();
@@ -239,23 +252,21 @@ actor {
   };
 
   system func postupgrade() {
-    // Restore data from stable storage
     for ((k, arr) in stableScoreHistories.vals()) {
       let list = List.fromArray<ScoreRecord>(arr);
       scoreHistories.add(k, list);
     };
-
     for ((k, arr) in stableVocabMasteries.vals()) {
       let list = List.fromArray<VocabMastery>(arr);
       vocabMasteries.add(k, list);
     };
-
     for ((k, v) in stableUsers.vals()) { users.add(k, v); };
     for ((k, v) in stableResults.vals()) { results.add(k, v); };
     for ((k, v) in stableSkillScores.vals()) { resultSkillScores.add(k, v); };
     for ((k, v) in stableEffectiveLevels.vals()) { effectiveLevels.add(k, v); };
     nextResultId := stableNextResultId;
     seedAdmin();
+    seedDefaultAccounts();
 
     stableScoreHistories  := [];
     stableVocabMasteries  := [];
@@ -264,6 +275,10 @@ actor {
     stableSkillScores     := [];
     stableEffectiveLevels := [];
   };
+
+  // Seeds on fresh canister deployment
+  seedAdmin();
+  seedDefaultAccounts();
 
   // ── Existing helpers ──────────────────────────────────────────────────────
   func getCurrentUser(caller : Principal) : ?User {
@@ -551,7 +566,7 @@ actor {
     if (arr.size() > 0) ?arr[0] else null;
   };
 
-  // ── New Score History methods ──────────────────────────────────────────────
+  // ── Score History ──────────────────────────────────────────────────────────
   public shared ({ caller }) func addScoreHistory(userId : UserId, record : ScoreRecord) : async () {
     authorizeStudentAccess(caller, userId);
     let existing = switch (scoreHistories.get(userId)) {
@@ -565,21 +580,17 @@ actor {
     authorizeStudentAccess(caller, userId);
     switch (scoreHistories.get(userId)) {
       case (null) { [] };
-      case (?list) {
-        let iter = list.values();
-        let arr  = iter.toArray();
-        arr;
-      };
+      case (?list) { list.values().toArray() };
     };
   };
 
-  // ── Vocab Mastery methods ─────────────────────────────────────────────────
+  // ── Vocab Mastery ─────────────────────────────────────────────────────────
   public shared ({ caller }) func updateVocabMastery(userId : UserId, word : Text, grade : Nat, mastered : Bool) : async () {
     authorizeStudentAccess(caller, userId);
     let newRecord = { word; grade; mastered };
     let existing  = switch (vocabMasteries.get(userId)) {
       case (?list) {
-        let updated = list.filter(func(r) { r.word != word }); // Remove old entries for this word
+        let updated = list.filter(func(r) { r.word != word });
         updated.add(newRecord);
         updated;
       };
@@ -596,17 +607,12 @@ actor {
     authorizeStudentAccess(caller, userId);
     switch (vocabMasteries.get(userId)) {
       case (null) { [] };
-      case (?list) {
-        let iter = list.values();
-        let arr  = iter.toArray();
-        arr;
-      };
+      case (?list) { list.values().toArray() };
     };
   };
 
-  // ── Class Progress methods ──────────────────────────────────────────────
+  // ── Class Progress ──────────────────────────────────────────────────────
   public query ({ caller }) func getClassProgress(teacherId : UserId) : async [StudentProgressSummary] {
-    // Authorization: caller must be the teacher or an admin
     let currentUser = requireAuth(caller);
     let teacher = switch (users.get(teacherId)) {
       case (null) Runtime.trap("Teacher not found");
@@ -615,22 +621,15 @@ actor {
         t;
       };
     };
-
-    // Check authorization: caller must be the teacher themselves or an admin
     if (currentUser.id != teacher.id and currentUser.role != #admin) {
       Runtime.trap("Unauthorized: Can only view your own class progress");
     };
-
     let summaries = users.values().toArray().filter(func(u) {
       u.role == #student and u.teacherId == ?teacher.id
     }).map(func(student) {
       let scores = switch (scoreHistories.get(student.id)) {
         case (null) { [] };
-        case (?list) {
-          let iter = list.values();
-          let arr  = iter.toArray();
-          arr;
-        };
+        case (?list) { list.values().toArray() };
       };
       let latest = if (scores.size() > 0) { scores[0].comprehensionScore } else { 0 };
       let weeklyTrend = scores.sliceToArray(0, Nat.min(4, scores.size())).map(func(r : ScoreRecord) : Nat { r.comprehensionScore });
@@ -645,7 +644,6 @@ actor {
         isBehind;
       };
     });
-
     summaries;
   };
 
