@@ -47,28 +47,35 @@ function StudentResults({
 
   return (
     <Dialog open={open} onOpenChange={(v) => !v && onClose()}>
-      <DialogContent className="sm:max-w-lg" data-ocid="results.dialog">
+      <DialogContent
+        className="sm:max-w-lg bg-gray-900 border border-indigo-500/30 text-white"
+        data-ocid="results.dialog"
+      >
         <DialogHeader>
-          <DialogTitle>Results — {student?.username}</DialogTitle>
+          <DialogTitle className="text-white">
+            Results — {student?.username}
+          </DialogTitle>
         </DialogHeader>
         {isLoading ? (
           <div
             className="flex justify-center py-8"
             data-ocid="results.loading_state"
           >
-            <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
+            <Loader2 className="w-6 h-6 animate-spin text-indigo-400" />
           </div>
         ) : results && results.length > 0 ? (
           <div className="space-y-3 max-h-80 overflow-y-auto">
             {results.map((r, i) => (
               <div
                 key={r.id.toString()}
-                className="flex items-center justify-between p-3 rounded-lg bg-muted"
+                className="flex items-center justify-between p-3 rounded-lg bg-gray-800/80 border border-indigo-500/20"
                 data-ocid={`results.item.${i + 1}`}
               >
                 <div>
-                  <p className="text-sm font-medium">Test #{i + 1}</p>
-                  <p className="text-xs text-muted-foreground">
+                  <p className="text-sm font-medium text-white">
+                    Test #{i + 1}
+                  </p>
+                  <p className="text-xs text-gray-400">
                     {new Date(
                       Number(r.timestamp) / 1_000_000,
                     ).toLocaleDateString()}
@@ -77,8 +84,8 @@ function StudentResults({
                 <Badge
                   className={
                     Number(r.score) >= 4
-                      ? "bg-accent/20 text-accent border-0"
-                      : "bg-destructive/10 text-destructive border-0"
+                      ? "bg-emerald-500/20 text-emerald-300 border border-emerald-500/30"
+                      : "bg-red-500/20 text-red-300 border border-red-500/30"
                   }
                 >
                   {r.score.toString()}/5
@@ -88,7 +95,7 @@ function StudentResults({
           </div>
         ) : (
           <div
-            className="text-center py-8 text-muted-foreground"
+            className="text-center py-8 text-gray-400"
             data-ocid="results.empty_state"
           >
             <p>No test results yet</p>
@@ -97,6 +104,7 @@ function StudentResults({
         <Button
           variant="outline"
           onClick={onClose}
+          className="bg-transparent border-indigo-500/40 text-indigo-300 hover:bg-indigo-500/10"
           data-ocid="results.close_button"
         >
           Close
@@ -147,41 +155,48 @@ export function TeacherDashboard() {
   };
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-gray-950 relative overflow-hidden">
+      {/* Ambient glow orbs */}
+      <div className="fixed top-0 right-1/4 w-96 h-96 bg-indigo-500/10 rounded-full blur-3xl pointer-events-none" />
+      <div className="fixed bottom-1/3 left-1/4 w-80 h-80 bg-purple-500/10 rounded-full blur-3xl pointer-events-none" />
+      <div className="fixed top-1/3 right-0 w-64 h-64 bg-cyan-500/8 rounded-full blur-3xl pointer-events-none" />
+
       <AppHeader title="Teacher Dashboard" />
-      <main className="max-w-5xl mx-auto px-6 py-8">
+      <main className="relative max-w-5xl mx-auto px-6 py-8">
         <div className="mb-6">
-          <h2 className="text-2xl font-bold text-foreground">
-            Teacher Dashboard
-          </h2>
-          <p className="text-muted-foreground mt-1">
+          <h2 className="text-2xl font-bold text-white">Teacher Dashboard</h2>
+          <p className="text-gray-400 mt-1">
             Manage your students and view their test results
           </p>
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-8">
-          <Card className="rounded-xl shadow-card border-border">
+          <Card className="rounded-xl bg-gray-900/80 border border-indigo-500/20 shadow-lg">
             <CardContent className="pt-5">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-lg bg-accent/10 flex items-center justify-center">
-                  <Users className="w-5 h-5 text-accent" />
+                <div className="w-10 h-10 rounded-lg bg-cyan-500/20 flex items-center justify-center">
+                  <Users className="w-5 h-5 text-cyan-400" />
                 </div>
                 <div>
-                  <p className="text-2xl font-bold">{students?.length ?? 0}</p>
-                  <p className="text-sm text-muted-foreground">My Students</p>
+                  <p className="text-2xl font-bold text-white">
+                    {students?.length ?? 0}
+                  </p>
+                  <p className="text-sm text-gray-400">My Students</p>
                 </div>
               </div>
             </CardContent>
           </Card>
-          <Card className="rounded-xl shadow-card border-border">
+          <Card className="rounded-xl bg-gray-900/80 border border-indigo-500/20 shadow-lg">
             <CardContent className="pt-5">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-lg bg-emerald-500/10 flex items-center justify-center">
-                  <span className="text-emerald-600 font-bold text-sm">✓</span>
+                <div className="w-10 h-10 rounded-lg bg-emerald-500/20 flex items-center justify-center">
+                  <span className="text-emerald-400 font-bold text-sm">✓</span>
                 </div>
                 <div>
-                  <p className="text-sm font-semibold">Auto Passages</p>
-                  <p className="text-sm text-muted-foreground">
+                  <p className="text-sm font-semibold text-white">
+                    Auto Passages
+                  </p>
+                  <p className="text-sm text-gray-400">
                     Assigned by grade level
                   </p>
                 </div>
@@ -191,20 +206,31 @@ export function TeacherDashboard() {
         </div>
 
         <Tabs defaultValue="students">
-          <TabsList className="mb-6" data-ocid="teacher.tab">
-            <TabsTrigger value="students" data-ocid="teacher.tab">
+          <TabsList
+            className="mb-6 bg-gray-900/80 border border-indigo-500/20"
+            data-ocid="teacher.tab"
+          >
+            <TabsTrigger
+              value="students"
+              className="data-[state=active]:bg-indigo-600 data-[state=active]:text-white text-gray-400"
+              data-ocid="teacher.tab"
+            >
               My Students
             </TabsTrigger>
-            <TabsTrigger value="create" data-ocid="teacher.tab">
+            <TabsTrigger
+              value="create"
+              className="data-[state=active]:bg-indigo-600 data-[state=active]:text-white text-gray-400"
+              data-ocid="teacher.tab"
+            >
               Add Student
             </TabsTrigger>
           </TabsList>
 
           <TabsContent value="students">
-            <Card className="rounded-xl shadow-card border-border">
-              <CardHeader className="border-b border-border pb-4">
-                <CardTitle className="text-base flex items-center gap-2">
-                  <Users className="w-4 h-4" />
+            <Card className="rounded-xl bg-gray-900/80 border border-indigo-500/20 shadow-lg">
+              <CardHeader className="border-b border-indigo-500/20 pb-4">
+                <CardTitle className="text-base flex items-center gap-2 text-white">
+                  <Users className="w-4 h-4 text-cyan-400" />
                   Student Roster
                 </CardTitle>
               </CardHeader>
@@ -214,32 +240,33 @@ export function TeacherDashboard() {
                     className="flex items-center justify-center py-12"
                     data-ocid="teacher.loading_state"
                   >
-                    <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
+                    <Loader2 className="w-6 h-6 animate-spin text-indigo-400" />
                   </div>
                 ) : students && students.length > 0 ? (
                   <Table>
                     <TableHeader>
-                      <TableRow>
-                        <TableHead>#</TableHead>
-                        <TableHead>Student</TableHead>
-                        <TableHead>Grade</TableHead>
-                        <TableHead>Actions</TableHead>
+                      <TableRow className="border-indigo-500/20 hover:bg-indigo-500/5">
+                        <TableHead className="text-gray-400">#</TableHead>
+                        <TableHead className="text-gray-400">Student</TableHead>
+                        <TableHead className="text-gray-400">Grade</TableHead>
+                        <TableHead className="text-gray-400">Actions</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
                       {students.map((student, idx) => (
                         <TableRow
                           key={student.id}
+                          className="border-indigo-500/10 hover:bg-indigo-500/5"
                           data-ocid={`teacher.item.${idx + 1}`}
                         >
-                          <TableCell className="text-muted-foreground text-sm">
+                          <TableCell className="text-gray-500 text-sm">
                             {idx + 1}
                           </TableCell>
-                          <TableCell className="font-medium">
+                          <TableCell className="font-medium text-white">
                             {student.username}
                           </TableCell>
                           <TableCell>
-                            <Badge variant="outline">
+                            <Badge className="bg-indigo-500/20 text-indigo-300 border border-indigo-500/30">
                               Grade {student.grade?.toString() ?? "—"}
                             </Badge>
                           </TableCell>
@@ -247,7 +274,7 @@ export function TeacherDashboard() {
                             <Button
                               size="sm"
                               variant="outline"
-                              className="gap-1.5 text-primary border-primary/30 hover:bg-primary/5"
+                              className="gap-1.5 bg-transparent border-cyan-500/40 text-cyan-300 hover:bg-cyan-500/10 hover:border-cyan-400"
                               onClick={() => {
                                 setSelectedStudent(student);
                                 setResultsOpen(true);
@@ -264,11 +291,11 @@ export function TeacherDashboard() {
                   </Table>
                 ) : (
                   <div
-                    className="text-center py-12 text-muted-foreground"
+                    className="text-center py-12 text-gray-500"
                     data-ocid="teacher.empty_state"
                   >
                     <Users className="w-10 h-10 mx-auto mb-3 opacity-30" />
-                    <p className="font-medium">No students yet</p>
+                    <p className="font-medium text-gray-400">No students yet</p>
                     <p className="text-sm">Add a student to get started</p>
                   </div>
                 )}
@@ -277,28 +304,33 @@ export function TeacherDashboard() {
           </TabsContent>
 
           <TabsContent value="create">
-            <Card className="rounded-xl shadow-card border-border max-w-md">
-              <CardHeader className="border-b border-border pb-4">
-                <CardTitle className="text-base flex items-center gap-2">
-                  <Plus className="w-4 h-4" />
+            <Card className="rounded-xl bg-gray-900/80 border border-indigo-500/20 shadow-lg max-w-md">
+              <CardHeader className="border-b border-indigo-500/20 pb-4">
+                <CardTitle className="text-base flex items-center gap-2 text-white">
+                  <Plus className="w-4 h-4 text-cyan-400" />
                   Create Student Account
                 </CardTitle>
               </CardHeader>
               <CardContent className="pt-5">
                 <form onSubmit={handleCreate} className="space-y-4">
                   <div className="space-y-1.5">
-                    <Label htmlFor="s-username">Username</Label>
+                    <Label htmlFor="s-username" className="text-gray-300">
+                      Username
+                    </Label>
                     <Input
                       id="s-username"
                       placeholder="e.g. emma_wilson"
                       value={username}
                       onChange={(e) => setUsername(e.target.value)}
                       required
+                      className="bg-gray-800/80 border-indigo-500/30 text-white placeholder:text-gray-500 focus:border-indigo-400"
                       data-ocid="teacher.input"
                     />
                   </div>
                   <div className="space-y-1.5">
-                    <Label htmlFor="s-password">Password</Label>
+                    <Label htmlFor="s-password" className="text-gray-300">
+                      Password
+                    </Label>
                     <Input
                       id="s-password"
                       type="password"
@@ -306,19 +338,29 @@ export function TeacherDashboard() {
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
                       required
+                      className="bg-gray-800/80 border-indigo-500/30 text-white placeholder:text-gray-500 focus:border-indigo-400"
                       data-ocid="teacher.input"
                     />
                   </div>
                   <div className="space-y-1.5">
-                    <Label htmlFor="s-grade">Grade Level</Label>
+                    <Label htmlFor="s-grade" className="text-gray-300">
+                      Grade Level
+                    </Label>
                     <Select value={grade} onValueChange={setGrade}>
-                      <SelectTrigger data-ocid="teacher.select">
+                      <SelectTrigger
+                        className="bg-gray-800/80 border-indigo-500/30 text-white"
+                        data-ocid="teacher.select"
+                      >
                         <SelectValue placeholder="Select grade" />
                       </SelectTrigger>
-                      <SelectContent>
+                      <SelectContent className="bg-gray-900 border-indigo-500/30">
                         {Array.from({ length: 10 }, (_, i) => i + 1).map(
                           (g) => (
-                            <SelectItem key={g} value={String(g)}>
+                            <SelectItem
+                              key={g}
+                              value={String(g)}
+                              className="text-white hover:bg-indigo-500/20 focus:bg-indigo-500/20"
+                            >
                               Grade {g}
                             </SelectItem>
                           ),
@@ -328,7 +370,7 @@ export function TeacherDashboard() {
                   </div>
                   <Button
                     type="submit"
-                    className="w-full bg-classio-green hover:bg-classio-green/90 text-white"
+                    className="w-full bg-gradient-to-r from-indigo-600 to-cyan-500 hover:from-indigo-500 hover:to-cyan-400 text-white font-semibold border-0"
                     disabled={createStudent.isPending}
                     data-ocid="teacher.submit_button"
                   >
