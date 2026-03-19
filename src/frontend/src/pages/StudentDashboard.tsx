@@ -419,14 +419,25 @@ export function StudentDashboard({ onNavigate }: StudentDashboardProps) {
                                   {practiceDone ? 1 : 0} / 12 lessons completed
                                 </p>
                                 <div className="flex gap-2 mt-2 flex-wrap">
-                                  <Button
-                                    size="sm"
-                                    className="bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white rounded-full text-xs px-3 h-7 border-0"
-                                    onClick={() => onNavigate("/student/test")}
-                                    data-ocid="student.journey.button"
-                                  >
-                                    My Journey
-                                  </Button>
+                                  {proficiencyLevelFound ? (
+                                    <span
+                                      data-ocid="student.journey.button"
+                                      className="inline-flex items-center gap-1 bg-green-100 text-green-700 border border-green-300 rounded-full text-xs px-3 h-7 font-semibold"
+                                    >
+                                      ✓ Proficiency Complete
+                                    </span>
+                                  ) : (
+                                    <Button
+                                      size="sm"
+                                      className="bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white rounded-full text-xs px-3 h-7 border-0"
+                                      onClick={() =>
+                                        onNavigate("/student/test")
+                                      }
+                                      data-ocid="student.journey.button"
+                                    >
+                                      My Journey
+                                    </Button>
+                                  )}
                                   <Button
                                     variant="outline"
                                     size="sm"

@@ -536,6 +536,15 @@ export function StudentTest({ onNavigate }: StudentTestProps) {
       <div className="min-h-screen bg-gray-50">
         <AppHeader title="Reading Comprehension Check" />
         <main className="max-w-3xl mx-auto px-4 py-6">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => onNavigate("/student")}
+            className="gap-1.5 mb-4"
+            data-ocid="proficiency.back.button"
+          >
+            <ChevronLeft className="w-4 h-4" /> Back to Dashboard
+          </Button>
           {/* Passage card */}
           <motion.div
             initial={{ opacity: 0, y: 16 }}
