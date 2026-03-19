@@ -8,17 +8,27 @@ import {
   Loader2,
   Mic,
   MicOff,
+  Music,
   Pause,
   Play,
   Square,
   TrendingUp,
+  Volume2,
+  Zap,
 } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
 import { AppHeader } from "../components/AppHeader";
+import {
+  ReportingIndicatorsPanel,
+  ScoreOverviewPanel,
+  SkillCard,
+  StarRating,
+} from "../components/ReportCardLayout";
 import { useAuth } from "../context/AuthContext";
 import { getPassageForLevel } from "../data/passages";
+import { useProficiencySearch } from "../hooks/useProficiencySearch";
 import {
   useMyEffectiveLevel,
   useMyResults,
@@ -122,11 +132,9 @@ function useSpeechRecognition() {
   const [isListening, setIsListening] = useState(false);
   const [segments, setSegments] = useState<Segment[]>([]);
   const [isSupported, setIsSupported] = useState(true);
-  // biome-ignore lint/suspicious/noExplicitAny: SpeechRecognition not in all TS DOM libs
   const recognitionRef = useRef<any>(null);
 
   useEffect(() => {
-    // biome-ignore lint/suspicious/noExplicitAny: cross-browser SpeechRecognition
     const SR =
       (window as any).SpeechRecognition ||
       (window as any).webkitSpeechRecognition;
@@ -137,9 +145,7 @@ function useSpeechRecognition() {
     const rec = new SR();
     rec.continuous = true;
     rec.interimResults = true;
-    rec.lang = "en-US";
 
-    // biome-ignore lint/suspicious/noExplicitAny: SpeechRecognitionEvent not in all TS DOM libs
     rec.onresult = (event: any) => {
       let interim = "";
       for (let i = event.resultIndex; i < event.results.length; i++) {
@@ -267,45 +273,65 @@ function useAudioRecorder() {
   };
 }
 
-// ── Report Card ────────────────────────────────────────────────────────────────
+// DonutChart imported from ReportCardLayout
+// ProficiencyBadge, StarRating imported from ReportCardLayout
 
-const SKILL_META = [
-  { key: "rhythm" as const, label: "Rhythm", emoji: "🎵" },
-  { key: "intonation" as const, label: "Intonation", emoji: "🎶" },
-  { key: "chunking" as const, label: "Chunking", emoji: "📋" },
-  { key: "pronunciation" as const, label: "Pronunciation", emoji: "🗣️" },
+// ── Fluency range by grade ─────────────────────────────────────────────────────
+
+function fluencyRange(grade: number): [number, number] {
+  if (grade <= 2) return [50, 70];
+  if (grade <= 4) return [70, 100];
+  if (grade <= 6) return [100, 120];
+  if (grade <= 8) return [120, 150];
+  return [150, 180];
+}
+
+// ── Level badge (no downgrade) ─────────────────────────────────────────────────
+
+const LEVEL_BADGES = [
+  {
+    min: 4.5,
+    label: "⭐ Master Reader",
+    cls: "bg-violet-100 text-violet-800 border-violet-200",
+  },
+  {
+    min: 4.0,
+    label: "🏆 Advanced",
+    cls: "bg-blue-100 text-blue-800 border-blue-200",
+  },
+  {
+    min: 3.0,
+    label: "📈 Developing",
+    cls: "bg-teal-100 text-teal-800 border-teal-200",
+  },
+  {
+    min: 2.0,
+    label: "🌱 Growing",
+    cls: "bg-amber-100 text-amber-800 border-amber-200",
+  },
+  {
+    min: 0,
+    label: "🔰 Beginner",
+    cls: "bg-red-100 text-red-800 border-red-200",
+  },
 ];
 
-const SCORE_COLORS: Record<number, string> = {
-  5: "bg-emerald-500/15 text-emerald-700 border-emerald-200",
-  4: "bg-teal-500/15 text-teal-700 border-teal-200",
-  3: "bg-blue-500/15 text-blue-700 border-blue-200",
-  2: "bg-amber-500/15 text-amber-700 border-amber-200",
-  1: "bg-red-500/15 text-red-700 border-red-200",
-};
-
-const SCORE_FEEDBACK: Record<number, string> = {
-  5: "Excellent!",
-  4: "Good job!",
-  3: "Keep practicing",
-  2: "Needs improvement",
-  1: "Practice more",
-};
-
-function StarRating({ score }: { score: number }) {
+function LevelBadge({ avgScore }: { avgScore: number }) {
+  const badge =
+    LEVEL_BADGES.find((b) => avgScore >= b.min) ??
+    LEVEL_BADGES[LEVEL_BADGES.length - 1];
   return (
-    <div className="flex gap-0.5 text-lg">
-      {[1, 2, 3, 4, 5].map((i) => (
-        <span
-          key={i}
-          className={i <= score ? "text-amber-400" : "text-muted-foreground/30"}
-        >
-          {i <= score ? "★" : "☆"}
-        </span>
-      ))}
-    </div>
+    <span
+      className={`inline-flex items-center px-3 py-1 rounded-full border text-xs font-semibold ${
+        badge.cls
+      }`}
+    >
+      {badge.label}
+    </span>
   );
 }
+
+// ── Adaptive Banner ────────────────────────────────────────────────────────────
 
 function AdaptiveBanner({
   total,
@@ -378,16 +404,18 @@ function AdaptiveBanner({
       <Info className="w-5 h-5 text-blue-600 dark:text-blue-400 shrink-0 mt-0.5" />
       <div>
         <p className="text-sm font-semibold text-blue-800 dark:text-blue-300">
-          Adjusting difficulty for you
+          Keep Practicing!
         </p>
         <p className="text-xs text-blue-700 dark:text-blue-400 mt-0.5">
-          Your next passage will be slightly easier — keep practicing and you
-          will level up soon!
+          You are building your skills — your next passage will help you improve
+          steadily!
         </p>
       </div>
     </motion.div>
   );
 }
+
+// ── New Report Card ────────────────────────────────────────────────────────────
 
 function ReportCard({
   scores,
@@ -395,34 +423,66 @@ function ReportCard({
   grade,
   enrolledGrade,
   effectiveLevel,
+  transcript,
+  passageContent,
+  recordingDuration,
+  gradeLevel,
+  previousScore,
   onBack,
   onNavigate,
+  foundLevel,
 }: {
   scores: SkillScores;
   studentName: string;
   grade: string;
   enrolledGrade: bigint | undefined;
   effectiveLevel: bigint | undefined;
+  transcript: string;
+  passageContent: string;
+  recordingDuration: number;
+  gradeLevel: number;
+  previousScore: number;
   onBack: () => void;
   onNavigate?: (page: string) => void;
+  foundLevel?: number | null;
 }) {
   const total =
     scores.rhythm + scores.intonation + scores.chunking + scores.pronunciation;
-  const avg = Math.round((total / 4) * 10) / 10;
-  const avgMsg =
-    avg >= 4.5
-      ? "Outstanding performance!"
-      : avg >= 3.5
-        ? "Great effort, keep it up!"
-        : avg >= 2.5
-          ? "Good start, keep practicing!"
-          : "You're improving — practice daily!";
+  const overallAvg = total / 4;
+  const readingAvg = (scores.rhythm + scores.chunking) / 2;
+  const comprehensionAvg = (scores.intonation + scores.pronunciation) / 2;
+
+  const passageWords = normalizeWords(passageContent);
+  const transcriptWords = normalizeWords(transcript);
+  const passageSet = new Set(passageWords);
+  const transcriptSet = new Set(transcriptWords);
+  const correctWords = transcriptWords.filter((w) => passageSet.has(w)).length;
+  const mispronounced = Math.min(
+    transcriptWords.filter((w) => !passageSet.has(w)).length,
+    passageWords.length,
+  );
+  const missedWords = passageWords.filter((w) => !transcriptSet.has(w)).length;
+
+  const wpm =
+    recordingDuration > 0
+      ? Math.round((transcriptWords.length / recordingDuration) * 60)
+      : 0;
+  const [rangeMin, rangeMax] = fluencyRange(gradeLevel);
+
+  const rhythmIntonationAvg = (scores.rhythm + scores.intonation) / 2;
+  const indicators = [
+    { label: "Overall", avg: overallAvg },
+    { label: "Reading", avg: readingAvg },
+    { label: "Comprehension", avg: comprehensionAvg },
+  ];
+
+  const journeyLevel = foundLevel ?? gradeLevel;
 
   return (
     <div className="min-h-screen bg-background">
-      <AppHeader title="Reading Report" />
+      <AppHeader title="Reading Report Card" />
       <main
-        className="max-w-2xl mx-auto px-6 py-10"
+        className="max-w-5xl mx-auto px-4 py-8"
         data-ocid="test.success_state"
       >
         <motion.div
@@ -436,65 +496,79 @@ function ReportCard({
             effectiveLevel={effectiveLevel}
           />
 
-          <div className="text-center mb-8">
-            <div className="w-16 h-16 rounded-full mx-auto mb-4 flex items-center justify-center bg-primary/10 text-3xl">
-              📊
+          {/* Header */}
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-6">
+            <div>
+              <h2 className="text-2xl font-bold">Reading Report Card</h2>
+              <p className="text-sm text-muted-foreground">
+                {studentName} · Grade {grade}
+              </p>
             </div>
-            <h2 className="text-3xl font-bold mb-1">Your Reading Report</h2>
-            <p className="text-muted-foreground">
-              {studentName} · Grade {grade}
-            </p>
+            <LevelBadge avgScore={overallAvg} />
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
-            {SKILL_META.map((skill, idx) => {
-              const score = scores[skill.key];
-              const colorCls = SCORE_COLORS[score] || SCORE_COLORS[1];
-              return (
-                <motion.div
-                  key={skill.key}
-                  initial={{ opacity: 0, y: 16 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.35, delay: idx * 0.08 }}
-                >
-                  <Card className={`rounded-xl border ${colorCls}`}>
-                    <CardContent className="pt-5 pb-5">
-                      <div className="flex items-start justify-between mb-3">
-                        <div className="flex items-center gap-2">
-                          <span className="text-xl">{skill.emoji}</span>
-                          <span className="font-semibold text-sm">
-                            {skill.label}
-                          </span>
-                        </div>
-                        <Badge className={`text-xs border ${colorCls}`}>
-                          {score}/5
-                        </Badge>
-                      </div>
-                      <StarRating score={score} />
-                      <p className="text-xs mt-2 font-medium">
-                        {SCORE_FEEDBACK[score]}
-                      </p>
-                    </CardContent>
-                  </Card>
-                </motion.div>
-              );
-            })}
+          {/* 3-column grid */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-5 mb-6">
+            <ScoreOverviewPanel
+              readingCurrent={readingAvg}
+              readingPrevious={previousScore > 0 ? previousScore / 4 : null}
+              compCurrent={comprehensionAvg}
+              compPrevious={previousScore > 0 ? previousScore / 4 : null}
+              max={5}
+            />
+            <ReportingIndicatorsPanel
+              indicators={indicators.map((ind) => ({
+                label: ind.label,
+                score: ind.avg,
+                max: 5,
+              }))}
+            />
+            <div className="flex flex-col gap-4">
+              <SkillCard
+                color="emerald"
+                title="Pronunciation"
+                icon={<Volume2 className="w-4 h-4 text-emerald-700" />}
+              >
+                <StarRating value={scores.pronunciation} max={5} />
+                <div className="space-y-1 text-xs mt-2">
+                  <p className="text-emerald-700 font-medium">
+                    ✓ Correct Pronounced Words — {correctWords}
+                  </p>
+                  <p className="text-amber-700 font-medium">
+                    ⚠ Mispronounced Words — {mispronounced}
+                  </p>
+                  <p className="text-red-700 font-medium">
+                    ✗ Missed Words — {missedWords}
+                  </p>
+                </div>
+              </SkillCard>
+              <SkillCard
+                color="rose"
+                title="Rhythm & Intonation"
+                icon={<Music className="w-4 h-4 text-rose-700" />}
+              >
+                <StarRating value={rhythmIntonationAvg} max={5} />
+                <p className="text-xs text-rose-700 mt-2">
+                  Rhythm: {scores.rhythm}/5 · Intonation: {scores.intonation}/5
+                </p>
+              </SkillCard>
+              <SkillCard
+                color="sky"
+                title="Fluency"
+                icon={<Zap className="w-4 h-4 text-sky-700" />}
+              >
+                <p className="text-lg font-bold text-sky-800">
+                  {wpm} words/min
+                </p>
+                <p className="text-xs text-sky-600 mt-0.5">
+                  Grade target: {rangeMin}–{rangeMax} words/min
+                </p>
+              </SkillCard>
+            </div>
           </div>
 
-          <Card className="rounded-xl border-border shadow-card mb-8">
-            <CardContent className="pt-5 text-center">
-              <p className="text-sm text-muted-foreground mb-1">
-                Overall Average
-              </p>
-              <p className="text-4xl font-bold mb-2">
-                {avg}
-                <span className="text-xl text-muted-foreground">/5</span>
-              </p>
-              <p className="text-muted-foreground text-sm">{avgMsg}</p>
-            </CardContent>
-          </Card>
-
-          <div className="flex flex-col sm:flex-row gap-3 justify-center">
+          {/* Action buttons */}
+          <div className="flex flex-col sm:flex-row gap-3 justify-center pt-2">
             {onNavigate && (
               <Button
                 size="lg"
@@ -502,7 +576,7 @@ function ReportCard({
                 onClick={() => onNavigate("/student/vocab")}
                 data-ocid="test.secondary_button"
               >
-                📚 Start Vocab Builder →
+                🚀 Start Learning Journey from Grade {journeyLevel} →
               </Button>
             )}
             <Button
@@ -510,6 +584,192 @@ function ReportCard({
               variant="outline"
               onClick={onBack}
               data-ocid="test.primary_button"
+            >
+              Back to Dashboard
+            </Button>
+          </div>
+        </motion.div>
+      </main>
+    </div>
+  );
+}
+
+// ── Try Next Level Screen ──────────────────────────────────────────────────────
+
+function TryNextLevelScreen({
+  scores,
+  currentTestLevel,
+  newLevel,
+  attemptsMade,
+  enrolledGrade,
+  transcript,
+  passageContent,
+  recordingDuration,
+  gradeLevel,
+  previousScore,
+  onRetry,
+  onBack,
+}: {
+  scores: SkillScores;
+  currentTestLevel: number;
+  newLevel: number;
+  attemptsMade: number;
+  enrolledGrade: number;
+  transcript: string;
+  passageContent: string;
+  recordingDuration: number;
+  gradeLevel: number;
+  previousScore: number;
+  onRetry: () => void;
+  onBack: () => void;
+}) {
+  const total =
+    scores.rhythm + scores.intonation + scores.chunking + scores.pronunciation;
+  const overallAvg = total / 4;
+  const readingAvg = (scores.rhythm + scores.chunking) / 2;
+  const comprehensionAvg = (scores.intonation + scores.pronunciation) / 2;
+
+  const passageWords = normalizeWords(passageContent);
+  const transcriptWords = normalizeWords(transcript);
+  const passageSet = new Set(passageWords);
+  const transcriptSet = new Set(transcriptWords);
+  const correctWords = transcriptWords.filter((w) => passageSet.has(w)).length;
+  const mispronounced = Math.min(
+    transcriptWords.filter((w) => !passageSet.has(w)).length,
+    passageWords.length,
+  );
+  const missedWords = passageWords.filter((w) => !transcriptSet.has(w)).length;
+
+  const wpm =
+    recordingDuration > 0
+      ? Math.round((transcriptWords.length / recordingDuration) * 60)
+      : 0;
+  const [rangeMin, rangeMax] = fluencyRange(gradeLevel);
+  const rhythmIntonationAvg = (scores.rhythm + scores.intonation) / 2;
+  const indicators = [
+    { label: "Overall", avg: overallAvg },
+    { label: "Reading", avg: readingAvg },
+    { label: "Comprehension", avg: comprehensionAvg },
+  ];
+
+  return (
+    <div className="min-h-screen bg-background">
+      <AppHeader title="Keep Going!" />
+      <main className="max-w-5xl mx-auto px-4 py-8">
+        <motion.div
+          initial={{ opacity: 0, y: 24 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.4 }}
+        >
+          {/* Encouragement Banner */}
+          <motion.div
+            initial={{ opacity: 0, scale: 0.97 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.4 }}
+            className="rounded-2xl border border-amber-200 bg-amber-50 dark:bg-amber-900/20 dark:border-amber-700 p-6 mb-6"
+            data-ocid="test.panel"
+          >
+            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
+              <div className="w-14 h-14 rounded-full bg-amber-100 border border-amber-200 flex items-center justify-center shrink-0 text-2xl">
+                💪
+              </div>
+              <div className="flex-1">
+                <div className="flex items-center gap-3 flex-wrap mb-2">
+                  <h2 className="text-xl font-bold text-amber-900 dark:text-amber-200">
+                    Keep Going!
+                  </h2>
+                  <span className="inline-flex items-center px-2.5 py-1 rounded-full bg-amber-100 text-amber-800 border border-amber-200 text-xs font-semibold">
+                    Attempt {attemptsMade}/{enrolledGrade}
+                  </span>
+                </div>
+                <p className="text-sm text-amber-800 dark:text-amber-300 leading-relaxed">
+                  Your pronunciation, rhythm, and speed show you are working
+                  toward <strong>Grade {currentTestLevel} level</strong>. Let's
+                  try a <strong>Grade {newLevel}</strong> passage next to find
+                  your best starting point!
+                </p>
+              </div>
+            </div>
+          </motion.div>
+
+          {/* Score overview */}
+          <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide mb-4">
+            Your Scores This Attempt
+          </h3>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-5 mb-6">
+            <ScoreOverviewPanel
+              readingCurrent={readingAvg}
+              readingPrevious={previousScore > 0 ? previousScore / 4 : null}
+              compCurrent={comprehensionAvg}
+              compPrevious={previousScore > 0 ? previousScore / 4 : null}
+              max={5}
+            />
+            <ReportingIndicatorsPanel
+              indicators={indicators.map((ind) => ({
+                label: ind.label,
+                score: ind.avg,
+                max: 5,
+              }))}
+            />
+            <div className="flex flex-col gap-4">
+              <SkillCard
+                color="emerald"
+                title="Pronunciation"
+                icon={<Volume2 className="w-4 h-4 text-emerald-700" />}
+              >
+                <StarRating value={scores.pronunciation} max={5} />
+                <div className="space-y-1 text-xs mt-2">
+                  <p className="text-emerald-700 font-medium">
+                    ✓ Correct — {correctWords}
+                  </p>
+                  <p className="text-amber-700 font-medium">
+                    ⚠ Mispronounced — {mispronounced}
+                  </p>
+                  <p className="text-red-700 font-medium">
+                    ✗ Missed — {missedWords}
+                  </p>
+                </div>
+              </SkillCard>
+              <SkillCard
+                color="rose"
+                title="Rhythm & Intonation"
+                icon={<Music className="w-4 h-4 text-rose-700" />}
+              >
+                <StarRating value={rhythmIntonationAvg} max={5} />
+                <p className="text-xs text-rose-700 mt-2">
+                  Rhythm: {scores.rhythm}/5 · Intonation: {scores.intonation}/5
+                </p>
+              </SkillCard>
+              <SkillCard
+                color="sky"
+                title="Fluency"
+                icon={<Zap className="w-4 h-4 text-sky-700" />}
+              >
+                <p className="text-lg font-bold text-sky-800">
+                  {wpm} words/min
+                </p>
+                <p className="text-xs text-sky-600 mt-0.5">
+                  Target: {rangeMin}–{rangeMax} wpm
+                </p>
+              </SkillCard>
+            </div>
+          </div>
+
+          {/* Actions */}
+          <div className="flex flex-col sm:flex-row gap-3 justify-center pt-2">
+            <Button
+              size="lg"
+              className="bg-amber-500 hover:bg-amber-600 text-white px-8 gap-2"
+              onClick={onRetry}
+              data-ocid="test.primary_button"
+            >
+              📖 Try Grade {newLevel} Passage
+            </Button>
+            <Button
+              size="lg"
+              variant="outline"
+              onClick={onBack}
+              data-ocid="test.secondary_button"
             >
               Back to Dashboard
             </Button>
@@ -529,26 +789,33 @@ export function StudentTest({ onNavigate }: StudentTestProps) {
   );
   const [recordingDuration, setRecordingDuration] = useState(0);
   const startTimeRef = useRef<number>(0);
+  const levelActionFiredRef = useRef(false);
 
   const userId = user?.userId ?? "";
+  const enrolledGrade = user?.grade ? Number(user.grade) : 1;
 
-  // Load results count and effective level from backend (non-blocking)
+  const proficiency = useProficiencySearch(userId, enrolledGrade);
+  const {
+    attemptsMade,
+    currentTestLevel,
+    levelFound,
+    foundLevel,
+    passLevel,
+    failLevel,
+    reset,
+  } = proficiency;
+
   const { data: results } = useMyResults(userId);
   const { data: levelData } = useMyEffectiveLevel(userId);
   const submitTest = useSubmitTestWithSkills();
   const recorder = useAudioRecorder();
   const speech = useSpeechRecognition();
 
-  // Determine passage entirely client-side — no backend query needed
+  // Determine passage based on current proficiency search level
   const passage = useMemo(() => {
-    // Use effective level from backend if available, else fall back to enrolled grade
-    const enrolledGrade = user?.grade ? Number(user.grade) : 1;
-    const effectiveGrade = levelData?.effectiveLevel
-      ? Number(levelData.effectiveLevel)
-      : enrolledGrade;
     const testsTaken = results?.length ?? 0;
-    return getPassageForLevel(effectiveGrade, testsTaken);
-  }, [user?.grade, levelData?.effectiveLevel, results?.length]);
+    return getPassageForLevel(currentTestLevel, testsTaken);
+  }, [currentTestLevel, results?.length]);
 
   const handleStartRecording = async () => {
     startTimeRef.current = Date.now();
@@ -577,7 +844,6 @@ export function StudentTest({ onNavigate }: StudentTestProps) {
         speech.segments,
       );
       setComputedScores(scores);
-      // Save skill scores for weekly report
       localStorage.setItem(
         `classio_skills_${userId}`,
         JSON.stringify({
@@ -623,8 +889,90 @@ export function StudentTest({ onNavigate }: StudentTestProps) {
     }
   };
 
+  // Compute previous score from last result
+  const previousScore = useMemo(() => {
+    if (!results || results.length === 0) return 0;
+    const last = results[results.length - 1] as any;
+    if (last?.skillScores) {
+      const s = last.skillScores;
+      return (
+        Number(s.rhythm ?? 0) +
+        Number(s.intonation ?? 0) +
+        Number(s.chunking ?? 0) +
+        Number(s.pronunciation ?? 0)
+      );
+    }
+    return 0;
+  }, [results]);
+
+  const gradeLevel = user?.grade ? Number(user.grade) : 1;
+
+  // After submit: compute pass/fail and update proficiency search
+  const avgScore = computedScores
+    ? (computedScores.rhythm +
+        computedScores.intonation +
+        computedScores.chunking +
+        computedScores.pronunciation) /
+      4
+    : 0;
+  const passed = avgScore >= 4;
+
+  useEffect(() => {
+    if (
+      submitTest.isSuccess &&
+      computedScores &&
+      !levelActionFiredRef.current &&
+      !levelFound
+    ) {
+      levelActionFiredRef.current = true;
+      if (passed) {
+        passLevel();
+      } else {
+        failLevel();
+      }
+    }
+  }, [
+    submitTest.isSuccess,
+    computedScores,
+    levelFound,
+    passed,
+    passLevel,
+    failLevel,
+  ]);
+
+  const handleRetry = () => {
+    levelActionFiredRef.current = false;
+    reset();
+    onNavigate("/student/test");
+  };
+
   if (submitTest.isSuccess) {
     if (computedScores) {
+      // If level not yet found (still searching), show "try next level" screen
+      // (levelFound becomes true after failLevel() if already at level 1)
+      // We check the local state: after failLevel, levelFound may be true (at level 1) or false
+      // We determine: if originally passed OR (after failLevel, levelFound is true) → show report
+      // else show try next level
+      if (!passed && !levelFound) {
+        return (
+          <TryNextLevelScreen
+            scores={computedScores}
+            currentTestLevel={currentTestLevel + 1} // the level just tested
+            newLevel={currentTestLevel}
+            attemptsMade={attemptsMade}
+            enrolledGrade={enrolledGrade}
+            transcript={speech.transcript}
+            passageContent={passage?.content ?? ""}
+            recordingDuration={recordingDuration}
+            gradeLevel={gradeLevel}
+            previousScore={previousScore}
+            onRetry={handleRetry}
+            onBack={() => onNavigate("/student")}
+          />
+        );
+      }
+
+      // Level found (passed or reached bottom) → show report card with journey CTA
       return (
         <ReportCard
           scores={computedScores}
@@ -632,11 +980,18 @@ export function StudentTest({ onNavigate }: StudentTestProps) {
           grade={user?.grade?.toString() ?? "—"}
           enrolledGrade={levelData?.enrolledGrade}
           effectiveLevel={levelData?.effectiveLevel}
+          transcript={speech.transcript}
+          passageContent={passage?.content ?? ""}
+          recordingDuration={recordingDuration}
+          gradeLevel={gradeLevel}
+          previousScore={previousScore}
           onBack={() => onNavigate("/student")}
           onNavigate={onNavigate}
+          foundLevel={foundLevel ?? currentTestLevel}
         />
       );
     }
+
     return (
       <div className="min-h-screen bg-background">
         <AppHeader title="Test Complete" />
@@ -680,16 +1035,19 @@ export function StudentTest({ onNavigate }: StudentTestProps) {
           </Button>
           <div>
             <h2 className="text-xl font-bold">Reading Proficiency Test</h2>
-            <p className="text-sm text-muted-foreground">
-              Grade {user?.grade?.toString()} — Read the passage aloud and
-              record yourself
-            </p>
+            <div className="flex items-center gap-2 mt-0.5">
+              <p className="text-sm text-muted-foreground">
+                Grade {user?.grade?.toString()} — Read the passage aloud and
+                record yourself
+              </p>
+              <span className="inline-flex items-center px-2 py-0.5 rounded-full bg-amber-100 text-amber-800 border border-amber-200 text-xs font-semibold">
+                Attempt {attemptsMade}/{enrolledGrade}
+              </span>
+            </div>
           </div>
         </div>
 
         {!passage ? (
-          // This should never happen since passages are embedded locally,
-          // but show a friendly message just in case.
           <Card
             className="rounded-xl border-border"
             data-ocid="test.error_state"
@@ -869,10 +1227,37 @@ export function StudentTest({ onNavigate }: StudentTestProps) {
                     </CardHeader>
                     <CardContent className="pt-4">
                       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                        {SKILL_META.map((skill) => {
+                        {[
+                          {
+                            key: "rhythm" as const,
+                            label: "Rhythm",
+                            emoji: "🎵",
+                          },
+                          {
+                            key: "intonation" as const,
+                            label: "Intonation",
+                            emoji: "🎶",
+                          },
+                          {
+                            key: "chunking" as const,
+                            label: "Chunking",
+                            emoji: "📋",
+                          },
+                          {
+                            key: "pronunciation" as const,
+                            label: "Pronunciation",
+                            emoji: "🗣️",
+                          },
+                        ].map((skill) => {
                           const score = computedScores[skill.key];
-                          const colorCls =
-                            SCORE_COLORS[score] || SCORE_COLORS[1];
+                          const colorMap: Record<number, string> = {
+                            5: "bg-emerald-500/15 text-emerald-700 border-emerald-200",
+                            4: "bg-teal-500/15 text-teal-700 border-teal-200",
+                            3: "bg-blue-500/15 text-blue-700 border-blue-200",
+                            2: "bg-amber-500/15 text-amber-700 border-amber-200",
+                            1: "bg-red-500/15 text-red-700 border-red-200",
+                          };
+                          const colorCls = colorMap[score] || colorMap[1];
                           return (
                             <div
                               key={skill.key}
@@ -884,9 +1269,6 @@ export function StudentTest({ onNavigate }: StudentTestProps) {
                               <p className="text-xl font-bold">
                                 {score}
                                 <span className="text-xs">/5</span>
-                              </p>
-                              <p className="text-xs mt-1">
-                                {SCORE_FEEDBACK[score]}
                               </p>
                             </div>
                           );

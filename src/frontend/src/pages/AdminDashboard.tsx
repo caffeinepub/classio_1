@@ -18,6 +18,17 @@ import { toast } from "sonner";
 import { AppHeader } from "../components/AppHeader";
 import { useCreateTeacher, useListTeachers } from "../hooks/useQueries";
 
+function extractErrorMessage(err: unknown): string {
+  if (!err || typeof err !== "object" || !("message" in err))
+    return "Failed to create teacher";
+  const raw = String((err as { message: unknown }).message);
+  const trapMatch = raw.match(/trapped explicitly:\s*(.+?)(?:\n|$)/);
+  const withMsgMatch = raw.match(/with message:\s*\'([^\']+)\'/s);
+  if (trapMatch) return trapMatch[1].trim().slice(0, 200);
+  if (withMsgMatch) return withMsgMatch[1].trim().slice(0, 200);
+  return raw.slice(0, 200);
+}
+
 export function AdminDashboard() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
@@ -31,8 +42,8 @@ export function AdminDashboard() {
       toast.success(`Teacher "${username}" created successfully`);
       setUsername("");
       setPassword("");
-    } catch {
-      toast.error("Failed to create teacher");
+    } catch (err: unknown) {
+      toast.error(extractErrorMessage(err));
     }
   };
 
@@ -88,7 +99,7 @@ export function AdminDashboard() {
                   <Badge className="text-xs bg-primary">Admin</Badge>
                 </div>
                 <div>
-                  <p className="text-sm font-semibold">Siddiqui</p>
+                  <p className="text-sm font-semibold">Classio1</p>
                   <p className="text-sm text-muted-foreground">
                     Master Account
                   </p>
@@ -209,7 +220,7 @@ export function AdminDashboard() {
                   </div>
                   <Button
                     type="submit"
-                    className="w-full bg-classio-blue hover:bg-classio-blue/90 text-white"
+                    className="w-full bg-cyan-500 hover:bg-cyan-400 text-black font-semibold"
                     disabled={createTeacher.isPending}
                     data-ocid="admin.submit_button"
                   >

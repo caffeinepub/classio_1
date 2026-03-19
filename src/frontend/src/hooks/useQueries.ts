@@ -1,5 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import type { UserId } from "../backend";
+import { useAuth } from "../context/AuthContext";
 import { useActor } from "./useActor";
 
 // Unwrap Candid optional: backend returns [] | [T] for ?T
@@ -9,8 +10,16 @@ function unwrapOptional<T>(value: [] | [T] | T | null | undefined): T | null {
   return value as T;
 }
 
+// Returns the session actor (from login) if available, else falls back to the anonymous actor
+function useEffectiveActor() {
+  const { sessionActor } = useAuth();
+  const { actor: anonymousActor, isFetching } = useActor();
+  const actor = sessionActor ?? anonymousActor;
+  return { actor, isFetching: !sessionActor && isFetching };
+}
+
 export function useListTeachers() {
-  const { actor, isFetching } = useActor();
+  const { actor, isFetching } = useEffectiveActor();
   return useQuery({
     queryKey: ["teachers"],
     queryFn: async () => {
@@ -22,14 +31,14 @@ export function useListTeachers() {
 }
 
 export function useCreateTeacher() {
-  const { actor } = useActor();
+  const { actor } = useEffectiveActor();
   const qc = useQueryClient();
   return useMutation({
     mutationFn: async ({
       username,
       password,
     }: { username: string; password: string }) => {
-      if (!actor) throw new Error("No actor");
+      if (!actor) throw new Error("Not authenticated. Please log in again.");
       return actor.createTeacher(username, password);
     },
     onSuccess: () => qc.invalidateQueries({ queryKey: ["teachers"] }),
@@ -37,7 +46,7 @@ export function useCreateTeacher() {
 }
 
 export function useListMyStudents() {
-  const { actor, isFetching } = useActor();
+  const { actor, isFetching } = useEffectiveActor();
   return useQuery({
     queryKey: ["myStudents"],
     queryFn: async () => {
@@ -49,7 +58,7 @@ export function useListMyStudents() {
 }
 
 export function useCreateStudent() {
-  const { actor } = useActor();
+  const { actor } = useEffectiveActor();
   const qc = useQueryClient();
   return useMutation({
     mutationFn: async ({
@@ -61,7 +70,7 @@ export function useCreateStudent() {
       password: string;
       grade: number;
     }) => {
-      if (!actor) throw new Error("No actor");
+      if (!actor) throw new Error("Not authenticated. Please log in again.");
       return actor.createStudent(username, password, BigInt(grade));
     },
     onSuccess: () => qc.invalidateQueries({ queryKey: ["myStudents"] }),
@@ -69,7 +78,7 @@ export function useCreateStudent() {
 }
 
 export function useStudentResults(studentId: UserId | null) {
-  const { actor, isFetching } = useActor();
+  const { actor, isFetching } = useEffectiveActor();
   return useQuery({
     queryKey: ["studentResults", studentId],
     queryFn: async () => {
@@ -81,7 +90,7 @@ export function useStudentResults(studentId: UserId | null) {
 }
 
 export function useMyResults(userId: string) {
-  const { actor, isFetching } = useActor();
+  const { actor, isFetching } = useEffectiveActor();
   return useQuery({
     queryKey: ["myResults", userId],
     queryFn: async () => {
@@ -93,13 +102,12 @@ export function useMyResults(userId: string) {
 }
 
 export function usePassageForTest(userId: string) {
-  const { actor, isFetching } = useActor();
+  const { actor, isFetching } = useEffectiveActor();
   return useQuery({
     queryKey: ["passageForTest", userId],
     queryFn: async () => {
       if (!actor || !userId) return null;
       const raw = await actor.getPassageForStudent(userId);
-      // Candid returns ?T as [] | [T] — unwrap to null | T
       return unwrapOptional<{
         id: bigint;
         title: string;
@@ -113,7 +121,7 @@ export function usePassageForTest(userId: string) {
 }
 
 export function usePassageForGrade(grade: bigint | undefined) {
-  const { actor, isFetching } = useActor();
+  const { actor, isFetching } = useEffectiveActor();
   return useQuery({
     queryKey: ["passage", grade?.toString()],
     queryFn: async () => {
@@ -125,13 +133,12 @@ export function usePassageForGrade(grade: bigint | undefined) {
 }
 
 export function useMyEffectiveLevel(userId: string) {
-  const { actor, isFetching } = useActor();
+  const { actor, isFetching } = useEffectiveActor();
   return useQuery({
     queryKey: ["effectiveLevel", userId],
     queryFn: async () => {
       if (!actor || !userId) return null;
       const raw = await actor.getStudentEffectiveLevel(userId);
-      // May return the record directly (non-optional), but handle both cases
       return unwrapOptional<{
         enrolledGrade: bigint;
         effectiveLevel: bigint;
@@ -149,7 +156,7 @@ export interface SkillScoresInput {
 }
 
 export function useSubmitTestWithSkills() {
-  const { actor } = useActor();
+  const { actor } = useEffectiveActor();
   const qc = useQueryClient();
   return useMutation({
     mutationFn: async ({
@@ -180,7 +187,7 @@ export function useSubmitTestWithSkills() {
 }
 
 export function useSubmitTest() {
-  const { actor } = useActor();
+  const { actor } = useEffectiveActor();
   const qc = useQueryClient();
   return useMutation({
     mutationFn: async ({
