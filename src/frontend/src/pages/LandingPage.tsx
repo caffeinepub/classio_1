@@ -170,16 +170,12 @@ export function LandingPage({ onNavigate }: LandingPageProps) {
           {/* Main copy */}
           <div className="flex-1 flex flex-col justify-center gap-6 mt-10">
             <div>
-              <h1 className="text-4xl xl:text-5xl font-extrabold text-white leading-tight tracking-tight drop-shadow-lg">
-                Learn.
-                <br />
-                Grow.
-                <br />
-                <span className="text-cyan-300">Excel.</span>
+              <h1 className="text-5xl xl:text-6xl font-extrabold text-white leading-tight tracking-tight drop-shadow-lg">
+                Learn and <span className="text-cyan-300">Lead</span>
               </h1>
               <p className="mt-4 text-indigo-100 text-base leading-relaxed max-w-sm">
-                Unlock your reading potential with intelligent assessments and
-                personalised learning pathways.
+                Empowering students to read, record, and rise — one grade at a
+                time.
               </p>
             </div>
 
