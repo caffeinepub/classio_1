@@ -19,12 +19,20 @@ export const _CaffeineStorageRefillResult = IDL.Record({
   'success' : IDL.Opt(IDL.Bool),
   'topped_up_amount' : IDL.Opt(IDL.Nat),
 });
+export const UserId = IDL.Text;
+export const ScoreRecord = IDL.Record({
+  'wpm' : IDL.Nat,
+  'weekNumber' : IDL.Nat,
+  'comprehensionScore' : IDL.Nat,
+  'rhythmScore' : IDL.Nat,
+  'fluencyScore' : IDL.Nat,
+  'pronunciationScore' : IDL.Nat,
+});
 export const UserRole__1 = IDL.Variant({
   'admin' : IDL.Null,
   'user' : IDL.Null,
   'guest' : IDL.Null,
 });
-export const UserId = IDL.Text;
 export const UserRole = IDL.Variant({
   'admin' : IDL.Null,
   'teacher' : IDL.Null,
@@ -36,6 +44,15 @@ export const UserProfile = IDL.Record({
   'role' : UserRole,
   'grade' : IDL.Opt(IDL.Nat),
   'effectiveLevel' : IDL.Opt(IDL.Nat),
+});
+export const StudentProgressSummary = IDL.Record({
+  'studentId' : UserId,
+  'name' : IDL.Text,
+  'latestComprehensionScore' : IDL.Nat,
+  'latestWPM' : IDL.Nat,
+  'weeklyTrend' : IDL.Vec(IDL.Nat),
+  'grade' : IDL.Nat,
+  'isBehind' : IDL.Bool,
 });
 export const PassageId = IDL.Nat;
 export const Passage = IDL.Record({
@@ -65,6 +82,11 @@ export const TestResult = IDL.Record({
 export const StudentLevel = IDL.Record({
   'enrolledGrade' : IDL.Nat,
   'effectiveLevel' : IDL.Nat,
+});
+export const VocabMastery = IDL.Record({
+  'mastered' : IDL.Bool,
+  'word' : IDL.Text,
+  'grade' : IDL.Nat,
 });
 export const User = IDL.Record({
   'id' : UserId,
@@ -113,12 +135,28 @@ export const idlService = IDL.Service({
     ),
   '_caffeineStorageUpdateGatewayPrincipals' : IDL.Func([], [], []),
   '_initializeAccessControlWithSecret' : IDL.Func([IDL.Text], [], []),
+  'addScoreHistory' : IDL.Func([UserId, ScoreRecord], [], []),
   'assignCallerUserRole' : IDL.Func([IDL.Principal, UserRole__1], [], []),
   'createStudent' : IDL.Func([IDL.Text, IDL.Text, IDL.Nat], [UserId], []),
+  'createStudentWithCreds' : IDL.Func(
+      [IDL.Text, IDL.Text, IDL.Text, IDL.Text, IDL.Nat],
+      [UserId],
+      [],
+    ),
   'createTeacher' : IDL.Func([IDL.Text, IDL.Text], [UserId], []),
+  'createTeacherWithCreds' : IDL.Func(
+      [IDL.Text, IDL.Text, IDL.Text],
+      [UserId],
+      [],
+    ),
   'ensureClassio1Admin' : IDL.Func([], [], []),
   'getCallerUserProfile' : IDL.Func([], [IDL.Opt(UserProfile)], ['query']),
   'getCallerUserRole' : IDL.Func([], [UserRole__1], ['query']),
+  'getClassProgress' : IDL.Func(
+      [UserId],
+      [IDL.Vec(StudentProgressSummary)],
+      ['query'],
+    ),
   'getPassageForGrade' : IDL.Func([IDL.Nat], [IDL.Opt(Passage)], ['query']),
   'getPassageForStudent' : IDL.Func(
       [UserId],
@@ -126,14 +164,22 @@ export const idlService = IDL.Service({
       ['query'],
     ),
   'getResultsForStudent' : IDL.Func([UserId], [IDL.Vec(TestResult)], ['query']),
+  'getScoreHistory' : IDL.Func([UserId], [IDL.Vec(ScoreRecord)], ['query']),
   'getStudentEffectiveLevel' : IDL.Func([UserId], [StudentLevel], ['query']),
   'getStudentResults' : IDL.Func([UserId], [IDL.Vec(TestResult)], ['query']),
+  'getStudentResultsWithCreds' : IDL.Func(
+      [IDL.Text, IDL.Text, UserId],
+      [IDL.Vec(TestResult)],
+      [],
+    ),
   'getUserProfile' : IDL.Func([UserId], [IDL.Opt(UserProfile)], ['query']),
-  'getWeeklyReport' : IDL.Func([UserId], [IDL.Text], ['query']),
+  'getVocabMastery' : IDL.Func([UserId], [IDL.Vec(VocabMastery)], ['query']),
   'initializeSystem' : IDL.Func([], [], []),
   'isCallerAdmin' : IDL.Func([], [IDL.Bool], ['query']),
   'listMyStudents' : IDL.Func([], [IDL.Vec(User)], ['query']),
+  'listStudentsWithCreds' : IDL.Func([IDL.Text, IDL.Text], [IDL.Vec(User)], []),
   'listTeachers' : IDL.Func([], [IDL.Vec(User)], ['query']),
+  'listTeachersWithCreds' : IDL.Func([IDL.Text], [IDL.Vec(User)], []),
   'login' : IDL.Func([IDL.Text, IDL.Text], [LoginResponse], []),
   'logout' : IDL.Func([], [], []),
   'saveCallerUserProfile' : IDL.Func([UserProfile], [], []),
@@ -145,6 +191,11 @@ export const idlService = IDL.Service({
   'submitTestWithSkills' : IDL.Func(
       [UserId, PassageId, SkillScores, IDL.Opt(ExternalBlobId)],
       [IDL.Nat],
+      [],
+    ),
+  'updateVocabMastery' : IDL.Func(
+      [UserId, IDL.Text, IDL.Nat, IDL.Bool],
+      [],
       [],
     ),
 });
@@ -163,12 +214,20 @@ export const idlFactory = ({ IDL }) => {
     'success' : IDL.Opt(IDL.Bool),
     'topped_up_amount' : IDL.Opt(IDL.Nat),
   });
+  const UserId = IDL.Text;
+  const ScoreRecord = IDL.Record({
+    'wpm' : IDL.Nat,
+    'weekNumber' : IDL.Nat,
+    'comprehensionScore' : IDL.Nat,
+    'rhythmScore' : IDL.Nat,
+    'fluencyScore' : IDL.Nat,
+    'pronunciationScore' : IDL.Nat,
+  });
   const UserRole__1 = IDL.Variant({
     'admin' : IDL.Null,
     'user' : IDL.Null,
     'guest' : IDL.Null,
   });
-  const UserId = IDL.Text;
   const UserRole = IDL.Variant({
     'admin' : IDL.Null,
     'teacher' : IDL.Null,
@@ -180,6 +239,15 @@ export const idlFactory = ({ IDL }) => {
     'role' : UserRole,
     'grade' : IDL.Opt(IDL.Nat),
     'effectiveLevel' : IDL.Opt(IDL.Nat),
+  });
+  const StudentProgressSummary = IDL.Record({
+    'studentId' : UserId,
+    'name' : IDL.Text,
+    'latestComprehensionScore' : IDL.Nat,
+    'latestWPM' : IDL.Nat,
+    'weeklyTrend' : IDL.Vec(IDL.Nat),
+    'grade' : IDL.Nat,
+    'isBehind' : IDL.Bool,
   });
   const PassageId = IDL.Nat;
   const Passage = IDL.Record({
@@ -209,6 +277,11 @@ export const idlFactory = ({ IDL }) => {
   const StudentLevel = IDL.Record({
     'enrolledGrade' : IDL.Nat,
     'effectiveLevel' : IDL.Nat,
+  });
+  const VocabMastery = IDL.Record({
+    'mastered' : IDL.Bool,
+    'word' : IDL.Text,
+    'grade' : IDL.Nat,
   });
   const User = IDL.Record({
     'id' : UserId,
@@ -254,12 +327,28 @@ export const idlFactory = ({ IDL }) => {
       ),
     '_caffeineStorageUpdateGatewayPrincipals' : IDL.Func([], [], []),
     '_initializeAccessControlWithSecret' : IDL.Func([IDL.Text], [], []),
+    'addScoreHistory' : IDL.Func([UserId, ScoreRecord], [], []),
     'assignCallerUserRole' : IDL.Func([IDL.Principal, UserRole__1], [], []),
     'createStudent' : IDL.Func([IDL.Text, IDL.Text, IDL.Nat], [UserId], []),
+    'createStudentWithCreds' : IDL.Func(
+        [IDL.Text, IDL.Text, IDL.Text, IDL.Text, IDL.Nat],
+        [UserId],
+        [],
+      ),
     'createTeacher' : IDL.Func([IDL.Text, IDL.Text], [UserId], []),
+    'createTeacherWithCreds' : IDL.Func(
+        [IDL.Text, IDL.Text, IDL.Text],
+        [UserId],
+        [],
+      ),
     'ensureClassio1Admin' : IDL.Func([], [], []),
     'getCallerUserProfile' : IDL.Func([], [IDL.Opt(UserProfile)], ['query']),
     'getCallerUserRole' : IDL.Func([], [UserRole__1], ['query']),
+    'getClassProgress' : IDL.Func(
+        [UserId],
+        [IDL.Vec(StudentProgressSummary)],
+        ['query'],
+      ),
     'getPassageForGrade' : IDL.Func([IDL.Nat], [IDL.Opt(Passage)], ['query']),
     'getPassageForStudent' : IDL.Func(
         [UserId],
@@ -271,14 +360,26 @@ export const idlFactory = ({ IDL }) => {
         [IDL.Vec(TestResult)],
         ['query'],
       ),
+    'getScoreHistory' : IDL.Func([UserId], [IDL.Vec(ScoreRecord)], ['query']),
     'getStudentEffectiveLevel' : IDL.Func([UserId], [StudentLevel], ['query']),
     'getStudentResults' : IDL.Func([UserId], [IDL.Vec(TestResult)], ['query']),
+    'getStudentResultsWithCreds' : IDL.Func(
+        [IDL.Text, IDL.Text, UserId],
+        [IDL.Vec(TestResult)],
+        [],
+      ),
     'getUserProfile' : IDL.Func([UserId], [IDL.Opt(UserProfile)], ['query']),
-    'getWeeklyReport' : IDL.Func([UserId], [IDL.Text], ['query']),
+    'getVocabMastery' : IDL.Func([UserId], [IDL.Vec(VocabMastery)], ['query']),
     'initializeSystem' : IDL.Func([], [], []),
     'isCallerAdmin' : IDL.Func([], [IDL.Bool], ['query']),
     'listMyStudents' : IDL.Func([], [IDL.Vec(User)], ['query']),
+    'listStudentsWithCreds' : IDL.Func(
+        [IDL.Text, IDL.Text],
+        [IDL.Vec(User)],
+        [],
+      ),
     'listTeachers' : IDL.Func([], [IDL.Vec(User)], ['query']),
+    'listTeachersWithCreds' : IDL.Func([IDL.Text], [IDL.Vec(User)], []),
     'login' : IDL.Func([IDL.Text, IDL.Text], [LoginResponse], []),
     'logout' : IDL.Func([], [], []),
     'saveCallerUserProfile' : IDL.Func([UserProfile], [], []),
@@ -290,6 +391,11 @@ export const idlFactory = ({ IDL }) => {
     'submitTestWithSkills' : IDL.Func(
         [UserId, PassageId, SkillScores, IDL.Opt(ExternalBlobId)],
         [IDL.Nat],
+        [],
+      ),
+    'updateVocabMastery' : IDL.Func(
+        [UserId, IDL.Text, IDL.Nat, IDL.Bool],
+        [],
         [],
       ),
   });

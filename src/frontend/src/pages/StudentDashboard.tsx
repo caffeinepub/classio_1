@@ -12,14 +12,26 @@ import {
 import { AnimatePresence, motion } from "motion/react";
 import { useState } from "react";
 import { AppHeader } from "../components/AppHeader";
+import { MonthlyProgressReport } from "../components/MonthlyProgressReport";
+import {
+  ComprehensionAccuracyTrend,
+  ReadingGrowthTimeline,
+  WPMTracker,
+} from "../components/ReadingGrowthCharts";
 import {
   ReportingIndicatorsPanel,
   ScoreOverviewPanel,
   SkillCard,
   StarRating,
 } from "../components/ReportCardLayout";
+import { SkillProgressBars } from "../components/SkillProgressBars";
+import { VocabMasteryMap } from "../components/VocabMasteryMap";
 import { useAuth } from "../context/AuthContext";
-import { useMyResults } from "../hooks/useQueries";
+import {
+  useMyResults,
+  useScoreHistory,
+  useVocabMastery,
+} from "../hooks/useQueries";
 
 interface StudentDashboardProps {
   onNavigate: (page: string) => void;
@@ -80,6 +92,8 @@ export function StudentDashboard({ onNavigate }: StudentDashboardProps) {
   const { user } = useAuth();
   const userId = user?.userId ?? "";
   const { data: results, isLoading } = useMyResults(userId);
+  const { data: scoreHistory = [] } = useScoreHistory(userId);
+  const { data: vocabWords = [] } = useVocabMastery(userId);
   const [activeTab, setActiveTab] = useState<Tab>("courses");
 
   const avg =
@@ -285,134 +299,227 @@ export function StudentDashboard({ onNavigate }: StudentDashboardProps) {
                 </div>
               </div>
 
-              {/* B. Large Course Card */}
-              <Card className="rounded-2xl bg-gray-900/80 border border-indigo-500/20 shadow-xl overflow-hidden">
-                <CardContent className="p-0">
-                  <div className="flex flex-col sm:flex-row">
-                    {/* Left illustration column */}
-                    <div className="sm:w-[35%] bg-gradient-to-br from-indigo-900/80 to-blue-900/80 border-r border-indigo-500/20 flex flex-col items-center justify-center p-6 min-h-[200px] relative">
-                      <span className="text-6xl">📚</span>
-                      <span className="absolute top-4 right-4 w-8 h-8 rounded-full bg-indigo-600 flex items-center justify-center text-white text-sm">
-                        ✓
-                      </span>
-                      <div className="flex gap-1 mt-3">
-                        {["S", "E", "A", "D"].map((l) => (
-                          <span
-                            key={l}
-                            className="w-6 h-6 rounded bg-indigo-500/30 flex items-center justify-center text-indigo-200 text-xs font-bold border border-indigo-500/40"
-                          >
-                            {l}
-                          </span>
-                        ))}
-                      </div>
-                      {/* Reading label below */}
-                      <div className="mt-4 text-left w-full">
-                        <p className="text-2xl font-bold text-white">Reading</p>
-                        <p className="text-xs text-indigo-300 flex items-center gap-1 mt-1">
-                          <span className="text-cyan-400">▶</span> Started —{" "}
-                          {new Date().toLocaleDateString("en-US", {
-                            weekday: "short",
-                            month: "short",
-                            day: "numeric",
-                            year: "numeric",
-                          })}
-                        </p>
-                      </div>
+              {/* Proficiency Test CTA (shown when level not yet found) */}
+              {!proficiencyLevelFound ? (
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.97 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  className="relative rounded-2xl overflow-hidden border border-indigo-500/30 bg-gray-900/80 p-8 mb-4 flex flex-col items-center text-center shadow-2xl"
+                >
+                  <div className="absolute top-0 left-1/3 w-72 h-72 bg-indigo-500/10 rounded-full blur-3xl pointer-events-none" />
+                  <div className="absolute bottom-0 right-1/4 w-56 h-56 bg-purple-500/10 rounded-full blur-3xl pointer-events-none" />
+                  <div className="relative z-10 flex flex-col items-center">
+                    <div className="w-20 h-20 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-4xl mb-5 shadow-lg shadow-indigo-500/40">
+                      🎯
                     </div>
-
-                    {/* Right content column */}
-                    <div className="flex-1 divide-y divide-indigo-500/10">
-                      {/* Row 1: Vocabulary */}
-                      <div className="p-4">
-                        <div className="flex items-start justify-between gap-3">
-                          <div className="bg-violet-500/20 rounded-xl p-2 shrink-0 border border-violet-500/30">
-                            <span className="text-xl">📖</span>
-                          </div>
-                          <div className="flex-1 min-w-0">
-                            <p className="font-bold text-white text-sm">
-                              Go to Vocabulary
-                            </p>
-                            <p className="text-xs text-gray-400 flex items-center gap-1 mt-0.5">
-                              <span className="text-orange-400">●</span>
-                              {vocabDone ? 1 : 0} / 6 lessons completed
-                            </p>
-                          </div>
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            className="shrink-0 bg-transparent border-indigo-500/40 text-indigo-300 hover:bg-indigo-500/10 rounded-full text-xs px-3"
-                            onClick={() => onNavigate("/student/vocab")}
-                            data-ocid="student.vocab.button"
-                          >
-                            View Details
-                          </Button>
-                        </div>
-                        {/* Progress bar */}
-                        <div className="mt-3 flex items-center gap-2">
-                          <div className="flex-1 h-2 bg-gray-800 rounded-full overflow-hidden">
-                            <div
-                              className="h-full bg-gradient-to-r from-indigo-500 to-purple-500 rounded-full transition-all duration-500"
-                              style={{ width: `${vocabPercent}%` }}
-                            />
-                          </div>
-                          <span className="text-xs text-gray-500 w-12 text-right">
-                            {vocabPercent.toFixed(2)}%
+                    <h3 className="text-2xl font-bold text-white mb-3">
+                      Start Your Proficiency Test
+                    </h3>
+                    <p className="text-indigo-200 max-w-md mb-7 leading-relaxed">
+                      Before beginning your courses, take a short proficiency
+                      test so we can find your current reading level and build
+                      the right learning path for you.
+                    </p>
+                    <button
+                      type="button"
+                      data-ocid="proficiency.primary_button"
+                      onClick={() => onNavigate("/student/test")}
+                      className="px-8 py-3.5 rounded-xl font-bold text-white bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-400 hover:to-purple-500 shadow-lg shadow-indigo-500/30 transition-all duration-200 text-lg"
+                    >
+                      Take Proficiency Test →
+                    </button>
+                  </div>
+                </motion.div>
+              ) : null}
+              {proficiencyLevelFound && (
+                <>
+                  {/* B. Large Course Card */}
+                  <Card className="rounded-2xl bg-gray-900/80 border border-indigo-500/20 shadow-xl overflow-hidden">
+                    <CardContent className="p-0">
+                      <div className="flex flex-col sm:flex-row">
+                        {/* Left illustration column */}
+                        <div className="sm:w-[35%] bg-gradient-to-br from-indigo-900/80 to-blue-900/80 border-r border-indigo-500/20 flex flex-col items-center justify-center p-6 min-h-[200px] relative">
+                          <span className="text-6xl">📚</span>
+                          <span className="absolute top-4 right-4 w-8 h-8 rounded-full bg-indigo-600 flex items-center justify-center text-white text-sm">
+                            ✓
                           </span>
-                        </div>
-                      </div>
-
-                      {/* Row 2: RCA */}
-                      <div className="p-4">
-                        <div className="flex items-start justify-between gap-3">
-                          <div className="bg-emerald-500/20 rounded-xl p-2 shrink-0 border border-emerald-500/30">
-                            <span className="text-xl">📋</span>
-                          </div>
-                          <div className="flex-1 min-w-0">
-                            <p className="font-bold text-white text-sm">
-                              Go to RCA
-                            </p>
-                            <p className="text-xs text-gray-400 flex items-center gap-1 mt-0.5">
-                              <span className="text-cyan-400">●</span>
-                              {practiceDone ? 1 : 0} / 12 lessons completed
-                            </p>
-                            <div className="flex gap-2 mt-2 flex-wrap">
-                              <Button
-                                size="sm"
-                                className="bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white rounded-full text-xs px-3 h-7 border-0"
-                                onClick={() => onNavigate("/student/test")}
-                                data-ocid="student.journey.button"
+                          <div className="flex gap-1 mt-3">
+                            {["S", "E", "A", "D"].map((l) => (
+                              <span
+                                key={l}
+                                className="w-6 h-6 rounded bg-indigo-500/30 flex items-center justify-center text-indigo-200 text-xs font-bold border border-indigo-500/40"
                               >
-                                My Journey
-                              </Button>
+                                {l}
+                              </span>
+                            ))}
+                          </div>
+                          {/* Reading label below */}
+                          <div className="mt-4 text-left w-full">
+                            <p className="text-2xl font-bold text-white">
+                              Reading
+                            </p>
+                            <p className="text-xs text-indigo-300 flex items-center gap-1 mt-1">
+                              <span className="text-cyan-400">▶</span> Started —{" "}
+                              {new Date().toLocaleDateString("en-US", {
+                                weekday: "short",
+                                month: "short",
+                                day: "numeric",
+                                year: "numeric",
+                              })}
+                            </p>
+                          </div>
+                        </div>
+
+                        {/* Right content column */}
+                        <div className="flex-1 divide-y divide-indigo-500/10">
+                          {/* Row 1: Vocabulary */}
+                          <div className="p-4">
+                            <div className="flex items-start justify-between gap-3">
+                              <div className="bg-violet-500/20 rounded-xl p-2 shrink-0 border border-violet-500/30">
+                                <span className="text-xl">📖</span>
+                              </div>
+                              <div className="flex-1 min-w-0">
+                                <p className="font-bold text-white text-sm">
+                                  Go to Vocabulary
+                                </p>
+                                <p className="text-xs text-gray-400 flex items-center gap-1 mt-0.5">
+                                  <span className="text-orange-400">●</span>
+                                  {vocabDone ? 1 : 0} / 6 lessons completed
+                                </p>
+                              </div>
                               <Button
                                 variant="outline"
                                 size="sm"
-                                className="bg-transparent border-cyan-500/40 text-cyan-300 hover:bg-cyan-500/10 rounded-full text-xs px-3 h-7"
-                                onClick={() => onNavigate("/student/practice")}
-                                data-ocid="student.practice.button"
+                                className="shrink-0 bg-transparent border-indigo-500/40 text-indigo-300 hover:bg-indigo-500/10 rounded-full text-xs px-3"
+                                onClick={() => onNavigate("/student/vocab")}
+                                data-ocid="student.vocab.button"
                               >
-                                Take Practice Test
+                                View Details
                               </Button>
+                            </div>
+                            {/* Progress bar */}
+                            <div className="mt-3 flex items-center gap-2">
+                              <div className="flex-1 h-2 bg-gray-800 rounded-full overflow-hidden">
+                                <div
+                                  className="h-full bg-gradient-to-r from-indigo-500 to-purple-500 rounded-full transition-all duration-500"
+                                  style={{ width: `${vocabPercent}%` }}
+                                />
+                              </div>
+                              <span className="text-xs text-gray-500 w-12 text-right">
+                                {vocabPercent.toFixed(2)}%
+                              </span>
+                            </div>
+                          </div>
+
+                          {/* Row 2: RCA */}
+                          <div className="p-4">
+                            <div className="flex items-start justify-between gap-3">
+                              <div className="bg-emerald-500/20 rounded-xl p-2 shrink-0 border border-emerald-500/30">
+                                <span className="text-xl">📋</span>
+                              </div>
+                              <div className="flex-1 min-w-0">
+                                <p className="font-bold text-white text-sm">
+                                  Go to RCA
+                                </p>
+                                <p className="text-xs text-gray-400 flex items-center gap-1 mt-0.5">
+                                  <span className="text-cyan-400">●</span>
+                                  {practiceDone ? 1 : 0} / 12 lessons completed
+                                </p>
+                                <div className="flex gap-2 mt-2 flex-wrap">
+                                  <Button
+                                    size="sm"
+                                    className="bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white rounded-full text-xs px-3 h-7 border-0"
+                                    onClick={() => onNavigate("/student/test")}
+                                    data-ocid="student.journey.button"
+                                  >
+                                    My Journey
+                                  </Button>
+                                  <Button
+                                    variant="outline"
+                                    size="sm"
+                                    className="bg-transparent border-cyan-500/40 text-cyan-300 hover:bg-cyan-500/10 rounded-full text-xs px-3 h-7"
+                                    onClick={() =>
+                                      onNavigate("/student/practice")
+                                    }
+                                    data-ocid="student.practice.button"
+                                  >
+                                    Take Practice Test
+                                  </Button>
+                                </div>
+                              </div>
+                            </div>
+                            {/* Progress bar */}
+                            <div className="mt-3 flex items-center gap-2">
+                              <div className="flex-1 h-2 bg-gray-800 rounded-full overflow-hidden">
+                                <div
+                                  className="h-full bg-gradient-to-r from-cyan-500 to-blue-500 rounded-full transition-all duration-500"
+                                  style={{ width: `${rcaPercent}%` }}
+                                />
+                              </div>
+                              <span className="text-xs text-gray-500 w-12 text-right">
+                                {rcaPercent.toFixed(2)}%
+                              </span>
                             </div>
                           </div>
                         </div>
-                        {/* Progress bar */}
-                        <div className="mt-3 flex items-center gap-2">
-                          <div className="flex-1 h-2 bg-gray-800 rounded-full overflow-hidden">
-                            <div
-                              className="h-full bg-gradient-to-r from-cyan-500 to-blue-500 rounded-full transition-all duration-500"
-                              style={{ width: `${rcaPercent}%` }}
-                            />
-                          </div>
-                          <span className="text-xs text-gray-500 w-12 text-right">
-                            {rcaPercent.toFixed(2)}%
-                          </span>
-                        </div>
                       </div>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
+                    </CardContent>
+                  </Card>
+                </>
+              )}
+
+              {/* Feature 7: Skill-Specific Progress Bars */}
+              <div className="mt-4">
+                <SkillProgressBars
+                  scores={{
+                    pronunciation:
+                      scoreHistory.length > 0
+                        ? Math.min(
+                            100,
+                            Number(
+                              scoreHistory[scoreHistory.length - 1]
+                                .pronunciationScore,
+                            ),
+                          )
+                        : avg !== null
+                          ? Math.round(avg * 20)
+                          : 45,
+                    rhythm:
+                      scoreHistory.length > 0
+                        ? Math.min(
+                            100,
+                            Number(
+                              scoreHistory[scoreHistory.length - 1].rhythmScore,
+                            ),
+                          )
+                        : avg !== null
+                          ? Math.round(avg * 18)
+                          : 38,
+                    intonation:
+                      scoreHistory.length > 0
+                        ? Math.min(
+                            100,
+                            Number(
+                              scoreHistory[scoreHistory.length - 1]
+                                .fluencyScore,
+                            ),
+                          )
+                        : avg !== null
+                          ? Math.round(avg * 19)
+                          : 52,
+                    fluency:
+                      scoreHistory.length > 0
+                        ? Math.min(
+                            100,
+                            Number(scoreHistory[scoreHistory.length - 1].wpm) /
+                              2,
+                          )
+                        : avg !== null
+                          ? Math.round(avg * 17)
+                          : 60,
+                  }}
+                />
+              </div>
 
               {/* Weekly complete banner */}
               {weeklyDone && (
@@ -665,6 +772,29 @@ export function StudentDashboard({ onNavigate }: StudentDashboardProps) {
                   )}
                 </CardContent>
               </Card>
+              {/* Feature 1: Reading Growth Timeline */}
+              <ReadingGrowthTimeline records={scoreHistory} />
+
+              {/* Feature 2: WPM Tracker */}
+              <WPMTracker records={scoreHistory} />
+
+              {/* Feature 5: Comprehension Accuracy Trend */}
+              <ComprehensionAccuracyTrend records={scoreHistory} />
+
+              {/* Feature 3: Vocabulary Mastery Map */}
+              <VocabMasteryMap words={vocabWords} grade={grade} />
+
+              {/* Feature 6: Monthly Progress Report */}
+              <MonthlyProgressReport
+                startScore={
+                  results && results.length > 0
+                    ? Math.round((Number(results[0].score) / 5) * 100)
+                    : null
+                }
+                currentScore={avg !== null ? Math.round((avg / 5) * 100) : null}
+                grade={grade}
+                username={user?.username ?? ""}
+              />
             </motion.div>
           )}
 

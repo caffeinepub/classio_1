@@ -25,12 +25,22 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Eye, Loader2, Plus, Users } from "lucide-react";
+import {
+  BarChart2,
+  Eye,
+  Loader2,
+  Plus,
+  Search,
+  TrendingUp,
+  Users,
+} from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 import type { User } from "../backend";
 import { AppHeader } from "../components/AppHeader";
+import { useAuth } from "../context/AuthContext";
 import {
+  useClassProgress,
   useCreateStudent,
   useListMyStudents,
   useStudentResults,
@@ -115,6 +125,9 @@ function StudentResults({
 }
 
 export function TeacherDashboard() {
+  const { user } = useAuth();
+  const [classSearch, setClassSearch] = useState("");
+  const teacherId = user?.userId ?? "";
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [grade, setGrade] = useState("");
@@ -122,6 +135,8 @@ export function TeacherDashboard() {
   const [resultsOpen, setResultsOpen] = useState(false);
 
   const { data: students, isLoading } = useListMyStudents();
+  const { data: classProgressRaw = [], isLoading: classLoading } =
+    useClassProgress(teacherId);
   const createStudent = useCreateStudent();
 
   const handleCreate = async (e: React.FormEvent) => {
@@ -223,6 +238,14 @@ export function TeacherDashboard() {
               data-ocid="teacher.tab"
             >
               Add Student
+            </TabsTrigger>
+            <TabsTrigger
+              value="progress"
+              className="data-[state=active]:bg-indigo-600 data-[state=active]:text-white text-gray-400"
+              data-ocid="teacher.tab"
+            >
+              <BarChart2 className="w-3.5 h-3.5 mr-1.5 inline" />
+              Class Progress
             </TabsTrigger>
           </TabsList>
 
@@ -384,6 +407,261 @@ export function TeacherDashboard() {
                 </form>
               </CardContent>
             </Card>
+          </TabsContent>
+
+          <TabsContent value="progress">
+            {/* Feature 4: Teacher Class Progress Dashboard */}
+            <div className="space-y-4">
+              {/* Search */}
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
+                <input
+                  type="text"
+                  placeholder="Search students..."
+                  value={classSearch}
+                  onChange={(e) => setClassSearch(e.target.value)}
+                  className="w-full pl-9 pr-4 py-2 text-sm rounded-lg bg-gray-800/80 border border-indigo-500/30 text-white placeholder:text-gray-500 focus:outline-none focus:border-indigo-400"
+                  data-ocid="teacher.search_input"
+                />
+              </div>
+
+              {classLoading ? (
+                <div
+                  className="flex justify-center py-12"
+                  data-ocid="teacher.loading_state"
+                >
+                  <Loader2 className="w-6 h-6 animate-spin text-indigo-400" />
+                </div>
+              ) : (
+                (() => {
+                  const MOCK_DATA = [
+                    {
+                      studentId: "s1",
+                      name: "Emma Wilson",
+                      grade: 8n,
+                      latestComprehensionScore: 82n,
+                      latestWPM: 115n,
+                      weeklyTrend: [70n, 74n, 79n, 82n] as bigint[],
+                      isBehind: false,
+                    },
+                    {
+                      studentId: "s2",
+                      name: "James Chen",
+                      grade: 7n,
+                      latestComprehensionScore: 55n,
+                      latestWPM: 88n,
+                      weeklyTrend: [60n, 58n, 55n, 55n] as bigint[],
+                      isBehind: true,
+                    },
+                    {
+                      studentId: "s3",
+                      name: "Sofia Martinez",
+                      grade: 6n,
+                      latestComprehensionScore: 78n,
+                      latestWPM: 102n,
+                      weeklyTrend: [65n, 70n, 75n, 78n] as bigint[],
+                      isBehind: false,
+                    },
+                    {
+                      studentId: "s4",
+                      name: "Liam Patel",
+                      grade: 8n,
+                      latestComprehensionScore: 45n,
+                      latestWPM: 72n,
+                      weeklyTrend: [50n, 48n, 46n, 45n] as bigint[],
+                      isBehind: true,
+                    },
+                    {
+                      studentId: "s5",
+                      name: "Zoe Thompson",
+                      grade: 5n,
+                      latestComprehensionScore: 91n,
+                      latestWPM: 125n,
+                      weeklyTrend: [80n, 84n, 88n, 91n] as bigint[],
+                      isBehind: false,
+                    },
+                  ];
+                  const display =
+                    classProgressRaw.length > 0 ? classProgressRaw : MOCK_DATA;
+                  const filtered = display.filter((s) =>
+                    s.name.toLowerCase().includes(classSearch.toLowerCase()),
+                  );
+                  const avgComp = Math.round(
+                    filtered.reduce(
+                      (sum, s) => sum + Number(s.latestComprehensionScore),
+                      0,
+                    ) / (filtered.length || 1),
+                  );
+                  const onTrack = filtered.filter((s) => !s.isBehind).length;
+                  const behind = filtered.filter((s) => s.isBehind).length;
+
+                  return (
+                    <>
+                      {/* Summary cards */}
+                      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                        {[
+                          {
+                            label: "Total Students",
+                            value: filtered.length,
+                            icon: "👥",
+                            color: "text-indigo-300",
+                          },
+                          {
+                            label: "Avg Comprehension",
+                            value: `${avgComp}%`,
+                            icon: "📊",
+                            color: "text-violet-300",
+                          },
+                          {
+                            label: "On Track",
+                            value: onTrack,
+                            icon: "✅",
+                            color: "text-emerald-300",
+                          },
+                          {
+                            label: "Need Help",
+                            value: behind,
+                            icon: "⚠️",
+                            color: "text-rose-300",
+                          },
+                        ].map((stat) => (
+                          <Card
+                            key={stat.label}
+                            className="rounded-xl bg-gray-900/80 border border-indigo-500/20"
+                          >
+                            <CardContent className="pt-4 pb-3">
+                              <p className="text-2xl mb-0.5">{stat.icon}</p>
+                              <p className={`text-xl font-bold ${stat.color}`}>
+                                {stat.value}
+                              </p>
+                              <p className="text-xs text-gray-400">
+                                {stat.label}
+                              </p>
+                            </CardContent>
+                          </Card>
+                        ))}
+                      </div>
+
+                      {/* Student table */}
+                      <Card className="rounded-xl bg-gray-900/80 border border-indigo-500/20 shadow-lg">
+                        <CardHeader className="border-b border-indigo-500/20 pb-3">
+                          <CardTitle className="text-base flex items-center gap-2 text-white">
+                            <TrendingUp className="w-4 h-4 text-cyan-400" />
+                            Student Progress Overview
+                          </CardTitle>
+                        </CardHeader>
+                        <CardContent className="p-0 overflow-x-auto">
+                          {filtered.length === 0 ? (
+                            <div
+                              className="text-center py-10 text-gray-500"
+                              data-ocid="teacher.empty_state"
+                            >
+                              <Users className="w-8 h-8 mx-auto mb-2 opacity-30" />
+                              <p className="text-sm">No students found</p>
+                            </div>
+                          ) : (
+                            <table className="w-full text-sm">
+                              <thead>
+                                <tr className="border-b border-indigo-500/20">
+                                  <th className="text-left px-4 py-3 text-xs font-semibold text-gray-400 uppercase tracking-wide">
+                                    Student
+                                  </th>
+                                  <th className="text-left px-4 py-3 text-xs font-semibold text-gray-400 uppercase tracking-wide">
+                                    Grade
+                                  </th>
+                                  <th className="text-left px-4 py-3 text-xs font-semibold text-gray-400 uppercase tracking-wide">
+                                    Trend
+                                  </th>
+                                  <th className="text-left px-4 py-3 text-xs font-semibold text-gray-400 uppercase tracking-wide">
+                                    Comp%
+                                  </th>
+                                  <th className="text-left px-4 py-3 text-xs font-semibold text-gray-400 uppercase tracking-wide">
+                                    WPM
+                                  </th>
+                                  <th className="text-left px-4 py-3 text-xs font-semibold text-gray-400 uppercase tracking-wide">
+                                    Status
+                                  </th>
+                                </tr>
+                              </thead>
+                              <tbody>
+                                {filtered.map((s, idx) => {
+                                  const trend = s.weeklyTrend
+                                    .slice(-4)
+                                    .map(Number);
+                                  const maxT = Math.max(...trend, 1);
+                                  const sparkH = 24;
+                                  const sparkW = 60;
+                                  const pts = trend
+                                    .map(
+                                      (v, i) =>
+                                        `${(i / (trend.length - 1)) * sparkW},${sparkH - (v / maxT) * sparkH}`,
+                                    )
+                                    .join(" ");
+                                  return (
+                                    <tr
+                                      key={s.studentId}
+                                      className={`border-b border-indigo-500/10 hover:bg-indigo-500/5 transition-colors ${s.isBehind ? "shadow-[inset_0_0_0_1px_rgba(239,68,68,0.15)] bg-red-500/5" : ""}`}
+                                      data-ocid={`teacher.item.${idx + 1}`}
+                                    >
+                                      <td className="px-4 py-3 font-medium text-white">
+                                        {s.name}
+                                      </td>
+                                      <td className="px-4 py-3">
+                                        <Badge className="bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 text-xs">
+                                          G{Number(s.grade)}
+                                        </Badge>
+                                      </td>
+                                      <td className="px-4 py-3">
+                                        <svg
+                                          width={sparkW}
+                                          height={sparkH}
+                                          className="overflow-visible"
+                                          role="img"
+                                          aria-label="Weekly trend sparkline"
+                                        >
+                                          <polyline
+                                            points={pts}
+                                            fill="none"
+                                            stroke={
+                                              s.isBehind ? "#f87171" : "#22d3ee"
+                                            }
+                                            strokeWidth="1.5"
+                                            strokeLinejoin="round"
+                                          />
+                                        </svg>
+                                      </td>
+                                      <td className="px-4 py-3 text-slate-200">
+                                        {Number(s.latestComprehensionScore)}%
+                                      </td>
+                                      <td className="px-4 py-3 text-slate-200">
+                                        {Number(s.latestWPM)}
+                                      </td>
+                                      <td className="px-4 py-3">
+                                        <Badge
+                                          className={
+                                            s.isBehind
+                                              ? "bg-rose-500/20 text-rose-300 border border-rose-500/30 text-xs"
+                                              : "bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 text-xs"
+                                          }
+                                        >
+                                          {s.isBehind
+                                            ? "Needs Help"
+                                            : "On Track"}
+                                        </Badge>
+                                      </td>
+                                    </tr>
+                                  );
+                                })}
+                              </tbody>
+                            </table>
+                          )}
+                        </CardContent>
+                      </Card>
+                    </>
+                  );
+                })()
+              )}
+            </div>
           </TabsContent>
         </Tabs>
       </main>

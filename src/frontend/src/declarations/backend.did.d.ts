@@ -27,6 +27,14 @@ export interface PassageInfo {
   'gradeLevel' : bigint,
 }
 export type ResultId = bigint;
+export interface ScoreRecord {
+  'wpm' : bigint,
+  'weekNumber' : bigint,
+  'comprehensionScore' : bigint,
+  'rhythmScore' : bigint,
+  'fluencyScore' : bigint,
+  'pronunciationScore' : bigint,
+}
 export interface SkillScores {
   'chunking' : bigint,
   'pronunciation' : bigint,
@@ -36,6 +44,15 @@ export interface SkillScores {
 export interface StudentLevel {
   'enrolledGrade' : bigint,
   'effectiveLevel' : bigint,
+}
+export interface StudentProgressSummary {
+  'studentId' : UserId,
+  'name' : string,
+  'latestComprehensionScore' : bigint,
+  'latestWPM' : bigint,
+  'weeklyTrend' : Array<bigint>,
+  'grade' : bigint,
+  'isBehind' : boolean,
 }
 export interface TestResult {
   'id' : ResultId,
@@ -68,6 +85,11 @@ export type UserRole = { 'admin' : null } |
 export type UserRole__1 = { 'admin' : null } |
   { 'user' : null } |
   { 'guest' : null };
+export interface VocabMastery {
+  'mastered' : boolean,
+  'word' : string,
+  'grade' : bigint,
+}
 export interface _CaffeineStorageCreateCertificateResult {
   'method' : string,
   'blob_hash' : string,
@@ -96,23 +118,37 @@ export interface _SERVICE {
   >,
   '_caffeineStorageUpdateGatewayPrincipals' : ActorMethod<[], undefined>,
   '_initializeAccessControlWithSecret' : ActorMethod<[string], undefined>,
+  'addScoreHistory' : ActorMethod<[UserId, ScoreRecord], undefined>,
   'assignCallerUserRole' : ActorMethod<[Principal, UserRole__1], undefined>,
   'createStudent' : ActorMethod<[string, string, bigint], UserId>,
+  'createStudentWithCreds' : ActorMethod<
+    [string, string, string, string, bigint],
+    UserId
+  >,
   'createTeacher' : ActorMethod<[string, string], UserId>,
+  'createTeacherWithCreds' : ActorMethod<[string, string, string], UserId>,
   'ensureClassio1Admin' : ActorMethod<[], undefined>,
   'getCallerUserProfile' : ActorMethod<[], [] | [UserProfile]>,
   'getCallerUserRole' : ActorMethod<[], UserRole__1>,
+  'getClassProgress' : ActorMethod<[UserId], Array<StudentProgressSummary>>,
   'getPassageForGrade' : ActorMethod<[bigint], [] | [Passage]>,
   'getPassageForStudent' : ActorMethod<[UserId], [] | [PassageInfo]>,
   'getResultsForStudent' : ActorMethod<[UserId], Array<TestResult>>,
+  'getScoreHistory' : ActorMethod<[UserId], Array<ScoreRecord>>,
   'getStudentEffectiveLevel' : ActorMethod<[UserId], StudentLevel>,
   'getStudentResults' : ActorMethod<[UserId], Array<TestResult>>,
+  'getStudentResultsWithCreds' : ActorMethod<
+    [string, string, UserId],
+    Array<TestResult>
+  >,
   'getUserProfile' : ActorMethod<[UserId], [] | [UserProfile]>,
-  'getWeeklyReport' : ActorMethod<[UserId], string>,
+  'getVocabMastery' : ActorMethod<[UserId], Array<VocabMastery>>,
   'initializeSystem' : ActorMethod<[], undefined>,
   'isCallerAdmin' : ActorMethod<[], boolean>,
   'listMyStudents' : ActorMethod<[], Array<User>>,
+  'listStudentsWithCreds' : ActorMethod<[string, string], Array<User>>,
   'listTeachers' : ActorMethod<[], Array<User>>,
+  'listTeachersWithCreds' : ActorMethod<[string], Array<User>>,
   'login' : ActorMethod<[string, string], LoginResponse>,
   'logout' : ActorMethod<[], undefined>,
   'saveCallerUserProfile' : ActorMethod<[UserProfile], undefined>,
@@ -123,6 +159,10 @@ export interface _SERVICE {
   'submitTestWithSkills' : ActorMethod<
     [UserId, PassageId, SkillScores, [] | [ExternalBlobId]],
     bigint
+  >,
+  'updateVocabMastery' : ActorMethod<
+    [UserId, string, bigint, boolean],
+    undefined
   >,
 }
 export declare const idlService: IDL.ServiceClass;

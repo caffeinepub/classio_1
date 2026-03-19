@@ -89,6 +89,22 @@ export class ExternalBlob {
         return this;
     }
 }
+export interface UserProfile {
+    username: string;
+    userId: UserId;
+    role: UserRole;
+    grade?: bigint;
+    effectiveLevel?: bigint;
+}
+export interface StudentProgressSummary {
+    studentId: UserId;
+    name: string;
+    latestComprehensionScore: bigint;
+    latestWPM: bigint;
+    weeklyTrend: Array<bigint>;
+    grade: bigint;
+    isBehind: boolean;
+}
 export interface Passage {
     id: PassageId;
     title: string;
@@ -136,6 +152,14 @@ export interface TestResult {
 }
 export type PassageId = bigint;
 export type UserId = string;
+export interface ScoreRecord {
+    wpm: bigint;
+    weekNumber: bigint;
+    comprehensionScore: bigint;
+    rhythmScore: bigint;
+    fluencyScore: bigint;
+    pronunciationScore: bigint;
+}
 export interface StudentLevel {
     enrolledGrade: bigint;
     effectiveLevel: bigint;
@@ -144,16 +168,14 @@ export interface LoginResponse {
     userId: string;
     role: UserRole;
 }
-export interface UserProfile {
-    username: string;
-    userId: UserId;
-    role: UserRole;
-    grade?: bigint;
-    effectiveLevel?: bigint;
-}
 export interface _CaffeineStorageRefillResult {
     success?: boolean;
     topped_up_amount?: bigint;
+}
+export interface VocabMastery {
+    mastered: boolean;
+    word: string;
+    grade: bigint;
 }
 export enum UserRole {
     admin = "admin",
@@ -173,28 +195,37 @@ export interface backendInterface {
     _caffeineStorageRefillCashier(refillInformation: _CaffeineStorageRefillInformation | null): Promise<_CaffeineStorageRefillResult>;
     _caffeineStorageUpdateGatewayPrincipals(): Promise<void>;
     _initializeAccessControlWithSecret(userSecret: string): Promise<void>;
+    addScoreHistory(userId: UserId, record: ScoreRecord): Promise<void>;
     assignCallerUserRole(user: Principal, role: UserRole__1): Promise<void>;
     createStudent(username: string, password: string, grade: bigint): Promise<UserId>;
+    createStudentWithCreds(teacherUser: string, teacherPass: string, studentUsername: string, studentPassword: string, grade: bigint): Promise<UserId>;
     createTeacher(username: string, password: string): Promise<UserId>;
+    createTeacherWithCreds(adminPass: string, teacherUsername: string, teacherPassword: string): Promise<UserId>;
     ensureClassio1Admin(): Promise<void>;
     getCallerUserProfile(): Promise<UserProfile | null>;
     getCallerUserRole(): Promise<UserRole__1>;
+    getClassProgress(teacherId: UserId): Promise<Array<StudentProgressSummary>>;
     getPassageForGrade(grade: bigint): Promise<Passage | null>;
     getPassageForStudent(userId: UserId): Promise<PassageInfo | null>;
     getResultsForStudent(userId: UserId): Promise<Array<TestResult>>;
+    getScoreHistory(userId: UserId): Promise<Array<ScoreRecord>>;
     getStudentEffectiveLevel(userId: UserId): Promise<StudentLevel>;
     getStudentResults(studentId: UserId): Promise<Array<TestResult>>;
+    getStudentResultsWithCreds(teacherUser: string, teacherPass: string, studentId: UserId): Promise<Array<TestResult>>;
     getUserProfile(userId: UserId): Promise<UserProfile | null>;
-    getWeeklyReport(studentId: UserId): Promise<string>;
+    getVocabMastery(userId: UserId): Promise<Array<VocabMastery>>;
     initializeSystem(): Promise<void>;
     isCallerAdmin(): Promise<boolean>;
     listMyStudents(): Promise<Array<User>>;
+    listStudentsWithCreds(teacherUser: string, teacherPass: string): Promise<Array<User>>;
     listTeachers(): Promise<Array<User>>;
+    listTeachersWithCreds(adminPass: string): Promise<Array<User>>;
     login(username: string, password: string): Promise<LoginResponse>;
     logout(): Promise<void>;
     saveCallerUserProfile(profile: UserProfile): Promise<void>;
     submitTest(userId: UserId, passageId: PassageId, answers: Array<bigint>, audioBlobId: ExternalBlobId | null): Promise<bigint>;
     submitTestWithSkills(userId: UserId, passageId: PassageId, skillScores: SkillScores, audioBlobId: ExternalBlobId | null): Promise<bigint>;
+    updateVocabMastery(userId: UserId, word: string, grade: bigint, mastered: boolean): Promise<void>;
 }
 import type { ExternalBlobId as _ExternalBlobId, LoginResponse as _LoginResponse, Passage as _Passage, PassageId as _PassageId, PassageInfo as _PassageInfo, ResultId as _ResultId, TestResult as _TestResult, User as _User, UserId as _UserId, UserProfile as _UserProfile, UserRole as _UserRole, UserRole__1 as _UserRole__1, _CaffeineStorageRefillInformation as __CaffeineStorageRefillInformation, _CaffeineStorageRefillResult as __CaffeineStorageRefillResult } from "./declarations/backend.did.d.ts";
 export class Backend implements backendInterface {
@@ -297,6 +328,20 @@ export class Backend implements backendInterface {
             return result;
         }
     }
+    async addScoreHistory(arg0: UserId, arg1: ScoreRecord): Promise<void> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.addScoreHistory(arg0, arg1);
+                return result;
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.addScoreHistory(arg0, arg1);
+            return result;
+        }
+    }
     async assignCallerUserRole(arg0: Principal, arg1: UserRole__1): Promise<void> {
         if (this.processError) {
             try {
@@ -325,6 +370,20 @@ export class Backend implements backendInterface {
             return result;
         }
     }
+    async createStudentWithCreds(arg0: string, arg1: string, arg2: string, arg3: string, arg4: bigint): Promise<UserId> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.createStudentWithCreds(arg0, arg1, arg2, arg3, arg4);
+                return result;
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.createStudentWithCreds(arg0, arg1, arg2, arg3, arg4);
+            return result;
+        }
+    }
     async createTeacher(arg0: string, arg1: string): Promise<UserId> {
         if (this.processError) {
             try {
@@ -336,6 +395,20 @@ export class Backend implements backendInterface {
             }
         } else {
             const result = await this.actor.createTeacher(arg0, arg1);
+            return result;
+        }
+    }
+    async createTeacherWithCreds(arg0: string, arg1: string, arg2: string): Promise<UserId> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.createTeacherWithCreds(arg0, arg1, arg2);
+                return result;
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.createTeacherWithCreds(arg0, arg1, arg2);
             return result;
         }
     }
@@ -381,6 +454,20 @@ export class Backend implements backendInterface {
             return from_candid_UserRole__1_n15(this._uploadFile, this._downloadFile, result);
         }
     }
+    async getClassProgress(arg0: UserId): Promise<Array<StudentProgressSummary>> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.getClassProgress(arg0);
+                return result;
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.getClassProgress(arg0);
+            return result;
+        }
+    }
     async getPassageForGrade(arg0: bigint): Promise<Passage | null> {
         if (this.processError) {
             try {
@@ -423,6 +510,20 @@ export class Backend implements backendInterface {
             return from_candid_vec_n19(this._uploadFile, this._downloadFile, result);
         }
     }
+    async getScoreHistory(arg0: UserId): Promise<Array<ScoreRecord>> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.getScoreHistory(arg0);
+                return result;
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.getScoreHistory(arg0);
+            return result;
+        }
+    }
     async getStudentEffectiveLevel(arg0: UserId): Promise<StudentLevel> {
         if (this.processError) {
             try {
@@ -451,6 +552,20 @@ export class Backend implements backendInterface {
             return from_candid_vec_n19(this._uploadFile, this._downloadFile, result);
         }
     }
+    async getStudentResultsWithCreds(arg0: string, arg1: string, arg2: UserId): Promise<Array<TestResult>> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.getStudentResultsWithCreds(arg0, arg1, arg2);
+                return from_candid_vec_n19(this._uploadFile, this._downloadFile, result);
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.getStudentResultsWithCreds(arg0, arg1, arg2);
+            return from_candid_vec_n19(this._uploadFile, this._downloadFile, result);
+        }
+    }
     async getUserProfile(arg0: UserId): Promise<UserProfile | null> {
         if (this.processError) {
             try {
@@ -465,17 +580,17 @@ export class Backend implements backendInterface {
             return from_candid_opt_n10(this._uploadFile, this._downloadFile, result);
         }
     }
-    async getWeeklyReport(arg0: UserId): Promise<string> {
+    async getVocabMastery(arg0: UserId): Promise<Array<VocabMastery>> {
         if (this.processError) {
             try {
-                const result = await this.actor.getWeeklyReport(arg0);
+                const result = await this.actor.getVocabMastery(arg0);
                 return result;
             } catch (e) {
                 this.processError(e);
                 throw new Error("unreachable");
             }
         } else {
-            const result = await this.actor.getWeeklyReport(arg0);
+            const result = await this.actor.getVocabMastery(arg0);
             return result;
         }
     }
@@ -521,6 +636,20 @@ export class Backend implements backendInterface {
             return from_candid_vec_n23(this._uploadFile, this._downloadFile, result);
         }
     }
+    async listStudentsWithCreds(arg0: string, arg1: string): Promise<Array<User>> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.listStudentsWithCreds(arg0, arg1);
+                return from_candid_vec_n23(this._uploadFile, this._downloadFile, result);
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.listStudentsWithCreds(arg0, arg1);
+            return from_candid_vec_n23(this._uploadFile, this._downloadFile, result);
+        }
+    }
     async listTeachers(): Promise<Array<User>> {
         if (this.processError) {
             try {
@@ -532,6 +661,20 @@ export class Backend implements backendInterface {
             }
         } else {
             const result = await this.actor.listTeachers();
+            return from_candid_vec_n23(this._uploadFile, this._downloadFile, result);
+        }
+    }
+    async listTeachersWithCreds(arg0: string): Promise<Array<User>> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.listTeachersWithCreds(arg0);
+                return from_candid_vec_n23(this._uploadFile, this._downloadFile, result);
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.listTeachersWithCreds(arg0);
             return from_candid_vec_n23(this._uploadFile, this._downloadFile, result);
         }
     }
@@ -602,6 +745,20 @@ export class Backend implements backendInterface {
             }
         } else {
             const result = await this.actor.submitTestWithSkills(arg0, arg1, arg2, to_candid_opt_n33(this._uploadFile, this._downloadFile, arg3));
+            return result;
+        }
+    }
+    async updateVocabMastery(arg0: UserId, arg1: string, arg2: bigint, arg3: boolean): Promise<void> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.updateVocabMastery(arg0, arg1, arg2, arg3);
+                return result;
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.updateVocabMastery(arg0, arg1, arg2, arg3);
             return result;
         }
     }

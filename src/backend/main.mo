@@ -4,22 +4,20 @@ import MixinStorage "blob-storage/Mixin";
 import Map "mo:core/Map";
 import List "mo:core/List";
 import Text "mo:core/Text";
+import Iter "mo:core/Iter";
 import Runtime "mo:core/Runtime";
 import Time "mo:core/Time";
 import Nat "mo:core/Nat";
-import Iter "mo:core/Iter";
 import Principal "mo:core/Principal";
-
-
 
 actor {
   include MixinStorage();
 
-  type UserId      = Text;
-  type PassageId   = Nat;
-  type QuestionId  = Nat;
-  type ResultId    = Nat;
+  type UserId         = Text;
+  type PassageId      = Nat;
+  type ResultId       = Nat;
   type ExternalBlobId = Text;
+  type QuestionId     = Nat;
 
   type UserRole = { #admin; #teacher; #student };
 
@@ -39,28 +37,20 @@ actor {
     gradeLevel : Nat;
   };
 
-  type Question = {
-    id           : QuestionId;
-    passageId    : PassageId;
-    questionText : Text;
-    options      : [Text];
-    correctIndex : Nat;
-  };
-
   type TestResult = {
-    id         : ResultId;
-    studentId  : UserId;
-    passageId  : PassageId;
-    answers    : [Nat];
-    score      : Nat;
-    timestamp  : Int;
+    id          : ResultId;
+    studentId   : UserId;
+    passageId   : PassageId;
+    answers     : [Nat];
+    score       : Nat;
+    timestamp   : Int;
     audioBlobId : ?ExternalBlobId;
   };
 
   type SkillScores = {
-    rhythm       : Nat;
-    intonation   : Nat;
-    chunking     : Nat;
+    rhythm        : Nat;
+    intonation    : Nat;
+    chunking      : Nat;
     pronunciation : Nat;
   };
 
@@ -87,6 +77,14 @@ actor {
 
   public type LoginResponse = { role : UserRole; userId : Text };
 
+  type Question = {
+    id           : QuestionId;
+    passageId    : PassageId;
+    questionText : Text;
+    options      : [Text];
+    correctIndex : Nat;
+  };
+
   type VocabActivity = {
     id        : Nat;
     studentId : UserId;
@@ -105,68 +103,108 @@ actor {
   };
 
   type WeeklyTest = {
-    id          : Nat;
-    studentId   : UserId;
-    vocabScore  : Nat;
-    compScore   : Nat;
-    totalScore  : Nat;
-    timestamp   : Int;
+    id         : Nat;
+    studentId  : UserId;
+    vocabScore : Nat;
+    compScore  : Nat;
+    totalScore : Nat;
+    timestamp  : Int;
   };
 
-  // ── Stable admin credentials (survive canister upgrades) ──────────────────
+  // New score history type
+  type ScoreRecord = {
+    weekNumber         : Nat;
+    comprehensionScore : Nat;
+    fluencyScore       : Nat;
+    wpm                : Nat;
+    pronunciationScore : Nat;
+    rhythmScore        : Nat;
+  };
+
+  // New vocab mastery type
+  type VocabMastery = {
+    word     : Text;
+    grade    : Nat;
+    mastered : Bool;
+  };
+
+  // New class progress summary type
+  type StudentProgressSummary = {
+    studentId                : UserId;
+    name                     : Text;
+    grade                    : Nat;
+    latestComprehensionScore : Nat;
+    latestWPM                : Nat;
+    weeklyTrend              : [Nat];
+    isBehind                 : Bool;
+  };
+
+  // ── Stable storage ─────────────────────────────────────────────────────────
   stable var _adminId       : Text = "admin1";
   stable var _adminUsername : Text = "Classio1";
   stable var _adminPassword : Text = "Classio@11";
 
-  let vocabActivities      = Map.empty<UserId, List.List<VocabActivity>>();
-  let practiceTestResults  = Map.empty<UserId, List.List<PracticeTest>>();
-  let weeklyTestResults    = Map.empty<UserId, List.List<WeeklyTest>>();
+  // New stable arrays for score histories and vocab masteries
+  stable var stableScoreHistories   : [(UserId, [ScoreRecord])]   = [];
+  stable var stableVocabMasteries   : [(UserId, [VocabMastery])]  = [];
+  stable var stableUsers            : [(UserId, User)]            = [];
+  stable var stableResults          : [(ResultId, TestResult)]    = [];
+  stable var stableSkillScores      : [(ResultId, SkillScores)]   = [];
+  stable var stableEffectiveLevels  : [(UserId, Nat)]             = [];
+  stable var stableNextResultId     : Nat                         = 1;
 
-  let users       = Map.empty<UserId,      User>();
-  let passages    = Map.empty<PassageId,   Passage>();
-  let questions   = Map.empty<PassageId,   List.List<Question>>();
-  let results     = Map.empty<ResultId,    TestResult>();
-  let sessionMap  = Map.empty<Principal,   UserId>();
-  let passageSubjects = Map.empty<PassageId, Text>();
-  let effectiveLevels = Map.empty<UserId, Nat>();
-  let resultSkillScores = Map.empty<ResultId, SkillScores>();
+  var users             = Map.empty<UserId,    User>();
+  var scoreHistories    = Map.empty<UserId,    List.List<ScoreRecord>>();
+  var vocabMasteries    = Map.empty<UserId,    List.List<VocabMastery>>();
+  var passages          = Map.empty<PassageId, Passage>();
+  var passageSubjects   = Map.empty<PassageId, Text>();
+  var results           = Map.empty<ResultId,  TestResult>();
+  var sessionMap        = Map.empty<Principal, UserId>();
+  var effectiveLevels   = Map.empty<UserId,    Nat>();
+  var resultSkillScores = Map.empty<ResultId,  SkillScores>();
 
-  var nextPassageId      = 1;
-  var nextQuestionId     = 1;
-  var nextResultId       = 1;
-  let baseBlobPath       = "/audio-responses/";
+  var nextResultId   = 1;
+
+  let questions           = Map.empty<PassageId,   List.List<Question>>();
+  let vocabActivities     = Map.empty<UserId,       List.List<VocabActivity>>();
+  let practiceTestResults = Map.empty<UserId,       List.List<PracticeTest>>();
+  let weeklyTestResults   = Map.empty<UserId,       List.List<WeeklyTest>>();
+  var nextPassageId       = 31;
+  var nextQuestionId      = 1;
+  let baseBlobPath        = "/audio-responses/";
 
   let accessControlState = AccessControl.initState();
   include MixinAuthorization(accessControlState);
 
+  // ── Helper functions ───────────────────────────────────────────────────────
   func upsertUser(id : UserId, u : User) {
-    users.remove(id);
-    users.add(id, u);
+    users.remove(id); users.add(id, u);
   };
   func upsertSession(p : Principal, uid : UserId) {
-    sessionMap.remove(p);
-    sessionMap.add(p, uid);
+    sessionMap.remove(p); sessionMap.add(p, uid);
   };
   func upsertEffectiveLevel(uid : UserId, level : Nat) {
-    effectiveLevels.remove(uid);
-    effectiveLevels.add(uid, level);
+    effectiveLevels.remove(uid); effectiveLevels.add(uid, level);
   };
   func upsertResult(rid : ResultId, r : TestResult) {
-    results.remove(rid);
-    results.add(rid, r);
+    results.remove(rid); results.add(rid, r);
   };
   func upsertSkillScores(rid : ResultId, ss : SkillScores) {
-    resultSkillScores.remove(rid);
-    resultSkillScores.add(rid, ss);
+    resultSkillScores.remove(rid); resultSkillScores.add(rid, ss);
   };
   func upsertPassage(pid : PassageId, p : Passage, subject : Text) {
-    passages.remove(pid);
-    passages.add(pid, p);
-    passageSubjects.remove(pid);
-    passageSubjects.add(pid, subject);
+    passages.remove(pid); passages.add(pid, p);
+    passageSubjects.remove(pid); passageSubjects.add(pid, subject);
   };
 
-  // Always ensures the admin account exists in the users map
+  func upsertScoreHistory(userId : UserId, records : List.List<ScoreRecord>) {
+    scoreHistories.remove(userId); scoreHistories.add(userId, records);
+  };
+
+  func upsertVocabMastery(userId : UserId, records : List.List<VocabMastery>) {
+    vocabMasteries.remove(userId); vocabMasteries.add(userId, records);
+  };
+
   func seedAdmin() {
     upsertUser(_adminId, {
       id = _adminId; username = _adminUsername; password = _adminPassword;
@@ -174,54 +212,60 @@ actor {
     });
   };
 
-  // Re-seed admin after every canister upgrade (non-stable maps are wiped)
-  system func postupgrade() {
-    seedAdmin();
+  // ── Upgrade hooks ──────────────────────────────────────────────────────────
+  system func preupgrade() {
+    // Convert List.List to arrays for stable storage
+    stableScoreHistories := scoreHistories.entries().toArray().map(
+      func((userId, list)) {
+        let iter = list.values();
+        let arr  = iter.toArray();
+        (userId, arr);
+      }
+    );
+
+    stableVocabMasteries := vocabMasteries.entries().toArray().map(
+      func((userId, list)) {
+        let iter = list.values();
+        let arr  = iter.toArray();
+        (userId, arr);
+      }
+    );
+
+    stableUsers           := users.entries().toArray();
+    stableResults         := results.entries().toArray();
+    stableSkillScores     := resultSkillScores.entries().toArray();
+    stableEffectiveLevels := effectiveLevels.entries().toArray();
+    stableNextResultId    := nextResultId;
   };
 
-  // ── Seed ──────────────────────────────────────────────────────────────────────
-  do {
-    seedAdmin();
-
-    func addPassage(pid : PassageId, title : Text, content : Text, grade : Nat, subject : Text) {
-      upsertPassage(pid, { id = pid; title; content; gradeLevel = grade }, subject);
+  system func postupgrade() {
+    // Restore data from stable storage
+    for ((k, arr) in stableScoreHistories.vals()) {
+      let list = List.fromArray<ScoreRecord>(arr);
+      scoreHistories.add(k, list);
     };
 
-    addPassage(1,  "Plants Need Sun",        "Plants need sunlight to grow. They also need water and soil. A seed grows into a plant when it gets what it needs.", 1, "Science");
-    addPassage(2,  "My Community",            "Long ago, people lived in small villages. They helped each other every day. Communities have changed, but people still help one another.", 1, "History");
-    addPassage(3,  "Land and Water",          "Earth has land and water. Mountains are very tall. Rivers carry water to the sea.", 1, "Geography");
-    addPassage(4,  "Animals and Their Homes", "Animals live in different places called habitats. Fish live in water. Birds build nests in trees. Bears sleep in caves during winter.", 2, "Science");
-    addPassage(5,  "Early Explorers",         "Many years ago, brave explorers sailed on big ships. They wanted to find new lands. Some explorers made maps of the places they found.", 2, "History");
-    addPassage(6,  "Continents of the World", "The world has seven continents. Asia is the biggest continent. Antarctica is the coldest place on Earth. People live on every continent except Antarctica.", 2, "Geography");
-    addPassage(7,  "The Water Cycle",         "Water moves around the Earth in a cycle. The sun heats water and turns it into vapor. The vapor rises and forms clouds. Rain falls from clouds and fills rivers and oceans.", 3, "Science");
-    addPassage(8,  "Ancient Egypt",           "Ancient Egypt was a great civilization that began near the Nile River. The Egyptians built huge pyramids as tombs for their pharaohs. They also invented one of the first writing systems called hieroglyphics.", 3, "History");
-    addPassage(9,  "Deserts and Rainforests", "A desert is a dry place that receives very little rain. The Sahara in Africa is the largest hot desert. Rainforests are wet, warm, and full of plants and animals.", 3, "Geography");
-    addPassage(10, "Forces and Motion",       "A force is a push or pull that can change how an object moves. Gravity pulls everything toward Earth. Friction slows things down. Scientists measure forces in units called Newtons.", 4, "Science");
-    addPassage(11, "The Roman Empire",        "The Roman Empire was one of the most powerful civilizations in history. Romans built roads, aqueducts, and great buildings. At its peak the empire covered much of Europe, North Africa, and parts of Asia. It fell in 476 AD.", 4, "History");
-    addPassage(12, "Climate Zones",           "The Earth is divided into climate zones based on temperature and rainfall. The tropics near the equator are hot and humid. Temperate zones have four seasons. Polar regions near the poles are freezing cold most of the year.", 4, "Geography");
-    addPassage(13, "The Solar System",        "Our solar system has the Sun and eight planets orbiting it. The four inner planets are rocky, while the outer planets are gas giants. Jupiter is the largest planet. Scientists use telescopes and spacecraft to explore our solar system.", 5, "Science");
-    addPassage(14, "The Silk Road",            "The Silk Road was an ancient network of trade routes connecting China to the Mediterranean Sea. Merchants traveled thousands of miles to trade silk, spices, and other goods. Ideas and religions also spread along these routes, shaping civilizations.", 5, "History");
-    addPassage(15, "River Systems and Deltas", "Rivers shape the land around them as they flow toward the sea. They carry sediment and deposit it at their mouths, forming deltas. The Amazon carries more water than any other river. River valleys were home to early civilizations.", 5, "Geography");
-    addPassage(16, "Cells: Building Blocks of Life",  "All living organisms are made of cells, the basic unit of life. Plant cells contain a cell wall and chloroplasts that allow photosynthesis. The nucleus contains DNA with genetic instructions. Scientists use microscopes to study these tiny structures.", 6, "Science");
-    addPassage(17, "The Renaissance",                  "The Renaissance was a period of cultural rebirth in Europe that began in Italy around the 14th century. Artists and scientists challenged old ways of thinking. Leonardo da Vinci was both a painter and an inventor. The printing press helped spread Renaissance ideas across Europe.", 6, "History");
-    addPassage(18, "Monsoons and Seasonal Winds",      "Monsoons are seasonal wind patterns that bring heavy rainfall to large parts of Asia, Africa, and Australia. Farmers depend on monsoon rains to irrigate crops. When monsoons fail, droughts can devastate entire regions and lead to food shortages.", 6, "Geography");
-    addPassage(19, "Ecosystems and Food Webs",  "An ecosystem is a community of organisms interacting with each other and their environment. Producers convert solar energy into food through photosynthesis. Consumers eat producers or other consumers. Decomposers return nutrients to the soil. Removing one species can disrupt the entire food web.", 7, "Science");
-    addPassage(20, "The Industrial Revolution", "The Industrial Revolution began in Britain in the late 18th century and transformed how goods were made. Steam engines powered factories and locomotives, enabling mass production and faster transport. Workers moved to cities, but harsh conditions prompted new labor reform movements.", 7, "History");
-    addPassage(21, "Plate Tectonics",           "The Earth's lithosphere is divided into tectonic plates that move slowly over time. Colliding plates form mountain ranges or deep ocean trenches. Diverging plates create new ocean floor at mid-ocean ridges. Earthquakes and volcanoes occur most often at plate boundaries.", 7, "Geography");
-    addPassage(22, "Genetics and Heredity",      "Genetics studies how traits are inherited across generations. Gregor Mendel discovered basic principles of heredity using pea plants. Traits are determined by genes that come in pairs called alleles. Dominant alleles mask recessive ones. Modern genetics includes DNA sequencing and gene-related disease research.", 8, "Science");
-    addPassage(23, "World War I and Its Causes", "World War I, fought from 1914 to 1918, was triggered by the assassination of Archduke Franz Ferdinand. Underlying causes included militarism, alliances, imperial rivalries, and rising nationalism. New technologies made warfare more devastating than ever. The war's end reshaped borders and planted the seeds for World War II.", 8, "History");
-    addPassage(24, "Ocean Currents and Climate", "Ocean currents are large-scale water movements driven by wind, temperature, and Earth's rotation. Warm currents like the Gulf Stream carry heat from the tropics toward polar regions, moderating nearby coastlines. Cold currents bring nutrients to the surface, supporting rich marine life. Disruptions to ocean circulation affect global climate patterns.", 8, "Geography");
-    addPassage(25, "Photosynthesis and Cellular Respiration", "Photosynthesis and cellular respiration are complementary biochemical processes. In photosynthesis, chloroplasts use light energy to convert carbon dioxide and water into glucose and oxygen. Cellular respiration in mitochondria breaks down glucose to release ATP energy, producing carbon dioxide and water. Together they maintain the carbon cycle and enable energy flow through ecosystems.", 9, "Science");
-    addPassage(26, "The Cold War and Global Tensions",        "The Cold War was a period of geopolitical tension between the United States and Soviet Union from 1947 to 1991. Rather than direct conflict, the rivalry was expressed through arms races, proxy wars, and ideological competition. The Cuban Missile Crisis brought the world close to nuclear war. The Cold War ended with the dissolution of the Soviet Union, reshaping the international order.", 9, "History");
-    addPassage(27, "Urbanization and Megacities",             "Urbanization, the migration from rural to urban areas, is a defining trend of the modern era. More than half the world's population now lives in cities. Megacities with over ten million people face challenges including infrastructure strain, air pollution, housing shortages, and inequality. Sustainable urban planning with green spaces and public transport is essential for managing rapid growth.", 9, "Geography");
-    addPassage(28, "Quantum Mechanics and Modern Physics",    "Quantum mechanics describes the behavior of matter and energy at the subatomic scale where classical physics breaks down. Particles exhibit wave-particle duality, behaving as waves or particles depending on experimental context. The Heisenberg Uncertainty Principle states that position and momentum cannot both be precisely known simultaneously. These principles underpin transformative technologies including semiconductors, lasers, and MRI scanners.", 10, "Science");
-    addPassage(29, "Colonialism and Its Legacy",              "European colonialism, reaching its peak in the 19th and early 20th centuries, reshaped political and economic structures across Africa, Asia, and the Americas. Colonial powers extracted resources and suppressed indigenous cultures. Decolonization movements of the mid-20th century led to independence for dozens of nations, yet economic disparities and ethnic conflicts persist as lasting legacies of colonial rule.", 10, "History");
-    addPassage(30, "Climate Change and Environmental Policy", "Climate change, driven by fossil fuel combustion and deforestation, represents one of the most complex challenges of the contemporary era. Rising atmospheric greenhouse gases trap heat, causing temperature increases, glacial retreat, sea-level rise, and extreme weather events. International agreements like the Paris Accord seek coordinated emissions reductions, yet tensions between economic development and environmental sustainability continue to complicate global climate action.", 10, "Geography");
+    for ((k, arr) in stableVocabMasteries.vals()) {
+      let list = List.fromArray<VocabMastery>(arr);
+      vocabMasteries.add(k, list);
+    };
 
-    nextPassageId := 31;
-    nextResultId  := 1;
+    for ((k, v) in stableUsers.vals()) { users.add(k, v); };
+    for ((k, v) in stableResults.vals()) { results.add(k, v); };
+    for ((k, v) in stableSkillScores.vals()) { resultSkillScores.add(k, v); };
+    for ((k, v) in stableEffectiveLevels.vals()) { effectiveLevels.add(k, v); };
+    nextResultId := stableNextResultId;
+    seedAdmin();
+
+    stableScoreHistories  := [];
+    stableVocabMasteries  := [];
+    stableUsers           := [];
+    stableResults         := [];
+    stableSkillScores     := [];
+    stableEffectiveLevels := [];
   };
 
+  // ── Existing helpers ──────────────────────────────────────────────────────
   func getCurrentUser(caller : Principal) : ?User {
     switch (sessionMap.get(caller)) {
       case (null) null;
@@ -260,43 +304,33 @@ actor {
         u;
       };
     };
-
     switch (sessionMap.get(caller)) {
-      case (?uid) {
-        if (uid == studentId) return;
-      };
+      case (?uid) { if (uid == studentId) return; };
       case null {};
     };
-
     switch (getCurrentUser(caller)) {
-      case (?callerUser) {
-        if (callerUser.role == #admin) return;
-        if (callerUser.role == #teacher and student.teacherId == ?callerUser.id) return;
+      case (?cu) {
+        if (cu.role == #admin) return;
+        if (cu.role == #teacher and student.teacherId == ?cu.id) return;
       };
       case null {};
     };
-
     Runtime.trap("Unauthorized: Cannot access this student's data");
   };
 
-  // ── Auth endpoints ─────────────────────────────────────────────────────────
+  // ── Auth ───────────────────────────────────────────────────────────────────
   public shared ({ caller }) func login(username : Text, password : Text) : async LoginResponse {
-    // Hardcoded admin bypass — always works regardless of map state
     if (username == _adminUsername and password == _adminPassword) {
       seedAdmin();
       upsertSession(caller, _adminId);
       return { role = #admin; userId = _adminId };
     };
-
     let found = users.values().toArray().find(func(u) {
       u.username == username and u.password == password
     });
     switch (found) {
       case (null) Runtime.trap("Invalid username or password");
-      case (?u) {
-        upsertSession(caller, u.id);
-        { role = u.role; userId = u.id };
-      };
+      case (?u) { upsertSession(caller, u.id); { role = u.role; userId = u.id } };
     };
   };
 
@@ -304,7 +338,7 @@ actor {
     sessionMap.remove(caller);
   };
 
-  // ── Admin endpoints ────────────────────────────────────────────────────────
+  // ── Admin session-based ────────────────────────────────────────────────────
   public shared ({ caller }) func createTeacher(username : Text, password : Text) : async UserId {
     let _ = requireRole(caller, #admin);
     let id = "teacher" # (users.size() + 1).toText();
@@ -317,11 +351,10 @@ actor {
     users.values().toArray().filter(func(u) { u.role == #teacher });
   };
 
-  // ── Admin endpoints (credential-based, no session required) ───────────────
+  // ── Admin credential-based (no session required) ───────────────────────────
   public shared func createTeacherWithCreds(adminPass : Text, teacherUsername : Text, teacherPassword : Text) : async UserId {
     if (adminPass != _adminPassword) Runtime.trap("Invalid admin credentials");
-    let existing = users.values().toArray().find(func(u) { u.username == teacherUsername });
-    switch (existing) {
+    switch (users.values().toArray().find(func(u) { u.username == teacherUsername })) {
       case (?_) Runtime.trap("Username already exists");
       case null {};
     };
@@ -335,7 +368,7 @@ actor {
     users.values().toArray().filter(func(u) { u.role == #teacher });
   };
 
-  // ── Teacher endpoints (credential-based, no session required) ─────────────
+  // ── Teacher credential-based (no session required) ─────────────────────────
   public shared func createStudentWithCreds(teacherUser : Text, teacherPass : Text, studentUsername : Text, studentPassword : Text, grade : Nat) : async UserId {
     let teacher = users.values().toArray().find(func(u) {
       u.username == teacherUser and u.password == teacherPass and u.role == #teacher
@@ -344,8 +377,7 @@ actor {
       case null Runtime.trap("Invalid teacher credentials");
       case (?t) {
         if (grade < 1 or grade > 10) Runtime.trap("Invalid grade: must be 1-10");
-        let existing = users.values().toArray().find(func(u) { u.username == studentUsername });
-        switch (existing) {
+        switch (users.values().toArray().find(func(u) { u.username == studentUsername })) {
           case (?_) Runtime.trap("Username already exists");
           case null {};
         };
@@ -389,7 +421,7 @@ actor {
     };
   };
 
-  // ── Teacher endpoints ──────────────────────────────────────────────────────
+  // ── Teacher session-based ──────────────────────────────────────────────────
   public shared ({ caller }) func createStudent(username : Text, password : Text, grade : Nat) : async UserId {
     let teacher = requireRole(caller, #teacher);
     if (grade < 1 or grade > 10) Runtime.trap("Invalid grade: must be 1-10");
@@ -417,28 +449,26 @@ actor {
     results.values().toArray().filter(func(r) { r.studentId == studentId });
   };
 
-  // ── Student test endpoints ─────────────────────────────────────────────────
+  // ── Student endpoints ──────────────────────────────────────────────────────
   public query ({ caller }) func getPassageForStudent(userId : UserId) : async ?PassageInfo {
     authorizeStudentAccess(caller, userId);
     let student = switch (users.get(userId)) {
-      case (?u) u;
-      case null Runtime.trap("Student not found");
+      case (?u) u; case null Runtime.trap("Student not found");
     };
     let level   = getEffectiveLevel(student);
     let count   = results.values().toArray().filter(func(r) { r.studentId == student.id }).size();
     let subject = subjectForIndex(count);
-    let match = passages.values().toArray().find(func(p) {
+    let matchSubj = passages.values().toArray().find(func(p) {
       p.gradeLevel == level and
       (switch (passageSubjects.get(p.id)) { case (?s) s == subject; case null false })
     });
-    switch (match) {
+    switch (matchSubj) {
       case (?p) {
         let sub = switch (passageSubjects.get(p.id)) { case (?s) s; case null "Science" };
         ?{ id = p.id; title = p.title; content = p.content; gradeLevel = p.gradeLevel; subject = sub };
       };
       case (null) {
-        let any = passages.values().toArray().find(func(p) { p.gradeLevel == level });
-        switch (any) {
+        switch (passages.values().toArray().find(func(p) { p.gradeLevel == level })) {
           case (null) null;
           case (?p) {
             let sub = switch (passageSubjects.get(p.id)) { case (?s) s; case null "Science" };
@@ -452,29 +482,26 @@ actor {
   public query ({ caller }) func getStudentEffectiveLevel(userId : UserId) : async StudentLevel {
     authorizeStudentAccess(caller, userId);
     let student = switch (users.get(userId)) {
-      case (?u) u;
-      case null Runtime.trap("Student not found");
+      case (?u) u; case null Runtime.trap("Student not found");
     };
-    let enrolled = switch (student.grade) { case (?g) g; case null 1 };
+    let enrolled  = switch (student.grade) { case (?g) g; case null 1 };
     let effective = getEffectiveLevel(student);
     { enrolledGrade = enrolled; effectiveLevel = effective };
   };
 
   public shared ({ caller }) func submitTestWithSkills(
-    userId       : UserId,
-    passageId    : PassageId,
-    skillScores  : SkillScores,
-    audioBlobId  : ?ExternalBlobId
+    userId      : UserId,
+    passageId   : PassageId,
+    skillScores : SkillScores,
+    audioBlobId : ?ExternalBlobId
   ) : async Nat {
     authorizeStudentAccess(caller, userId);
     let student = switch (users.get(userId)) {
-      case (?u) u;
-      case null Runtime.trap("Student not found");
+      case (?u) u; case null Runtime.trap("Student not found");
     };
     let enrolled = switch (student.grade) { case (?g) g; case null 1 };
     let current  = getEffectiveLevel(student);
-    let total = skillScores.rhythm + skillScores.intonation +
-                skillScores.chunking + skillScores.pronunciation;
+    let total    = skillScores.rhythm + skillScores.intonation + skillScores.chunking + skillScores.pronunciation;
     let newLevel : Nat = if (total < 16) {
       if (current > 1) current - 1 else 1;
     } else {
@@ -499,8 +526,7 @@ actor {
   ) : async Nat {
     authorizeStudentAccess(caller, userId);
     let student = switch (users.get(userId)) {
-      case (?u) u;
-      case null Runtime.trap("Student not found");
+      case (?u) u; case null Runtime.trap("Student not found");
     };
     let rid = nextResultId;
     upsertResult(rid, {
@@ -514,8 +540,7 @@ actor {
   public query ({ caller }) func getResultsForStudent(userId : UserId) : async [TestResult] {
     authorizeStudentAccess(caller, userId);
     let student = switch (users.get(userId)) {
-      case (?u) u;
-      case null Runtime.trap("Student not found");
+      case (?u) u; case null Runtime.trap("Student not found");
     };
     results.values().toArray().filter(func(r) { r.studentId == student.id });
   };
@@ -526,48 +551,138 @@ actor {
     if (arr.size() > 0) ?arr[0] else null;
   };
 
-  // ── Profile endpoints ──────────────────────────────────────────────────────
+  // ── New Score History methods ──────────────────────────────────────────────
+  public shared ({ caller }) func addScoreHistory(userId : UserId, record : ScoreRecord) : async () {
+    authorizeStudentAccess(caller, userId);
+    let existing = switch (scoreHistories.get(userId)) {
+      case (?list) { list.add(record); list };
+      case (null)  { let newList = List.empty<ScoreRecord>(); newList.add(record); newList };
+    };
+    upsertScoreHistory(userId, existing);
+  };
+
+  public query ({ caller }) func getScoreHistory(userId : UserId) : async [ScoreRecord] {
+    authorizeStudentAccess(caller, userId);
+    switch (scoreHistories.get(userId)) {
+      case (null) { [] };
+      case (?list) {
+        let iter = list.values();
+        let arr  = iter.toArray();
+        arr;
+      };
+    };
+  };
+
+  // ── Vocab Mastery methods ─────────────────────────────────────────────────
+  public shared ({ caller }) func updateVocabMastery(userId : UserId, word : Text, grade : Nat, mastered : Bool) : async () {
+    authorizeStudentAccess(caller, userId);
+    let newRecord = { word; grade; mastered };
+    let existing  = switch (vocabMasteries.get(userId)) {
+      case (?list) {
+        let updated = list.filter(func(r) { r.word != word }); // Remove old entries for this word
+        updated.add(newRecord);
+        updated;
+      };
+      case (null) {
+        let newList = List.empty<VocabMastery>();
+        newList.add(newRecord);
+        newList;
+      };
+    };
+    upsertVocabMastery(userId, existing);
+  };
+
+  public query ({ caller }) func getVocabMastery(userId : UserId) : async [VocabMastery] {
+    authorizeStudentAccess(caller, userId);
+    switch (vocabMasteries.get(userId)) {
+      case (null) { [] };
+      case (?list) {
+        let iter = list.values();
+        let arr  = iter.toArray();
+        arr;
+      };
+    };
+  };
+
+  // ── Class Progress methods ──────────────────────────────────────────────
+  public query ({ caller }) func getClassProgress(teacherId : UserId) : async [StudentProgressSummary] {
+    // Authorization: caller must be the teacher or an admin
+    let currentUser = requireAuth(caller);
+    let teacher = switch (users.get(teacherId)) {
+      case (null) Runtime.trap("Teacher not found");
+      case (?t) {
+        if (t.role != #teacher) Runtime.trap("Not a teacher");
+        t;
+      };
+    };
+
+    // Check authorization: caller must be the teacher themselves or an admin
+    if (currentUser.id != teacher.id and currentUser.role != #admin) {
+      Runtime.trap("Unauthorized: Can only view your own class progress");
+    };
+
+    let summaries = users.values().toArray().filter(func(u) {
+      u.role == #student and u.teacherId == ?teacher.id
+    }).map(func(student) {
+      let scores = switch (scoreHistories.get(student.id)) {
+        case (null) { [] };
+        case (?list) {
+          let iter = list.values();
+          let arr  = iter.toArray();
+          arr;
+        };
+      };
+      let latest = if (scores.size() > 0) { scores[0].comprehensionScore } else { 0 };
+      let weeklyTrend = scores.sliceToArray(0, Nat.min(4, scores.size())).map(func(r : ScoreRecord) : Nat { r.comprehensionScore });
+      let isBehind    = latest < 60;
+      {
+        studentId                = student.id;
+        name                     = student.username;
+        grade                    = switch (student.grade) { case (?g) g; case null 1 };
+        latestComprehensionScore = latest;
+        latestWPM                = if (scores.size() > 0) { scores[0].wpm } else { 0 };
+        weeklyTrend;
+        isBehind;
+      };
+    });
+
+    summaries;
+  };
+
+  // ── Profile ────────────────────────────────────────────────────────────────
   public query ({ caller }) func getCallerUserProfile() : async ?UserProfile {
     switch (getCurrentUser(caller)) {
       case (null) null;
       case (?u) {
-        let eff = getEffectiveLevel(u);
         ?{ userId = u.id; username = u.username; role = u.role;
-           grade = u.grade; effectiveLevel = ?eff };
+           grade = u.grade; effectiveLevel = ?(getEffectiveLevel(u)) };
       };
     };
   };
 
   public query ({ caller }) func getUserProfile(userId : UserId) : async ?UserProfile {
     let cu = requireAuth(caller);
-    if (cu.id != userId and cu.role != #admin) Runtime.trap("Unauthorized: Can only view your own profile or admin can view any");
+    if (cu.id != userId and cu.role != #admin)
+      Runtime.trap("Unauthorized: Can only view your own profile");
     switch (users.get(userId)) {
       case (null) null;
       case (?u) {
-        let eff = getEffectiveLevel(u);
         ?{ userId = u.id; username = u.username; role = u.role;
-           grade = u.grade; effectiveLevel = ?eff };
+           grade = u.grade; effectiveLevel = ?(getEffectiveLevel(u)) };
       };
     };
   };
 
   public shared ({ caller }) func saveCallerUserProfile(profile : UserProfile) : async () {
     let cu = requireAuth(caller);
-    if (cu.id != profile.userId) Runtime.trap("Unauthorized: Can only save your own profile");
+    if (cu.id != profile.userId) Runtime.trap("Unauthorized");
     switch (users.get(profile.userId)) {
       case (null) Runtime.trap("User not found");
       case (?u) {
-        upsertUser(u.id, {
-          id = u.id; username = profile.username; password = u.password;
-          role = u.role; grade = u.grade; teacherId = u.teacherId;
-        });
+        upsertUser(u.id, { id = u.id; username = profile.username; password = u.password;
+          role = u.role; grade = u.grade; teacherId = u.teacherId });
       };
     };
-  };
-
-  public query ({ caller }) func getWeeklyReport(studentId : UserId) : async Text {
-    authorizeStudentAccess(caller, studentId);
-    Runtime.trap("Not implemented yet, will be added in upcoming version");
   };
 
   public shared func initializeSystem()    : async () {};

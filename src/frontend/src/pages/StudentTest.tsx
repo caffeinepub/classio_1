@@ -27,6 +27,7 @@ import {
   StarRating,
 } from "../components/ReportCardLayout";
 import { useAuth } from "../context/AuthContext";
+import { type MCQ, getPassageMCQs } from "../data/passageMCQs";
 import { getPassageForLevel } from "../data/passages";
 import { useProficiencySearch } from "../hooks/useProficiencySearch";
 import {
@@ -278,16 +279,6 @@ function useAudioRecorder() {
 // DonutChart imported from ReportCardLayout
 // ProficiencyBadge, StarRating imported from ReportCardLayout
 
-// ── Fluency range by grade ─────────────────────────────────────────────────────
-
-function fluencyRange(grade: number): [number, number] {
-  if (grade <= 2) return [50, 70];
-  if (grade <= 4) return [70, 100];
-  if (grade <= 6) return [100, 120];
-  if (grade <= 8) return [120, 150];
-  return [150, 180];
-}
-
 // ── Level badge (no downgrade) ─────────────────────────────────────────────────
 
 const LEVEL_BADGES = [
@@ -318,477 +309,9 @@ const LEVEL_BADGES = [
   },
 ];
 
-function LevelBadge({ avgScore }: { avgScore: number }) {
-  const badge =
-    LEVEL_BADGES.find((b) => avgScore >= b.min) ??
-    LEVEL_BADGES[LEVEL_BADGES.length - 1];
-  return (
-    <span
-      className={`inline-flex items-center px-3 py-1 rounded-full border text-xs font-semibold ${
-        badge.cls
-      }`}
-    >
-      {badge.label}
-    </span>
-  );
-}
-
 // ── Adaptive Banner ────────────────────────────────────────────────────────────
 
-function AdaptiveBanner({
-  total,
-  enrolledGrade,
-  effectiveLevel,
-}: {
-  total: number;
-  enrolledGrade: bigint | undefined;
-  effectiveLevel: bigint | undefined;
-}) {
-  const avg = total / 4;
-  const isImproving =
-    avg >= 4 &&
-    enrolledGrade !== undefined &&
-    effectiveLevel !== undefined &&
-    effectiveLevel < enrolledGrade;
-
-  if (isImproving) {
-    return (
-      <motion.div
-        initial={{ opacity: 0, y: -8 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.35 }}
-        className="flex items-start gap-3 rounded-xl border border-emerald-200 bg-emerald-50 dark:bg-emerald-900/20 dark:border-emerald-800 p-4 mb-5"
-        data-ocid="test.success_state"
-      >
-        <TrendingUp className="w-5 h-5 text-emerald-600 dark:text-emerald-400 shrink-0 mt-0.5" />
-        <div>
-          <p className="text-sm font-semibold text-emerald-800 dark:text-emerald-300">
-            Excellent! You are improving 🎉
-          </p>
-          <p className="text-xs text-emerald-700 dark:text-emerald-400 mt-0.5">
-            Your level is being raised back toward your enrolled grade.
-          </p>
-        </div>
-      </motion.div>
-    );
-  }
-
-  if (avg >= 4) {
-    return (
-      <motion.div
-        initial={{ opacity: 0, y: -8 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.35 }}
-        className="flex items-start gap-3 rounded-xl border border-teal-200 bg-teal-50 dark:bg-teal-900/20 dark:border-teal-800 p-4 mb-5"
-        data-ocid="test.success_state"
-      >
-        <CheckCircle className="w-5 h-5 text-teal-600 dark:text-teal-400 shrink-0 mt-0.5" />
-        <div>
-          <p className="text-sm font-semibold text-teal-800 dark:text-teal-300">
-            Great job! Keep it up ✨
-          </p>
-          <p className="text-xs text-teal-700 dark:text-teal-400 mt-0.5">
-            Your level is being maintained — you are reading at the right level.
-          </p>
-        </div>
-      </motion.div>
-    );
-  }
-
-  return (
-    <motion.div
-      initial={{ opacity: 0, y: -8 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.35 }}
-      className="flex items-start gap-3 rounded-xl border border-blue-200 bg-blue-50 dark:bg-blue-900/20 dark:border-blue-800 p-4 mb-5"
-      data-ocid="test.error_state"
-    >
-      <Info className="w-5 h-5 text-blue-600 dark:text-blue-400 shrink-0 mt-0.5" />
-      <div>
-        <p className="text-sm font-semibold text-blue-800 dark:text-blue-300">
-          Keep Practicing!
-        </p>
-        <p className="text-xs text-blue-700 dark:text-blue-400 mt-0.5">
-          You are building your skills — your next passage will help you improve
-          steadily!
-        </p>
-      </div>
-    </motion.div>
-  );
-}
-
 // ── New Report Card ────────────────────────────────────────────────────────────
-
-function ReportCard({
-  scores,
-  studentName,
-  grade,
-  enrolledGrade,
-  effectiveLevel,
-  transcript,
-  passageContent,
-  recordingDuration,
-  gradeLevel,
-  previousScore,
-  onBack,
-  onNavigate,
-  foundLevel,
-}: {
-  scores: SkillScores;
-  studentName: string;
-  grade: string;
-  enrolledGrade: bigint | undefined;
-  effectiveLevel: bigint | undefined;
-  transcript: string;
-  passageContent: string;
-  recordingDuration: number;
-  gradeLevel: number;
-  previousScore: number;
-  onBack: () => void;
-  onNavigate?: (page: string) => void;
-  foundLevel?: number | null;
-}) {
-  const total =
-    scores.rhythm + scores.intonation + scores.chunking + scores.pronunciation;
-  const overallAvg = total / 4;
-  const readingAvg = (scores.rhythm + scores.chunking) / 2;
-  const comprehensionAvg = (scores.intonation + scores.pronunciation) / 2;
-
-  const passageWords = normalizeWords(passageContent);
-  const transcriptWords = normalizeWords(transcript);
-  const passageSet = new Set(passageWords);
-  const transcriptSet = new Set(transcriptWords);
-  const correctWords = transcriptWords.filter((w) => passageSet.has(w)).length;
-  const mispronounced = Math.min(
-    transcriptWords.filter((w) => !passageSet.has(w)).length,
-    passageWords.length,
-  );
-  const missedWords = passageWords.filter((w) => !transcriptSet.has(w)).length;
-
-  const wpm =
-    recordingDuration > 0
-      ? Math.round((transcriptWords.length / recordingDuration) * 60)
-      : 0;
-  const [rangeMin, rangeMax] = fluencyRange(gradeLevel);
-
-  const rhythmIntonationAvg = (scores.rhythm + scores.intonation) / 2;
-  const indicators = [
-    { label: "Overall", avg: overallAvg },
-    { label: "Reading", avg: readingAvg },
-    { label: "Comprehension", avg: comprehensionAvg },
-  ];
-
-  const journeyLevel = foundLevel ?? gradeLevel;
-
-  return (
-    <div className="min-h-screen bg-gray-950 relative overflow-hidden">
-      {/* Background glow effects */}
-      <div className="fixed top-0 left-1/3 w-96 h-96 bg-indigo-500/10 rounded-full blur-3xl pointer-events-none" />
-      <div className="fixed bottom-1/4 right-1/3 w-80 h-80 bg-purple-500/10 rounded-full blur-3xl pointer-events-none" />
-      <div className="fixed top-1/2 right-0 w-72 h-72 bg-cyan-500/8 rounded-full blur-3xl pointer-events-none" />
-      <AppHeader title="Reading Report Card" />
-      <main
-        className="max-w-5xl mx-auto px-4 py-8"
-        data-ocid="test.success_state"
-      >
-        <motion.div
-          initial={{ opacity: 0, y: 24 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.4 }}
-        >
-          <AdaptiveBanner
-            total={total}
-            enrolledGrade={enrolledGrade}
-            effectiveLevel={effectiveLevel}
-          />
-
-          {/* Header */}
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-6">
-            <div>
-              <h2 className="text-2xl font-bold">Reading Report Card</h2>
-              <p className="text-sm text-gray-400">
-                {studentName} · Grade {grade}
-              </p>
-            </div>
-            <LevelBadge avgScore={overallAvg} />
-          </div>
-
-          {/* 3-column grid */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-5 mb-6">
-            <ScoreOverviewPanel
-              readingCurrent={readingAvg}
-              readingPrevious={previousScore > 0 ? previousScore / 4 : null}
-              compCurrent={comprehensionAvg}
-              compPrevious={previousScore > 0 ? previousScore / 4 : null}
-              max={5}
-            />
-            <ReportingIndicatorsPanel
-              indicators={indicators.map((ind) => ({
-                label: ind.label,
-                score: ind.avg,
-                max: 5,
-              }))}
-            />
-            <div className="flex flex-col gap-4">
-              <SkillCard
-                color="emerald"
-                title="Pronunciation"
-                icon={<Volume2 className="w-4 h-4 text-emerald-700" />}
-              >
-                <StarRating value={scores.pronunciation} max={5} />
-                <div className="space-y-1 text-xs mt-2">
-                  <p className="text-emerald-400 font-medium">
-                    ✓ Correct Pronounced Words — {correctWords}
-                  </p>
-                  <p className="text-amber-400 font-medium">
-                    ⚠ Mispronounced Words — {mispronounced}
-                  </p>
-                  <p className="text-red-400 font-medium">
-                    ✗ Missed Words — {missedWords}
-                  </p>
-                </div>
-              </SkillCard>
-              <SkillCard
-                color="rose"
-                title="Rhythm & Intonation"
-                icon={<Music className="w-4 h-4 text-rose-700" />}
-              >
-                <StarRating value={rhythmIntonationAvg} max={5} />
-                <p className="text-xs text-rose-700 mt-2">
-                  Rhythm: {scores.rhythm}/5 · Intonation: {scores.intonation}/5
-                </p>
-              </SkillCard>
-              <SkillCard
-                color="sky"
-                title="Fluency"
-                icon={<Zap className="w-4 h-4 text-sky-700" />}
-              >
-                <p className="text-lg font-bold text-sky-800">
-                  {wpm} words/min
-                </p>
-                <p className="text-xs text-sky-600 mt-0.5">
-                  Grade target: {rangeMin}–{rangeMax} words/min
-                </p>
-              </SkillCard>
-            </div>
-          </div>
-
-          {/* Action buttons */}
-          <div className="flex flex-col sm:flex-row gap-3 justify-center pt-2">
-            {onNavigate && (
-              <Button
-                size="lg"
-                className="bg-emerald-600 hover:bg-emerald-700 text-white px-8 gap-2"
-                onClick={() => onNavigate("/student/vocab")}
-                data-ocid="test.secondary_button"
-              >
-                🚀 Start Learning Journey from Grade {journeyLevel} →
-              </Button>
-            )}
-            <Button
-              size="lg"
-              variant="outline"
-              onClick={onBack}
-              data-ocid="test.primary_button"
-            >
-              Back to Dashboard
-            </Button>
-          </div>
-        </motion.div>
-      </main>
-    </div>
-  );
-}
-
-// ── Try Next Level Screen ──────────────────────────────────────────────────────
-
-function TryNextLevelScreen({
-  scores,
-  currentTestLevel,
-  newLevel,
-  attemptsMade,
-  enrolledGrade,
-  transcript,
-  passageContent,
-  recordingDuration,
-  gradeLevel,
-  previousScore,
-  onRetry,
-  onBack,
-}: {
-  scores: SkillScores;
-  currentTestLevel: number;
-  newLevel: number;
-  attemptsMade: number;
-  enrolledGrade: number;
-  transcript: string;
-  passageContent: string;
-  recordingDuration: number;
-  gradeLevel: number;
-  previousScore: number;
-  onRetry: () => void;
-  onBack: () => void;
-}) {
-  const total =
-    scores.rhythm + scores.intonation + scores.chunking + scores.pronunciation;
-  const overallAvg = total / 4;
-  const readingAvg = (scores.rhythm + scores.chunking) / 2;
-  const comprehensionAvg = (scores.intonation + scores.pronunciation) / 2;
-
-  const passageWords = normalizeWords(passageContent);
-  const transcriptWords = normalizeWords(transcript);
-  const passageSet = new Set(passageWords);
-  const transcriptSet = new Set(transcriptWords);
-  const correctWords = transcriptWords.filter((w) => passageSet.has(w)).length;
-  const mispronounced = Math.min(
-    transcriptWords.filter((w) => !passageSet.has(w)).length,
-    passageWords.length,
-  );
-  const missedWords = passageWords.filter((w) => !transcriptSet.has(w)).length;
-
-  const wpm =
-    recordingDuration > 0
-      ? Math.round((transcriptWords.length / recordingDuration) * 60)
-      : 0;
-  const [rangeMin, rangeMax] = fluencyRange(gradeLevel);
-  const rhythmIntonationAvg = (scores.rhythm + scores.intonation) / 2;
-  const indicators = [
-    { label: "Overall", avg: overallAvg },
-    { label: "Reading", avg: readingAvg },
-    { label: "Comprehension", avg: comprehensionAvg },
-  ];
-
-  return (
-    <div className="min-h-screen bg-gray-950 relative overflow-hidden">
-      {/* Background glow effects */}
-      <div className="fixed top-0 left-1/3 w-96 h-96 bg-indigo-500/10 rounded-full blur-3xl pointer-events-none" />
-      <div className="fixed bottom-1/4 right-1/3 w-80 h-80 bg-purple-500/10 rounded-full blur-3xl pointer-events-none" />
-      <div className="fixed top-1/2 right-0 w-72 h-72 bg-cyan-500/8 rounded-full blur-3xl pointer-events-none" />
-      <AppHeader title="Keep Going!" />
-      <main className="max-w-5xl mx-auto px-4 py-8">
-        <motion.div
-          initial={{ opacity: 0, y: 24 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.4 }}
-        >
-          {/* Encouragement Banner */}
-          <motion.div
-            initial={{ opacity: 0, scale: 0.97 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.4 }}
-            className="rounded-2xl border border-amber-500/40 bg-amber-500/10 p-6 mb-6"
-            data-ocid="test.panel"
-          >
-            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
-              <div className="w-14 h-14 rounded-full bg-amber-500/20 border border-amber-500/30 flex items-center justify-center shrink-0 text-2xl">
-                💪
-              </div>
-              <div className="flex-1">
-                <div className="flex items-center gap-3 flex-wrap mb-2">
-                  <h2 className="text-xl font-bold text-amber-200">
-                    Keep Going!
-                  </h2>
-                  <span className="inline-flex items-center px-2.5 py-1 rounded-full bg-amber-100 text-amber-300 border border-amber-500/30 text-xs font-semibold">
-                    Attempt {attemptsMade}/{enrolledGrade}
-                  </span>
-                </div>
-                <p className="text-sm text-amber-300 leading-relaxed">
-                  Your pronunciation, rhythm, and speed show you are working
-                  toward <strong>Grade {currentTestLevel} level</strong>. Let's
-                  try a <strong>Grade {newLevel}</strong> passage next to find
-                  your best starting point!
-                </p>
-              </div>
-            </div>
-          </motion.div>
-
-          {/* Score overview */}
-          <h3 className="text-sm font-semibold text-gray-400 uppercase tracking-wide mb-4">
-            Your Scores This Attempt
-          </h3>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-5 mb-6">
-            <ScoreOverviewPanel
-              readingCurrent={readingAvg}
-              readingPrevious={previousScore > 0 ? previousScore / 4 : null}
-              compCurrent={comprehensionAvg}
-              compPrevious={previousScore > 0 ? previousScore / 4 : null}
-              max={5}
-            />
-            <ReportingIndicatorsPanel
-              indicators={indicators.map((ind) => ({
-                label: ind.label,
-                score: ind.avg,
-                max: 5,
-              }))}
-            />
-            <div className="flex flex-col gap-4">
-              <SkillCard
-                color="emerald"
-                title="Pronunciation"
-                icon={<Volume2 className="w-4 h-4 text-emerald-700" />}
-              >
-                <StarRating value={scores.pronunciation} max={5} />
-                <div className="space-y-1 text-xs mt-2">
-                  <p className="text-emerald-400 font-medium">
-                    ✓ Correct — {correctWords}
-                  </p>
-                  <p className="text-amber-400 font-medium">
-                    ⚠ Mispronounced — {mispronounced}
-                  </p>
-                  <p className="text-red-400 font-medium">
-                    ✗ Missed — {missedWords}
-                  </p>
-                </div>
-              </SkillCard>
-              <SkillCard
-                color="rose"
-                title="Rhythm & Intonation"
-                icon={<Music className="w-4 h-4 text-rose-700" />}
-              >
-                <StarRating value={rhythmIntonationAvg} max={5} />
-                <p className="text-xs text-rose-700 mt-2">
-                  Rhythm: {scores.rhythm}/5 · Intonation: {scores.intonation}/5
-                </p>
-              </SkillCard>
-              <SkillCard
-                color="sky"
-                title="Fluency"
-                icon={<Zap className="w-4 h-4 text-sky-700" />}
-              >
-                <p className="text-lg font-bold text-sky-800">
-                  {wpm} words/min
-                </p>
-                <p className="text-xs text-sky-600 mt-0.5">
-                  Target: {rangeMin}–{rangeMax} wpm
-                </p>
-              </SkillCard>
-            </div>
-          </div>
-
-          {/* Actions */}
-          <div className="flex flex-col sm:flex-row gap-3 justify-center pt-2">
-            <Button
-              size="lg"
-              className="bg-amber-500 hover:bg-amber-600 text-white px-8 gap-2"
-              onClick={onRetry}
-              data-ocid="test.primary_button"
-            >
-              📖 Try Grade {newLevel} Passage
-            </Button>
-            <Button
-              size="lg"
-              variant="outline"
-              onClick={onBack}
-              data-ocid="test.secondary_button"
-            >
-              Back to Dashboard
-            </Button>
-          </div>
-        </motion.div>
-      </main>
-    </div>
-  );
-}
 
 // ── Main Component ─────────────────────────────────────────────────────────────
 
@@ -798,6 +321,9 @@ export function StudentTest({ onNavigate }: StudentTestProps) {
     null,
   );
   const [recordingDuration, setRecordingDuration] = useState(0);
+  const [showMCQ, setShowMCQ] = useState(false);
+  const [mcqAnswers, setMcqAnswers] = useState<number[]>([]);
+  const [_autoRetrying, setAutoRetrying] = useState(false);
   const startTimeRef = useRef<number>(0);
   const levelActionFiredRef = useRef(false);
 
@@ -809,14 +335,14 @@ export function StudentTest({ onNavigate }: StudentTestProps) {
     attemptsMade,
     currentTestLevel,
     levelFound,
-    foundLevel,
+    foundLevel: _foundLevel,
     passLevel,
     failLevel,
     reset,
   } = proficiency;
 
   const { data: results } = useMyResults(userId);
-  const { data: levelData } = useMyEffectiveLevel(userId);
+  useMyEffectiveLevel(userId);
   const submitTest = useSubmitTestWithSkills();
   const recorder = useAudioRecorder();
   const speech = useSpeechRecognition();
@@ -854,6 +380,7 @@ export function StudentTest({ onNavigate }: StudentTestProps) {
         speech.segments,
       );
       setComputedScores(scores);
+      setShowMCQ(true);
       localStorage.setItem(
         `classio_skills_${userId}`,
         JSON.stringify({
@@ -874,14 +401,15 @@ export function StudentTest({ onNavigate }: StudentTestProps) {
     userId,
   ]);
 
-  const handleSubmit = async () => {
+  const handleSubmit = async (adjustedScores?: SkillScores) => {
     if (!passage) return;
-    const scores = computedScores ?? {
-      rhythm: 1,
-      intonation: 1,
-      chunking: 1,
-      pronunciation: 1,
-    };
+    const scores = adjustedScores ??
+      computedScores ?? {
+        rhythm: 1,
+        intonation: 1,
+        chunking: 1,
+        pronunciation: 1,
+      };
     try {
       await submitTest.mutateAsync({
         userId,
@@ -900,7 +428,7 @@ export function StudentTest({ onNavigate }: StudentTestProps) {
   };
 
   // Compute previous score from last result
-  const previousScore = useMemo(() => {
+  const _previousScore = useMemo(() => {
     if (!results || results.length === 0) return 0;
     const last = results[results.length - 1] as any;
     if (last?.skillScores) {
@@ -915,7 +443,7 @@ export function StudentTest({ onNavigate }: StudentTestProps) {
     return 0;
   }, [results]);
 
-  const gradeLevel = user?.grade ? Number(user.grade) : 1;
+  const _gradeLevel = user?.grade ? Number(user.grade) : 1;
 
   // After submit: compute pass/fail and update proficiency search
   const avgScore = computedScores
@@ -956,6 +484,157 @@ export function StudentTest({ onNavigate }: StudentTestProps) {
     onNavigate("/student/test");
   };
 
+  // Auto level-down: automatically retry at lower level after a brief transition
+  // biome-ignore lint/correctness/useExhaustiveDependencies: handleRetry is stable
+  useEffect(() => {
+    if (submitTest.isSuccess && computedScores && !passed && !levelFound) {
+      setAutoRetrying(true);
+      const timer = setTimeout(() => {
+        setAutoRetrying(false);
+        setShowMCQ(false);
+        setMcqAnswers([]);
+        handleRetry();
+      }, 2000);
+      return () => clearTimeout(timer);
+    }
+  }, [submitTest.isSuccess, computedScores, passed, levelFound]);
+
+  // MCQ screen - appears after recording is done
+  if (showMCQ && !submitTest.isSuccess && passage) {
+    const mcqs = getPassageMCQs(passage.id);
+    const allAnswered =
+      mcqs.length > 0 &&
+      mcqAnswers.length === mcqs.length &&
+      mcqAnswers.every((a) => a !== -1);
+
+    const handleMCQSubmit = () => {
+      if (!allAnswered || !computedScores) return;
+      const mcqScore = mcqAnswers.filter(
+        (ans, i) => ans === mcqs[i].correctIndex,
+      ).length;
+      const mcqPercent = mcqScore / mcqs.length;
+      const adjustedScores: SkillScores = {
+        ...computedScores,
+        intonation: Math.max(
+          1,
+          Math.min(
+            5,
+            Math.round(computedScores.intonation * 0.7 + mcqPercent * 5 * 0.3),
+          ),
+        ),
+        chunking: Math.max(
+          1,
+          Math.min(
+            5,
+            Math.round(computedScores.chunking * 0.7 + mcqPercent * 5 * 0.3),
+          ),
+        ),
+      };
+      setComputedScores(adjustedScores);
+      void handleSubmit(adjustedScores);
+    };
+
+    return (
+      <div className="min-h-screen bg-gray-950 relative overflow-hidden">
+        <div className="fixed top-0 left-1/3 w-96 h-96 bg-indigo-500/10 rounded-full blur-3xl pointer-events-none" />
+        <div className="fixed bottom-1/4 right-1/3 w-80 h-80 bg-purple-500/10 rounded-full blur-3xl pointer-events-none" />
+        <div className="fixed top-1/2 right-0 w-72 h-72 bg-cyan-500/8 rounded-full blur-3xl pointer-events-none" />
+        <AppHeader title="Reading Comprehension Check" />
+        <main className="max-w-3xl mx-auto px-4 py-6">
+          {/* Passage card */}
+          <motion.div
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.4 }}
+          >
+            <div className="rounded-2xl border border-indigo-500/20 bg-gray-900/80 backdrop-blur-sm p-5 mb-6">
+              <div className="flex items-center gap-3 mb-3">
+                <h2 className="text-base font-bold text-white">
+                  {passage.title}
+                </h2>
+                <span
+                  className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold border ${subjectBadgeClass(passage.subject)}`}
+                >
+                  {passage.subject}
+                </span>
+              </div>
+              <div className="max-h-40 overflow-y-auto pr-1">
+                <p className="text-sm text-gray-300 leading-relaxed whitespace-pre-line">
+                  {passage.content}
+                </p>
+              </div>
+            </div>
+          </motion.div>
+
+          {/* MCQ section */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.4, delay: 0.1 }}
+          >
+            <p className="text-sm font-semibold text-indigo-300 mb-4">
+              Answer these {mcqs.length} questions about the passage:
+            </p>
+            <div className="space-y-4">
+              {mcqs.map((mcq, qi) => (
+                <div
+                  key={mcq.question}
+                  className="rounded-xl border border-indigo-500/10 bg-gray-900/60 p-4 backdrop-blur-sm"
+                >
+                  <p className="text-sm font-semibold text-white mb-3">
+                    <span className="text-indigo-400 mr-1.5">Q{qi + 1}.</span>
+                    {mcq.question}
+                  </p>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                    {mcq.options.map((opt, oi) => {
+                      const isSelected = mcqAnswers[qi] === oi;
+                      return (
+                        <button
+                          key={opt}
+                          type="button"
+                          onClick={() => {
+                            const updated = [...mcqAnswers];
+                            updated[qi] = oi;
+                            setMcqAnswers(updated);
+                          }}
+                          className={`text-left px-3 py-2 rounded-lg border text-sm transition-all duration-150 ${
+                            isSelected
+                              ? "bg-indigo-500/20 border-indigo-500 text-indigo-200 font-medium"
+                              : "bg-gray-800/60 border-gray-700 text-gray-300 hover:border-indigo-500/50 hover:text-white"
+                          }`}
+                        >
+                          <span className="font-bold text-xs text-indigo-400 mr-1.5">
+                            {String.fromCharCode(65 + oi)}.
+                          </span>
+                          {opt}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            <div className="mt-6 pb-8 flex justify-end">
+              <Button
+                size="lg"
+                disabled={!allAnswered || submitTest.isPending}
+                onClick={handleMCQSubmit}
+                className="bg-gradient-to-r from-indigo-600 to-cyan-500 hover:from-indigo-500 hover:to-cyan-400 text-white px-10 disabled:opacity-50"
+                data-ocid="test.submit_button"
+              >
+                {submitTest.isPending ? (
+                  <Loader2 className="w-4 h-4 animate-spin mr-2" />
+                ) : null}
+                {submitTest.isPending ? "Submitting..." : "Submit Answers"}
+              </Button>
+            </div>
+          </motion.div>
+        </main>
+      </div>
+    );
+  }
+
   if (submitTest.isSuccess) {
     if (computedScores) {
       // If level not yet found (still searching), show "try next level" screen
@@ -965,40 +644,81 @@ export function StudentTest({ onNavigate }: StudentTestProps) {
       // else show try next level
       if (!passed && !levelFound) {
         return (
-          <TryNextLevelScreen
-            scores={computedScores}
-            currentTestLevel={currentTestLevel + 1} // the level just tested
-            newLevel={currentTestLevel}
-            attemptsMade={attemptsMade}
-            enrolledGrade={enrolledGrade}
-            transcript={speech.transcript}
-            passageContent={passage?.content ?? ""}
-            recordingDuration={recordingDuration}
-            gradeLevel={gradeLevel}
-            previousScore={previousScore}
-            onRetry={handleRetry}
-            onBack={() => onNavigate("/student")}
-          />
+          <div className="min-h-screen bg-gray-950 relative overflow-hidden flex items-center justify-center p-4">
+            <div className="fixed top-0 left-1/3 w-96 h-96 bg-indigo-500/10 rounded-full blur-3xl pointer-events-none" />
+            <div className="fixed bottom-1/4 right-1/3 w-80 h-80 bg-purple-500/10 rounded-full blur-3xl pointer-events-none" />
+            <div className="relative z-10 max-w-sm w-full text-center bg-gray-900/80 border border-indigo-500/20 rounded-3xl p-10 shadow-2xl backdrop-blur-sm">
+              <div className="text-5xl mb-4">🔍</div>
+              <h2 className="text-2xl font-bold text-white mb-2">
+                Adjusting to your level...
+              </h2>
+              <p className="text-indigo-200 mb-6 text-sm">
+                Finding the perfect passage for you...
+              </p>
+              <div className="flex justify-center">
+                <Loader2 className="w-8 h-8 text-indigo-400 animate-spin" />
+              </div>
+            </div>
+          </div>
         );
       }
 
-      // Level found (passed or reached bottom) → show report card with journey CTA
+      // Level found (passed or reached bottom) → show simple success screen (report comes after weekly test)
+      const avgScoreForBadge = computedScores
+        ? (computedScores.pronunciation +
+            computedScores.rhythm +
+            computedScores.intonation +
+            computedScores.chunking) /
+          4
+        : 0;
+      const earnedBadge =
+        LEVEL_BADGES.find((b) => avgScoreForBadge >= b.min) ??
+        LEVEL_BADGES[LEVEL_BADGES.length - 1];
       return (
-        <ReportCard
-          scores={computedScores}
-          studentName={user?.username ?? "Student"}
-          grade={user?.grade?.toString() ?? "—"}
-          enrolledGrade={levelData?.enrolledGrade}
-          effectiveLevel={levelData?.effectiveLevel}
-          transcript={speech.transcript}
-          passageContent={passage?.content ?? ""}
-          recordingDuration={recordingDuration}
-          gradeLevel={gradeLevel}
-          previousScore={previousScore}
-          onBack={() => onNavigate("/student")}
-          onNavigate={onNavigate}
-          foundLevel={foundLevel ?? currentTestLevel}
-        />
+        <div className="min-h-screen bg-gray-950 relative overflow-hidden flex items-center justify-center p-4">
+          <div className="fixed top-0 left-1/3 w-96 h-96 bg-indigo-500/10 rounded-full blur-3xl pointer-events-none" />
+          <div className="fixed bottom-1/4 right-1/3 w-80 h-80 bg-purple-500/10 rounded-full blur-3xl pointer-events-none" />
+          <div className="fixed top-1/2 left-0 w-72 h-72 bg-cyan-500/8 rounded-full blur-3xl pointer-events-none" />
+          <div className="relative z-10 max-w-md w-full text-center bg-gray-900/80 border border-indigo-500/20 rounded-3xl p-10 shadow-2xl backdrop-blur-sm">
+            <div className="w-20 h-20 rounded-full bg-emerald-500/20 border-2 border-emerald-400 flex items-center justify-center mx-auto mb-5 shadow-lg shadow-emerald-500/20">
+              <svg
+                aria-hidden="true"
+                className="w-10 h-10 text-emerald-400"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                strokeWidth={2.5}
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M5 13l4 4L19 7"
+                />
+              </svg>
+            </div>
+            <h2 className="text-3xl font-bold text-white mb-2">
+              Level Found! 🎉
+            </h2>
+            <div className="mt-3 mb-5">
+              <span
+                className={`inline-flex items-center px-4 py-2 rounded-full text-base font-bold border ${earnedBadge.cls}`}
+              >
+                {earnedBadge.label}
+              </span>
+            </div>
+            <p className="text-indigo-200 leading-relaxed mb-8">
+              Great job! We&apos;ve found your reading level. Your personalised
+              learning journey is ready.
+            </p>
+            <button
+              type="button"
+              onClick={() => onNavigate("/student")}
+              className="w-full py-4 rounded-xl font-bold text-white text-lg bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-400 hover:to-purple-500 shadow-lg shadow-indigo-500/30 transition-all duration-200"
+            >
+              Go to My Courses →
+            </button>
+          </div>
+        </div>
       );
     }
 
@@ -1311,18 +1031,24 @@ export function StudentTest({ onNavigate }: StudentTestProps) {
                   "Record yourself reading the passage to submit."
                 )}
               </p>
-              <Button
-                size="lg"
-                className="bg-gradient-to-r from-indigo-600 to-cyan-500 hover:from-indigo-500 hover:to-cyan-400 text-white px-8"
-                disabled={!recorder.audioUrl || submitTest.isPending}
-                onClick={handleSubmit}
-                data-ocid="test.submit_button"
-              >
-                {submitTest.isPending ? (
-                  <Loader2 className="w-4 h-4 animate-spin mr-2" />
-                ) : null}
-                {submitTest.isPending ? "Submitting..." : "Submit Test"}
-              </Button>
+              {computedScores ? (
+                <span className="text-indigo-300 text-sm font-medium animate-pulse">
+                  ✨ Comprehension questions loading...
+                </span>
+              ) : (
+                <Button
+                  size="lg"
+                  className="bg-gradient-to-r from-indigo-600 to-cyan-500 hover:from-indigo-500 hover:to-cyan-400 text-white px-8"
+                  disabled={!recorder.audioUrl || submitTest.isPending}
+                  onClick={() => void handleSubmit()}
+                  data-ocid="test.submit_button"
+                >
+                  {submitTest.isPending ? (
+                    <Loader2 className="w-4 h-4 animate-spin mr-2" />
+                  ) : null}
+                  {submitTest.isPending ? "Submitting..." : "Submit Test"}
+                </Button>
+              )}
             </div>
           </div>
         )}

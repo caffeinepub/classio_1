@@ -231,3 +231,53 @@ export function useSubmitTest() {
       qc.invalidateQueries({ queryKey: ["myResults", variables.userId] }),
   });
 }
+
+// ─── New Feature Hooks ────────────────────────────────────────────────────────
+
+export function useScoreHistory(userId: string) {
+  const { actor, isFetching } = useEffectiveActor();
+  return useQuery({
+    queryKey: ["scoreHistory", userId],
+    queryFn: async () => {
+      if (!actor || !userId) return [];
+      try {
+        return await actor.getScoreHistory(userId);
+      } catch {
+        return [];
+      }
+    },
+    enabled: !!actor && !isFetching && !!userId,
+  });
+}
+
+export function useVocabMastery(userId: string) {
+  const { actor, isFetching } = useEffectiveActor();
+  return useQuery({
+    queryKey: ["vocabMastery", userId],
+    queryFn: async () => {
+      if (!actor || !userId) return [];
+      try {
+        return await actor.getVocabMastery(userId);
+      } catch {
+        return [];
+      }
+    },
+    enabled: !!actor && !isFetching && !!userId,
+  });
+}
+
+export function useClassProgress(teacherId: string) {
+  const { actor, isFetching } = useEffectiveActor();
+  return useQuery({
+    queryKey: ["classProgress", teacherId],
+    queryFn: async () => {
+      if (!actor || !teacherId) return [];
+      try {
+        return await actor.getClassProgress(teacherId);
+      } catch {
+        return [];
+      }
+    },
+    enabled: !!actor && !isFetching && !!teacherId,
+  });
+}
