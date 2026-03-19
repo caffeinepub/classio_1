@@ -7,605 +7,632 @@ export interface PracticeQuestion {
 
 export type GradePracticeQuestions = Record<number, PracticeQuestion[]>;
 
+// Questions are tied to the first passage per grade (index 0)
+// Grade 1: "The Helpful Dog"
+// Grade 2: "The Lost Kite"
+// Grade 3: "The Old Lighthouse"
+// Grade 4: "The Night Shift"
+// Grade 5: "The New Student"
+// Grade 6: "The Chess Champion"
+// Grade 7: "The Apprentice"
+// Grade 8: "The Poet's Gift"
+// Grade 9: "The Unfinished Map"
+// Grade 10: "The Weight of Words"
+
 const practiceQuestions: GradePracticeQuestions = {
+  // Grade 1 — "The Helpful Dog"
   1: [
     {
-      question: "What is a habitat?",
+      question: "What was the dog's name in the story?",
+      options: ["Rex", "Max", "Buddy", "Jack"],
+      correctIndex: 1,
+      explanation: "The dog's name was Max, a big brown dog belonging to Sam.",
+    },
+    {
+      question: "What did Sam give Max every morning?",
       options: [
-        "A type of food",
-        "The natural home of an animal",
-        "A kind of weather",
-        "A school subject",
+        "A ball and a toy",
+        "A bowl of water and a bone",
+        "Some bread and milk",
+        "A treat and a hug",
       ],
       correctIndex: 1,
-      explanation:
-        "A habitat is the natural place where an animal or plant lives and grows.",
+      explanation: "Sam gave Max a bowl of water and a bone every morning.",
     },
     {
-      question: "Why do birds fly south in winter?",
+      question: "What did Max do when Sam dropped his bag?",
       options: [
-        "To find sunshine",
-        "To look for friends",
-        "To find warmer weather and food",
-        "Because they are tired",
+        "He barked loudly",
+        "He ran away",
+        "He picked it up and brought it back",
+        "He sat and waited",
       ],
       correctIndex: 2,
       explanation:
-        "Birds migrate south in winter to find warmer temperatures and more food.",
+        "Max picked up the bag in his mouth and brought it back to Sam.",
     },
     {
-      question: "What is a continent?",
-      options: [
-        "A very small island",
-        "A type of ocean",
-        "A very large area of land",
-        "A kind of cloud",
-      ],
-      correctIndex: 2,
+      question: "How did Sam feel when Max returned his bag?",
+      options: ["Angry", "Surprised", "Sad", "Happy"],
+      correctIndex: 3,
       explanation:
-        "A continent is one of the large landmasses of Earth, like Asia or Africa.",
+        "Sam smiled and gave Max a big hug, showing he was very happy.",
     },
     {
-      question: "Which season comes after summer?",
-      options: ["Spring", "Winter", "Autumn/Fall", "Monsoon"],
-      correctIndex: 2,
-      explanation:
-        "The four seasons go: Spring, Summer, Autumn (Fall), Winter.",
-    },
-    {
-      question: "What do plants need to grow?",
-      options: [
-        "Darkness and cold",
-        "Sunlight, water, and soil",
-        "Sand and stones only",
-        "Just water",
-      ],
+      question: "What did Sam give Max at the end of the day?",
+      options: ["A new toy", "An extra treat", "A bath", "A longer walk"],
       correctIndex: 1,
       explanation:
-        "Plants need sunlight, water, and nutrients from soil to grow and make food.",
+        "Sam agreed with his mother and gave Max an extra treat that evening.",
     },
   ],
+
+  // Grade 2 — "The Lost Kite"
   2: [
     {
-      question: "What does climate describe?",
+      question: "What colour was Priya's kite?",
+      options: ["Red", "Green", "Blue", "Yellow"],
+      correctIndex: 2,
+      explanation: "Priya flew her blue kite in the park on a windy afternoon.",
+    },
+    {
+      question: "Why did the kite fly away?",
       options: [
-        "Today's weather",
-        "Typical weather patterns of a place over time",
-        "The temperature inside a house",
-        "Amount of rainfall in one week",
+        "The wind was too strong",
+        "The string snapped",
+        "Priya let go of it",
+        "It was too light",
       ],
       correctIndex: 1,
       explanation:
-        "Climate describes the usual weather patterns of a place measured over many years.",
+        "Suddenly the string snapped and the kite flew away over the trees.",
     },
     {
-      question: "What is a landmark?",
+      question: "Where was the kite found?",
       options: [
-        "A type of road",
-        "A famous or recognizable place",
-        "A forest trail",
-        "A weather station",
-      ],
-      correctIndex: 1,
-      explanation:
-        "A landmark is a prominent or well-known feature of a landscape or place.",
-    },
-    {
-      question: "What does migration mean?",
-      options: [
-        "Staying in one place",
-        "Building a new home",
-        "Moving from one place to another",
-        "Eating different foods",
+        "On the grass",
+        "In the pond",
+        "Caught between branches of an oak tree",
+        "On the roof of a building",
       ],
       correctIndex: 2,
       explanation:
-        "Migration means moving from one region or country to settle in another.",
+        "The old man pointed to a tall oak tree where the kite was caught between two branches.",
     },
     {
-      question: "Ancient Egypt is famous for its:",
+      question: "How was the kite brought down?",
       options: [
-        "Rainforests",
-        "Pyramids and pharaohs",
-        "Modern cities",
-        "Snow mountains",
+        "Priya climbed the tree",
+        "A park worker climbed a ladder",
+        "The wind blew it down",
+        "The old man shook the tree",
       ],
       correctIndex: 1,
       explanation:
-        "Ancient Egypt is known for its pyramids, pharaohs, and Nile River civilization.",
+        "The old man called a park worker, who climbed a ladder and brought the kite down.",
     },
     {
-      question: "What is culture?",
+      question: "What did Priya's mother do to repair the kite?",
       options: [
-        "Growing food in soil",
-        "The customs and traditions of a group of people",
-        "A type of science experiment",
-        "A weather pattern",
+        "Bought a new kite",
+        "Used sticky tape",
+        "Sewed the tail back with bright yellow thread",
+        "Tied the string back together",
       ],
-      correctIndex: 1,
+      correctIndex: 2,
       explanation:
-        "Culture includes the customs, arts, and way of life shared by a particular group.",
+        "Her mother sewed the torn tail back with bright yellow thread.",
     },
   ],
+
+  // Grade 3 — "The Old Lighthouse"
   3: [
     {
-      question: "What is an ecosystem?",
-      options: [
-        "A type of machine",
-        "All living things in an area and how they interact",
-        "A weather forecast tool",
-        "A computer program",
-      ],
+      question: "What was the lighthouse keeper's name?",
+      options: ["Mr. Singh", "Mr. Hasan", "Mr. Shore", "Mr. Voss"],
       correctIndex: 1,
       explanation:
-        "An ecosystem includes all plants, animals, and their environment interacting together.",
+        "The lighthouse keeper was called Mr. Hasan, who climbed the stairs every evening.",
     },
     {
-      question: "What causes erosion?",
+      question: "Why was the lighthouse important to sailors?",
       options: [
-        "Sunlight only",
-        "Stars in the sky",
-        "Wind and water wearing away land",
-        "Growing plants",
+        "It provided shelter from storms",
+        "It sold food and supplies",
+        "Its beams of light showed where the rocks were",
+        "It broadcast weather forecasts",
       ],
       correctIndex: 2,
       explanation:
-        "Erosion happens when wind and water wear away soil and rock over time.",
+        "Sailors watched for the flash of light to know where the dangerous rocks were.",
     },
     {
-      question: "What is precipitation?",
+      question: "What happened on the stormy night described in the passage?",
       options: [
-        "A type of cloud",
-        "Water falling from the sky as rain or snow",
-        "Heat from the sun",
-        "A type of fossil",
-      ],
-      correctIndex: 1,
-      explanation:
-        "Precipitation includes rain, snow, sleet, or hail that falls from clouds.",
-    },
-    {
-      question: "Democracy means people:",
-      options: [
-        "Have no rights",
-        "Follow only one ruler",
-        "Vote to choose their leaders",
-        "Never make decisions",
+        "A ship crashed on the rocks",
+        "Mr. Hasan called for help",
+        "The electricity went out and he lit the oil lamp by hand",
+        "The lighthouse was damaged",
       ],
       correctIndex: 2,
       explanation:
-        "In a democracy, citizens elect representatives to govern on their behalf.",
+        "The electricity went out, so Mr. Hasan quickly lit the old oil lamp by hand, just as keepers had done long ago.",
     },
     {
-      question: "What is a territory in nature?",
+      question: "For how many years had Mr. Hasan kept records in his logbook?",
+      options: ["Ten years", "Twenty years", "Forty years", "A hundred years"],
+      correctIndex: 2,
+      explanation:
+        "His logbook recorded every storm and every ship for forty years.",
+    },
+    {
+      question: "What did Mr. Hasan believe about his job?",
       options: [
-        "A special type of food",
-        "An area an animal defends",
-        "A form of weather",
-        "A mountain type",
+        "It was lonely and difficult",
+        "It was the most important job in the world",
+        "It would soon become unnecessary",
+        "It was easy work for little reward",
       ],
       correctIndex: 1,
       explanation:
-        "Animals establish territories to protect their food, mates, and living space.",
+        "Mr. Hasan always said that keeping the light burning was the most important job in the world.",
     },
   ],
+
+  // Grade 4 — "The Night Shift"
   4: [
     {
-      question: "The atmosphere mainly protects us from:",
-      options: ["Rain", "Harmful solar radiation", "Cold winds", "Ocean waves"],
+      question: "What is the main idea of the passage?",
+      options: [
+        "Night shifts are dangerous and should be avoided",
+        "Workers on the night shift keep the city running while others sleep",
+        "Bakers and nurses are the most important workers",
+        "Cities would be better without night workers",
+      ],
       correctIndex: 1,
       explanation:
-        "The atmosphere, especially the ozone layer, protects Earth from harmful UV radiation.",
+        "The passage describes the many workers who keep the city running through the night while most people sleep.",
     },
     {
-      question: "A peninsula is surrounded by water on:",
-      options: ["All four sides", "One side", "Three sides", "Two sides"],
+      question:
+        "What do bakers do at three in the morning, according to the passage?",
+      options: [
+        "Sleep before the early morning rush",
+        "Deliver bread to shops",
+        "Knead dough so loaves are ready when shops open",
+        "Clean the bakery for the day shift",
+      ],
       correctIndex: 2,
       explanation:
-        "A peninsula has water on three sides and is connected to mainland on one side.",
+        "Bakers knead dough at three in the morning so that the loaves are ready when the shops open.",
     },
     {
-      question: "What is adaptation in biology?",
+      question:
+        "Why does the author say the night workers' contribution is 'invisible'?",
       options: [
-        "A change that helps a species survive",
-        "A type of migration pattern",
-        "Weather resistance",
-        "A type of food chain",
-      ],
-      correctIndex: 0,
-      explanation:
-        "Biological adaptation is a trait that improves a species' chances of survival.",
-    },
-    {
-      question: "Parliament is best described as:",
-      options: [
-        "A royal palace",
-        "An elected lawmaking body",
-        "A type of school",
-        "An army headquarters",
+        "They work in the dark",
+        "Their work is done before most people are awake to see it",
+        "They are not paid for their work",
+        "They prefer not to be noticed",
       ],
       correctIndex: 1,
       explanation:
-        "Parliament is a legislative body whose members are elected to create laws.",
+        "Their contribution is invisible because the work is completed before most people wake up, so it is rarely noticed.",
     },
     {
-      question: "Photosynthesis uses sunlight to:",
+      question:
+        "Which of the following is NOT mentioned as a night shift worker in the passage?",
       options: [
-        "Create wind",
-        "Make food for plants",
-        "Evaporate water",
-        "Heat the soil",
+        "Security guards",
+        "Signal engineers",
+        "Schoolteachers",
+        "Street cleaners",
       ],
-      correctIndex: 1,
+      correctIndex: 2,
       explanation:
-        "Plants use photosynthesis to convert sunlight, water, and CO2 into sugar and oxygen.",
+        "The passage does not mention schoolteachers as night workers; it lists street cleaners, bakers, nurses, security guards, delivery drivers, signal engineers, and others.",
+    },
+    {
+      question:
+        "What does the author suggest the reader should do at the end of the passage?",
+      options: [
+        "Apply for a night shift job",
+        "Avoid eating fresh bread",
+        "Remember the workers who made ordinary life possible",
+        "Stop reading the morning newspaper",
+      ],
+      correctIndex: 2,
+      explanation:
+        "The author tells the reader to remember the hands that made fresh bread and the morning news possible.",
     },
   ],
+
+  // Grade 5 — "The New Student"
   5: [
     {
-      question: "The equator is at:",
+      question: "Why had Daniel moved to the new school?",
       options: [
-        "90° North latitude",
-        "Zero latitude",
-        "180° East longitude",
-        "50° South latitude",
+        "He had been expelled from his old school",
+        "His family moved from another country over the summer",
+        "He wanted to be closer to the library",
+        "He had won a scholarship",
       ],
       correctIndex: 1,
       explanation:
-        "The equator divides Earth into Northern and Southern hemispheres at 0° latitude.",
+        "Daniel had moved from another country over the summer and was the new student in Class 7B.",
     },
     {
-      question: "What is biodiversity?",
+      question: "How did Aisha first start a conversation with Daniel?",
       options: [
-        "One species in an area",
-        "The variety of life in a region",
-        "A type of farming",
-        "Scientific names for plants",
+        "She offered to share her lunch with him",
+        "She asked him about the book he was reading",
+        "She introduced herself and asked where he was from",
+        "She asked him to join her group project",
       ],
       correctIndex: 1,
       explanation:
-        "Biodiversity refers to the range of different organisms in a given area.",
+        "Aisha noticed he was reading a novel she had finished and sat down to ask what he thought of the ending.",
     },
     {
-      question: "The American Revolution was mainly about:",
+      question:
+        "What was Daniel's opinion of the ending of the novel he was reading?",
       options: [
-        "Trade routes to Asia",
-        "Independence from British rule",
-        "Building new cities",
-        "Agricultural farming methods",
+        "He loved it and wished there was a sequel",
+        "He found it too sad",
+        "He thought it was too easy and the author should have let the reader decide",
+        "He hadn't finished it yet",
       ],
-      correctIndex: 1,
-      explanation:
-        "American colonists fought for independence from British rule and taxation.",
-    },
-    {
-      question: "Condensation forms:",
-      options: ["Volcanoes", "Earthquakes", "Clouds and dew", "Ocean currents"],
       correctIndex: 2,
       explanation:
-        "Condensation occurs when water vapor cools and turns into liquid, forming clouds.",
+        "Daniel said the ending was too easy and the author should have let the reader decide.",
     },
     {
-      question: "Constitutional rights are:",
+      question: "What changed for Daniel by Friday?",
       options: [
-        "Rules for businesses only",
-        "Basic freedoms guaranteed by law",
-        "Optional guidelines",
-        "School regulations",
+        "He had become the top student in the class",
+        "He was sitting with Aisha and her friends at lunch",
+        "He had been chosen as class representative",
+        "He had started speaking more in lessons",
       ],
       correctIndex: 1,
       explanation:
-        "Constitutional rights are fundamental freedoms protected by a nation's constitution.",
+        "By Friday, Daniel was sitting with Aisha and her friends, showing he was no longer eating alone.",
+    },
+    {
+      question: "What did Aisha say about what she had done to help Daniel?",
+      options: [
+        "She had planned it carefully to make him feel welcome",
+        "She had done nothing special — she simply noticed someone and asked a question",
+        "She had told the teacher Daniel was struggling",
+        "She had organised a welcome event for him",
+      ],
+      correctIndex: 1,
+      explanation:
+        "Aisha later said she hadn't done anything special — she had simply noticed someone and asked a question.",
     },
   ],
+
+  // Grade 6 — "The Chess Champion"
   6: [
     {
-      question: "Tectonic plates mainly cause:",
+      question: "What made Leila's chess victory unusual?",
       options: [
-        "Ocean tides",
-        "Rainfall patterns",
-        "Earthquakes and volcanic activity",
-        "Wind patterns",
-      ],
-      correctIndex: 2,
-      explanation:
-        "The movement of tectonic plates causes earthquakes, volcanoes, and mountain formation.",
-    },
-    {
-      question: "Deforestation's main impact is:",
-      options: [
-        "Increasing biodiversity",
-        "Improving air quality",
-        "Destroying habitats and releasing CO2",
-        "Creating more farmland without issues",
-      ],
-      correctIndex: 2,
-      explanation:
-        "Deforestation removes vital habitats and releases stored carbon into the atmosphere.",
-    },
-    {
-      question: "Sovereignty means a nation:",
-      options: [
-        "Depends on others for laws",
-        "Has full right to govern itself",
-        "Is ruled by another country",
-        "Has no army",
+        "She had only learned the game that year",
+        "She was the youngest winner ever and had prepared differently from other competitors",
+        "She won without ever losing a single match",
+        "She played using an entirely new set of rules",
       ],
       correctIndex: 1,
       explanation:
-        "Sovereignty is the right of a state to govern itself without external interference.",
+        "Her victory was unusual because of her age and because she prepared differently, spending most practice time playing her grandfather rather than studying standard games.",
     },
     {
-      question: "The stratosphere contains:",
+      question:
+        "What skill did playing against her grandfather develop in Leila?",
       options: [
-        "Most weather patterns",
-        "The ozone layer",
-        "The ground level air",
-        "Ocean currents",
-      ],
-      correctIndex: 1,
-      explanation:
-        "The stratosphere contains the ozone layer, which shields Earth from UV radiation.",
-    },
-    {
-      question: "Imperialism historically meant:",
-      options: [
-        "Protecting small nations",
-        "Equal trade between countries",
-        "Powerful nations dominating weaker ones",
-        "Sharing technology freely",
+        "The ability to memorise famous games",
+        "A talent for speed chess",
+        "An instinct for improvisation",
+        "Expertise in opening sequences",
       ],
       correctIndex: 2,
       explanation:
-        "Imperialism involved powerful nations extending control over other territories.",
+        "Because her grandfather's rules were slightly different, Leila never knew what to expect and developed an instinct for improvisation.",
+    },
+    {
+      question:
+        "What lesson had Leila's grandfather taught her about patience?",
+      options: [
+        "Patience means waiting for your opponent to make a mistake",
+        "Patience is passive and calming",
+        "Patience is a form of pressure, applied slowly and without announcement",
+        "Patience means studying longer than anyone else",
+      ],
+      correctIndex: 2,
+      explanation:
+        "Her grandfather taught her that patience was not passive; it was a form of pressure, applied slowly and without announcement.",
+    },
+    {
+      question: "How did Leila's opponent behave in the final round?",
+      options: [
+        "He played cautiously and defensively from the start",
+        "He played a confident opening, expecting a predictable response",
+        "He tried to make the game last as long as possible",
+        "He copied Leila's style of play",
+      ],
+      correctIndex: 1,
+      explanation:
+        "He played a confident opening, expecting her to follow a predictable response — but she did not.",
+    },
+    {
+      question: "What did Leila do after winning the championship?",
+      options: [
+        "She gave a speech at the ceremony",
+        "She agreed to be interviewed by a journalist",
+        "She went home, had dinner, and played three more games with her grandfather",
+        "She studied the match and wrote down what she had learned",
+      ],
+      correctIndex: 2,
+      explanation:
+        "Leila went home, ate dinner with her family, and played three more games with her grandfather that evening.",
     },
   ],
+
+  // Grade 7 — "The Apprentice"
   7: [
     {
-      question: "Geopolitics studies the relationship between:",
+      question: "Where was Mr. Voss's workshop located?",
       options: [
-        "Plants and soil",
-        "Geography and politics",
-        "Culture and language",
-        "Economy and art",
+        "In a large shopping street",
+        "At the end of a narrow lane in the old quarter of the city",
+        "Above a library in the city centre",
+        "Near the train station",
       ],
       correctIndex: 1,
       explanation:
-        "Geopolitics analyzes how geography influences international relations and politics.",
+        "The workshop sat at the end of a narrow lane in the old quarter of the city.",
     },
     {
-      question: "The hydrosphere includes:",
+      question:
+        "What was Jamal allowed to do during the first three months of his apprenticeship?",
       options: [
-        "All land areas on Earth",
-        "The atmosphere only",
-        "All water on, under, and above Earth's surface",
-        "Polar ice caps only",
+        "Repair simple clocks under supervision",
+        "Only watch and perform cleaning tasks",
+        "Design new clock components",
+        "Serve customers at the front of the shop",
+      ],
+      correctIndex: 1,
+      explanation:
+        "In the beginning, Jamal was allowed only to watch and clean — polishing lenses, sweeping filings, and arranging tools.",
+    },
+    {
+      question: "How did Mr. Voss communicate disapproval to Jamal?",
+      options: [
+        "By raising his voice sharply",
+        "By writing notes and leaving them on the bench",
+        "With a single look that would last all day",
+        "By assigning extra cleaning tasks",
       ],
       correctIndex: 2,
       explanation:
-        "The hydrosphere encompasses all forms of water: oceans, rivers, ice, and water vapor.",
+        "Mr. Voss never raised his voice, but a single look from him was sufficient to communicate disapproval that would last all day.",
     },
     {
-      question: "Industrialization primarily transformed:",
-      options: [
-        "Art and music",
-        "Agriculture only",
-        "How goods were produced and how people worked",
-        "Political borders",
-      ],
+      question:
+        "How long did Jamal work on the bracket clock before presenting it to Mr. Voss?",
+      options: ["One afternoon", "One full day", "Two full days", "Three days"],
       correctIndex: 2,
       explanation:
-        "Industrialization shifted production from hand tools to machines and factory systems.",
+        "Jamal worked on the bracket clock for two full days, disassembling, cleaning, and reassembling each component.",
     },
     {
-      question: "A totalitarian state:",
+      question:
+        "What did Jamal do when he opened his own workshop seven years later?",
       options: [
-        "Gives citizens maximum freedom",
-        "Has a strong civil society",
-        "Controls all aspects of public and private life",
-        "Encourages political opposition",
+        "He named it after Mr. Voss",
+        "He hung a photograph of Mr. Voss above the door",
+        "He wrote a book about his apprenticeship",
+        "He invited Mr. Voss to be his partner",
       ],
-      correctIndex: 2,
+      correctIndex: 1,
       explanation:
-        "Totalitarian regimes demand complete obedience and suppress all opposition.",
-    },
-    {
-      question: "Urbanization primarily means:",
-      options: [
-        "Farming becoming more common",
-        "People moving from cities to rural areas",
-        "Population shifting from rural to urban areas",
-        "Building more schools",
-      ],
-      correctIndex: 2,
-      explanation:
-        "Urbanization is the process by which more people live in cities than rural areas.",
+        "He opened his own workshop seven years later and hung a photograph of Mr. Voss above the door.",
     },
   ],
+
+  // Grade 8 — "The Poet's Gift"
   8: [
     {
-      question: "The Renaissance primarily celebrated:",
+      question:
+        "How long had Yasmin Khalil's manuscript sat in a drawer before publication?",
+      options: ["Four years", "Seven years", "Eleven years", "Twenty years"],
+      correctIndex: 2,
+      explanation:
+        "The manuscript had sat in a drawer for eleven years before a friend discovered it and sent it to publishers.",
+    },
+    {
+      question: "How did the manuscript come to be discovered?",
       options: [
-        "Religious isolation",
-        "Medieval traditions",
-        "Humanism and rebirth of classical arts",
-        "Industrial technology",
+        "Yasmin submitted it to a competition",
+        "A friend found it while clearing a storage room and sent it to publishers without asking",
+        "A publisher approached Yasmin at a literary event",
+        "Yasmin's daughter found it and encouraged her to publish",
+      ],
+      correctIndex: 1,
+      explanation:
+        "A friend who was clearing out a storage room discovered it and, without asking permission, sent it to three publishers.",
+    },
+    {
+      question: "Why did Yasmin feel ambivalent about publishing?",
+      options: [
+        "She feared the poems were not good enough",
+        "She had written without an audience for so long that the prospect of one unsettled her",
+        "She was worried about negative reviews",
+        "She thought the poems were too personal to be understood by others",
+      ],
+      correctIndex: 1,
+      explanation:
+        "She had written without an audience for so long that the prospect of one unsettled her; the poems had been private conversations with herself.",
+    },
+    {
+      question: "What condition did Yasmin set for publication?",
+      options: [
+        "The book must include a long introduction by a famous poet",
+        "It must be published only in limited numbers",
+        "No photograph of her and no biographical note beyond her name",
+        "It could only be sold in her home city",
       ],
       correctIndex: 2,
       explanation:
-        "The Renaissance was a cultural movement celebrating human achievement, art, and science.",
+        "She agreed to publish with the condition that the book contain no photograph of her and no biographical note beyond her name.",
     },
     {
-      question: "An archipelago is:",
+      question:
+        "What does the ending of the passage suggest about Yasmin's private writing?",
       options: [
-        "A type of mountain range",
-        "A chain or group of islands",
-        "An underground river",
-        "A desert region",
-      ],
-      correctIndex: 1,
-      explanation:
-        "An archipelago is a sea containing a chain or cluster of islands.",
-    },
-    {
-      question: "Osmosis involves movement of:",
-      options: [
-        "Air molecules",
-        "Large proteins",
-        "Water through a semi-permeable membrane",
-        "Electrical charges",
+        "She stopped writing after the book was published",
+        "She shared her new poems widely after the book's success",
+        "She continued writing privately, keeping those poems entirely separate from her published work",
+        "She began a second collection immediately",
       ],
       correctIndex: 2,
       explanation:
-        "Osmosis is the movement of water from low to high solute concentration across a membrane.",
-    },
-    {
-      question: "Mercantilism was driven by the goal of:",
-      options: [
-        "Sharing wealth equally",
-        "Accumulating national wealth through trade",
-        "Reducing exports",
-        "Preventing colonization",
-      ],
-      correctIndex: 1,
-      explanation:
-        "Mercantilism held that national wealth came from having more exports than imports.",
-    },
-    {
-      question: "Electromagnetism is the force between:",
-      options: [
-        "Gravity and mass",
-        "Charged particles and magnetic fields",
-        "Atoms in a nucleus",
-        "Sound waves",
-      ],
-      correctIndex: 1,
-      explanation:
-        "Electromagnetism describes the interaction between electric charges and magnetic fields.",
+        "She continued to write poems she did not show anyone, keeping them in the same drawer as before, as if the published book and the private archive were two entirely separate things.",
     },
   ],
+
+  // Grade 9 — "The Unfinished Map"
   9: [
     {
-      question: "Hegemony refers to:",
+      question: "What made Anselm Brauer's map of the valley extraordinary?",
       options: [
-        "Equal partnership between nations",
-        "Dominance of one power over others",
-        "A type of government",
-        "An economic theory",
+        "It was drawn entirely from memory without any measurements",
+        "It depicted the valley in multiple layers, including human activity and seasonal patterns",
+        "It was the only surviving map from that era",
+        "It was the largest hand-drawn map ever produced",
       ],
       correctIndex: 1,
       explanation:
-        "Hegemony means the leadership or dominance of one country or group over others.",
+        "Beyond the physical terrain, Brauer had drawn additional layers showing human activity, seasonal patterns, and community gathering places.",
     },
     {
-      question: "Mitochondria are responsible for:",
+      question: "Why was the map annotated as 'unfinished' by Brauer himself?",
       options: [
-        "Protein synthesis",
-        "DNA replication",
-        "Producing cellular energy (ATP)",
-        "Cell division",
+        "He had not completed the measurements of the valley",
+        "He ran out of materials before finishing",
+        "He intended a fourth and fifth layer that were never begun",
+        "The map was damaged in a flood",
       ],
       correctIndex: 2,
       explanation:
-        "Mitochondria are the cell's powerhouses, converting nutrients into ATP energy.",
+        "Brauer had intended a fourth and fifth layer, which were never begun, and he annotated it as unfinished.",
     },
     {
-      question: "A stratovolcano is characterized by:",
+      question:
+        "What divided scholars who studied the map after Brauer's death?",
       options: [
-        "Low, flat shape",
-        "Frequent small eruptions only",
-        "Steep slopes built from alternating lava and ash",
-        "Ocean floor location",
+        "Whether the physical measurements were accurate",
+        "Whether calling it 'unfinished' was meaningful, since all maps could be seen as incomplete",
+        "Whether it should be published or kept private",
+        "Who should inherit the original document",
+      ],
+      correctIndex: 1,
+      explanation:
+        "Scholars argued about what it meant to call it unfinished — some said all maps were necessarily unfinished, others said Brauer had a specific intention that was genuinely incomplete.",
+    },
+    {
+      question: "What response did museum visitors have to the map?",
+      options: [
+        "They found it confusing and hard to interpret",
+        "They often stood before it for longer than any other exhibit",
+        "They were disappointed that it was unfinished",
+        "They were most interested in the physical terrain layer",
+      ],
+      correctIndex: 1,
+      explanation:
+        "Visitors often stood before it for longer than they stood before any other exhibit.",
+    },
+    {
+      question:
+        "What did museum staff believe held visitors' attention at the map?",
+      options: [
+        "Its enormous physical size",
+        "The bright colours used in each layer",
+        "The map seemed to be asking something rather than telling it",
+        "The story of how it was discovered",
       ],
       correctIndex: 2,
       explanation:
-        "Stratovolcanoes are steep, symmetrical cones built up by layers of lava and pyroclastic material.",
-    },
-    {
-      question: "Thermodynamics studies:",
-      options: [
-        "Sound and vibration",
-        "Relationships between heat, energy, and work",
-        "Light and optics",
-        "Chemical bonds",
-      ],
-      correctIndex: 1,
-      explanation:
-        "Thermodynamics is the branch of physics dealing with heat and temperature and their relation to energy.",
-    },
-    {
-      question: "Jurisprudence is the study of:",
-      options: [
-        "Medical practices",
-        "The theory and philosophy of law",
-        "Economic policy",
-        "Historical dates",
-      ],
-      correctIndex: 1,
-      explanation:
-        "Jurisprudence explores the nature of law and the principles underlying legal systems.",
+        "The consensus among museum staff was that the map seemed to be asking something rather than telling it.",
     },
   ],
+
+  // Grade 10 — "The Weight of Words"
   10: [
     {
-      question: "Epistemic uncertainty refers to uncertainty in:",
+      question:
+        "What did Adaeze Nwosu consider insufficient about the standard explanation of how words have meaning?",
       options: [
-        "Physical measurements only",
-        "Our knowledge and what we can know",
-        "Financial markets",
-        "Weather forecasting",
+        "It was too technically complex for ordinary readers",
+        "It described the mechanism of meaning without explaining what was at stake when it worked or failed",
+        "It ignored the role of grammar in shaping meaning",
+        "It was based on outdated research",
       ],
       correctIndex: 1,
       explanation:
-        "Epistemic uncertainty stems from limited knowledge, unlike aleatory (random) uncertainty.",
+        "Nwosu found the standard answer accurate but insufficient — it described the mechanism without explaining what was at stake.",
     },
     {
-      question: "Trophic levels describe:",
+      question:
+        "What was the central argument Nwosu developed across her three books?",
       options: [
-        "Soil composition layers",
-        "Feeding relationships and energy flow in an ecosystem",
-        "Temperature zones of the ocean",
-        "Types of climate zones",
+        "That words are purely social conventions with no fixed meaning",
+        "That meaning is always a function of the speaker's relationship to the world they describe, not just a property of language as a system",
+        "That translation between languages is fundamentally impossible",
+        "That grammar rules determine meaning more than vocabulary",
       ],
       correctIndex: 1,
       explanation:
-        "Trophic levels represent positions in a food web based on energy transfer.",
+        "Her central argument was that meaning was never simply a property of language as a system but always partly a function of the relationship between the speaker and the world they were attempting to describe.",
     },
     {
-      question: "Geomorphology is the study of:",
+      question:
+        "What does Nwosu mean by the 'implicit commitment' carried by the act of naming?",
       options: [
-        "Earth's atmosphere",
-        "Earth's surface landforms and the processes that shape them",
-        "The history of human civilization",
-        "Ocean floor biology",
-      ],
-      correctIndex: 1,
-      explanation:
-        "Geomorphology analyzes Earth's landforms and the erosional and tectonic forces that create them.",
-    },
-    {
-      question: "Semiotics primarily analyzes:",
-      options: [
-        "Mathematical equations",
-        "Biological organisms",
-        "Signs, symbols, and their meanings",
-        "Musical composition",
+        "A promise to use words consistently across all contexts",
+        "A legal obligation to accuracy in formal writing",
+        "A responsibility to the thing named that most linguistic theory had chosen not to examine",
+        "An agreement between speakers about shared definitions",
       ],
       correctIndex: 2,
       explanation:
-        "Semiotics is the study of signs and symbols and how they create meaning in communication.",
+        "She claimed that the act of naming carried a responsibility to the thing named — something most linguistic theory had chosen not to examine.",
     },
     {
-      question: "Nucleosynthesis explains:",
+      question:
+        "What does Nwosu argue about the best testimony from survivors of atrocity?",
       options: [
-        "How black holes form",
-        "The origin of chemical elements in stars",
-        "Genetic mutation in organisms",
-        "Continental drift",
+        "It achieves clarity by using very simple language",
+        "It does not resolve the failure of language but makes that failure visible",
+        "It relies on metaphor to compensate for the limits of literal description",
+        "It avoids the problem by refusing to use conventional vocabulary",
       ],
       correctIndex: 1,
       explanation:
-        "Nucleosynthesis is the process by which new atomic nuclei are formed inside stars.",
+        "The best such testimony did not resolve the problem of language's inadequacy; it made the problem visible.",
+    },
+    {
+      question:
+        "Which fields beyond philosophy were influenced by Nwosu's work?",
+      options: [
+        "Economics and political science",
+        "Writers, historians, and legal scholars concerned with trauma testimony",
+        "Neuroscientists and psychologists",
+        "Translators and language teachers",
+      ],
+      correctIndex: 1,
+      explanation:
+        "Nwosu's work influenced writers, historians, and legal scholars concerned with how courts handled the language of trauma.",
     },
   ],
 };

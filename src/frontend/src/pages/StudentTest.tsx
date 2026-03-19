@@ -4,28 +4,17 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   CheckCircle,
   ChevronLeft,
-  Info,
   Loader2,
   Mic,
   MicOff,
-  Music,
   Pause,
   Play,
   Square,
-  TrendingUp,
-  Volume2,
-  Zap,
 } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
 import { AppHeader } from "../components/AppHeader";
-import {
-  ReportingIndicatorsPanel,
-  ScoreOverviewPanel,
-  SkillCard,
-  StarRating,
-} from "../components/ReportCardLayout";
 import { useAuth } from "../context/AuthContext";
 import { type MCQ, getPassageMCQs } from "../data/passageMCQs";
 import { getPassageForLevel } from "../data/passages";
@@ -274,9 +263,6 @@ function useAudioRecorder() {
   };
 }
 
-// DonutChart imported from ReportCardLayout
-// ProficiencyBadge, StarRating imported from ReportCardLayout
-
 // ── Level badge (no downgrade) ─────────────────────────────────────────────────
 
 const LEVEL_BADGES = [
@@ -307,10 +293,6 @@ const LEVEL_BADGES = [
   },
 ];
 
-// ── Adaptive Banner ────────────────────────────────────────────────────────────
-
-// ── New Report Card ────────────────────────────────────────────────────────────
-
 // ── Main Component ─────────────────────────────────────────────────────────────
 
 export function StudentTest({ onNavigate }: StudentTestProps) {
@@ -321,7 +303,7 @@ export function StudentTest({ onNavigate }: StudentTestProps) {
   const [recordingDuration, setRecordingDuration] = useState(0);
   const [showMCQ, setShowMCQ] = useState(false);
   const [mcqAnswers, setMcqAnswers] = useState<number[]>([]);
-  const [_autoRetrying, setAutoRetrying] = useState(false);
+  const [testKey, setTestKey] = useState(0);
   const startTimeRef = useRef<number>(0);
   const levelActionFiredRef = useRef(false);
 
@@ -346,10 +328,11 @@ export function StudentTest({ onNavigate }: StudentTestProps) {
   const speech = useSpeechRecognition();
 
   // Determine passage based on current proficiency search level
+  // biome-ignore lint/correctness/useExhaustiveDependencies: testKey is an intentional cache-bust key
   const passage = useMemo(() => {
     const testsTaken = results?.length ?? 0;
     return getPassageForLevel(currentTestLevel, testsTaken);
-  }, [currentTestLevel, results?.length]);
+  }, [currentTestLevel, results?.length, testKey]);
 
   const handleStartRecording = async () => {
     startTimeRef.current = Date.now();
@@ -425,22 +408,6 @@ export function StudentTest({ onNavigate }: StudentTestProps) {
     }
   };
 
-  // Compute previous score from last result
-  const _previousScore = useMemo(() => {
-    if (!results || results.length === 0) return 0;
-    const last = results[results.length - 1] as any;
-    if (last?.skillScores) {
-      const s = last.skillScores;
-      return (
-        Number(s.rhythm ?? 0) +
-        Number(s.intonation ?? 0) +
-        Number(s.chunking ?? 0) +
-        Number(s.pronunciation ?? 0)
-      );
-    }
-    return 0;
-  }, [results]);
-
   const _gradeLevel = user?.grade ? Number(user.grade) : 1;
 
   // After submit: compute pass/fail and update proficiency search
@@ -479,20 +446,20 @@ export function StudentTest({ onNavigate }: StudentTestProps) {
   const handleRetry = () => {
     levelActionFiredRef.current = false;
     reset();
-    onNavigate("/student/test");
+    setComputedScores(null);
+    setRecordingDuration(0);
+    setShowMCQ(false);
+    setMcqAnswers([]);
+    setTestKey((k) => k + 1);
   };
 
   // Auto level-down: automatically retry at lower level after a brief transition
   // biome-ignore lint/correctness/useExhaustiveDependencies: handleRetry is stable
   useEffect(() => {
     if (submitTest.isSuccess && computedScores && !passed && !levelFound) {
-      setAutoRetrying(true);
       const timer = setTimeout(() => {
-        setAutoRetrying(false);
-        setShowMCQ(false);
-        setMcqAnswers([]);
         handleRetry();
-      }, 2000);
+      }, 800);
       return () => clearTimeout(timer);
     }
   }, [submitTest.isSuccess, computedScores, passed, levelFound]);
@@ -641,83 +608,24 @@ export function StudentTest({ onNavigate }: StudentTestProps) {
 
   if (submitTest.isSuccess) {
     if (computedScores) {
-      // If level not yet found (still searching), show "try next level" screen
-      // (levelFound becomes true after failLevel() if already at level 1)
-      // We check the local state: after failLevel, levelFound may be true (at level 1) or false
-      // We determine: if originally passed OR (after failLevel, levelFound is true) → show report
-      // else show try next level
+      // Still searching for the right level — show minimal spinner and auto-retry
       if (!passed && !levelFound) {
         return (
           <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
-            <div className="max-w-sm w-full text-center bg-white border border-gray-200 rounded-3xl p-10 shadow-lg">
-              <div className="w-16 h-16 rounded-full bg-indigo-100 flex items-center justify-center mx-auto mb-6">
-                <Loader2 className="w-8 h-8 text-indigo-500 animate-spin" />
-              </div>
-              <h2 className="text-2xl font-bold text-gray-900 mb-2">
-                Creating Your Learning Journey...
-              </h2>
-              <p className="text-gray-500 mb-8 text-sm">
-                We&apos;re building the perfect path for you
+            <div className="text-center">
+              <Loader2 className="w-10 h-10 animate-spin text-indigo-500 mx-auto mb-4" />
+              <p className="text-gray-600 font-medium">
+                Finding your perfect level...
               </p>
-              <div className="space-y-3 text-left">
-                {[
-                  {
-                    icon: "📚",
-                    label: "Vocab Builder",
-                    sub: "Building your word power",
-                    delay: 0,
-                  },
-                  {
-                    icon: "📖",
-                    label: "Practice Reading",
-                    sub: "Read and record sessions",
-                    delay: 0.3,
-                  },
-                  {
-                    icon: "📝",
-                    label: "Weekly Assessment",
-                    sub: "Test your progress",
-                    delay: 0.6,
-                  },
-                  {
-                    icon: "📊",
-                    label: "Progress Reports",
-                    sub: "Track your growth",
-                    delay: 0.9,
-                  },
-                ].map((step) => (
-                  <motion.div
-                    key={step.label}
-                    initial={{ opacity: 0, x: -16 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: step.delay, duration: 0.4 }}
-                    className="flex items-center gap-3 bg-indigo-50 border border-indigo-100 rounded-xl px-4 py-3"
-                  >
-                    <span className="text-xl">{step.icon}</span>
-                    <div>
-                      <p className="text-sm font-semibold text-gray-900">
-                        {step.label}
-                      </p>
-                      <p className="text-xs text-gray-500">{step.sub}</p>
-                    </div>
-                    <motion.div
-                      className="ml-auto w-2 h-2 rounded-full bg-indigo-400"
-                      animate={{ scale: [1, 1.4, 1] }}
-                      transition={{
-                        repeat: Number.POSITIVE_INFINITY,
-                        duration: 1.2,
-                        delay: step.delay,
-                      }}
-                    />
-                  </motion.div>
-                ))}
-              </div>
+              <p className="text-sm text-gray-400 mt-1">
+                Trying Grade {currentTestLevel} passage
+              </p>
             </div>
           </div>
         );
       }
 
-      // Level found (passed or reached bottom) → show simple success screen (report comes after weekly test)
+      // Level found (passed or reached bottom) → show success / journey start screen
       const avgScoreForBadge = computedScores
         ? (computedScores.pronunciation +
             computedScores.rhythm +

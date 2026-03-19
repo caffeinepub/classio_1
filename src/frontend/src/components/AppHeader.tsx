@@ -18,8 +18,11 @@ export function AppHeader({ title }: AppHeaderProps) {
           <img
             src="/assets/uploads/Classio_logo_reel-1.jpeg"
             alt="Classio"
-            className="h-9 w-auto object-contain rounded-lg"
+            className="h-9 w-9 object-cover rounded-lg ring-1 ring-indigo-100"
           />
+          <span className="font-bold text-indigo-700 text-lg leading-none">
+            Classio
+          </span>
           {title && (
             <>
               <span className="text-gray-300 mx-1">/</span>

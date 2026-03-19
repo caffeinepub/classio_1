@@ -29,6 +29,45 @@ function withTimeout<T>(promise: Promise<T>, ms: number): Promise<T> {
   ]);
 }
 
+const featureCards = [
+  {
+    emoji: "📚",
+    label: "Adaptive Tests",
+    color: "from-indigo-500/30 to-indigo-600/20",
+  },
+  {
+    emoji: "🎙️",
+    label: "Voice Analysis",
+    color: "from-purple-500/30 to-purple-600/20",
+  },
+  {
+    emoji: "📊",
+    label: "Smart Reports",
+    color: "from-cyan-500/30 to-cyan-600/20",
+  },
+  {
+    emoji: "🏆",
+    label: "Grade 1–10",
+    color: "from-amber-500/30 to-amber-600/20",
+  },
+];
+
+const quickFillRoles = [
+  { label: "Admin", emoji: "👑", username: "Classio1", password: "Classio@11" },
+  {
+    label: "Teacher",
+    emoji: "👩‍🏫",
+    username: "Teacher1",
+    password: "Teacher@11",
+  },
+  {
+    label: "Student",
+    emoji: "🎓",
+    username: "Student1",
+    password: "Student@11",
+  },
+];
+
 export function LandingPage({ onNavigate }: LandingPageProps) {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
@@ -99,108 +138,113 @@ export function LandingPage({ onNavigate }: LandingPageProps) {
     }
   };
 
-  const quickFillRoles = [
-    { label: "Admin", username: "Classio1", password: "Classio@11" },
-    { label: "Teacher", username: "Teacher1", password: "Teacher@11" },
-    { label: "Student", username: "Student1", password: "Student@11" },
-  ];
-
   return (
     <div className="min-h-screen flex">
-      {/* Left panel — professional indigo gradient */}
-      <div className="hidden md:flex md:w-1/2 flex-col items-center justify-center p-10 relative overflow-hidden bg-gradient-to-br from-indigo-600 via-indigo-700 to-blue-800">
-        {/* Subtle circuit grid overlay */}
-        <svg
-          className="absolute inset-0 w-full h-full opacity-[0.06]"
-          xmlns="http://www.w3.org/2000/svg"
-          aria-hidden="true"
-        >
-          <defs>
-            <pattern
-              id="grid"
-              width="40"
-              height="40"
-              patternUnits="userSpaceOnUse"
-            >
-              <path
-                d="M 40 0 L 0 0 0 40"
-                fill="none"
-                stroke="white"
-                strokeWidth="0.5"
-              />
-            </pattern>
-          </defs>
-          <rect width="100%" height="100%" fill="url(#grid)" />
-        </svg>
+      {/* ── Left panel — EdTech hero ── */}
+      <div className="hidden md:flex md:w-1/2 flex-col relative overflow-hidden">
+        {/* Full-height hero image */}
+        <img
+          src="/assets/generated/edtech-hero.dim_800x900.png"
+          alt="EdTech illustration"
+          className="absolute inset-0 w-full h-full object-cover"
+        />
+        {/* Rich gradient overlay for readability */}
+        <div className="absolute inset-0 bg-gradient-to-br from-indigo-900/85 via-purple-800/65 to-blue-900/75" />
+        {/* Subtle top vignette */}
+        <div className="absolute inset-0 bg-gradient-to-b from-black/20 via-transparent to-black/30" />
 
-        {/* Subtle glow accent */}
-        <div className="absolute top-16 right-12 w-40 h-40 rounded-full bg-white/10 blur-3xl" />
-        <div className="absolute bottom-20 left-8 w-56 h-56 rounded-full bg-blue-300/20 blur-3xl" />
-
-        <div className="relative z-10 flex flex-col items-center text-center max-w-md">
-          <img
-            src="/assets/uploads/Classio_logo_reel-1.jpeg"
-            alt="Classio"
-            className="w-20 h-20 rounded-2xl object-cover shadow-xl mb-6 ring-4 ring-white/20"
-          />
-          <h2 className="text-3xl font-bold text-white mb-3 tracking-tight">
-            Welcome to Classio
-          </h2>
-          <p className="text-indigo-100 text-base leading-relaxed mb-6">
-            Unlock your reading potential with intelligent assessments and
-            personalised learning pathways.
-          </p>
-
-          {/* Feature pills */}
-          <div className="flex flex-wrap gap-2 justify-center">
-            {[
-              "Adaptive Tests",
-              "Voice Analysis",
-              "Smart Reports",
-              "Grade 1–10",
-            ].map((tag) => (
-              <span
-                key={tag}
-                className="text-xs px-3 py-1.5 rounded-full font-medium bg-white/15 border border-white/25 text-white backdrop-blur-sm"
-              >
-                {tag}
-              </span>
-            ))}
+        {/* Content */}
+        <div className="relative z-10 flex flex-col h-full p-10 justify-between">
+          {/* Logo row */}
+          <div className="flex items-center gap-3">
+            <img
+              src="/assets/uploads/Classio_logo_reel-1.jpeg"
+              alt="Classio"
+              className="w-12 h-12 rounded-xl object-cover ring-2 ring-white/40 shadow-lg"
+            />
+            <span className="text-xl font-bold text-white tracking-wide drop-shadow">
+              Classio
+            </span>
           </div>
 
-          {/* Decorative stat row */}
-          <div className="flex gap-6 mt-10 border-t border-white/20 pt-6 w-full justify-center">
-            {[
-              { value: "10", label: "Grade Levels" },
-              { value: "4", label: "Skills Tracked" },
-              { value: "100%", label: "Adaptive" },
-            ].map((stat) => (
-              <div key={stat.label} className="text-center">
-                <p className="text-2xl font-bold text-white">{stat.value}</p>
-                <p className="text-xs text-indigo-200 mt-0.5">{stat.label}</p>
-              </div>
-            ))}
+          {/* Main copy */}
+          <div className="flex-1 flex flex-col justify-center gap-6 mt-10">
+            <div>
+              <h1 className="text-4xl xl:text-5xl font-extrabold text-white leading-tight tracking-tight drop-shadow-lg">
+                Learn.
+                <br />
+                Grow.
+                <br />
+                <span className="text-cyan-300">Excel.</span>
+              </h1>
+              <p className="mt-4 text-indigo-100 text-base leading-relaxed max-w-sm">
+                Unlock your reading potential with intelligent assessments and
+                personalised learning pathways.
+              </p>
+            </div>
+
+            {/* 2x2 feature cards */}
+            <div className="grid grid-cols-2 gap-3 max-w-sm">
+              {featureCards.map((card) => (
+                <div
+                  key={card.label}
+                  className={`bg-gradient-to-br ${card.color} backdrop-blur-sm border border-white/20 rounded-xl px-4 py-3 flex items-center gap-3`}
+                >
+                  <span className="text-2xl leading-none">{card.emoji}</span>
+                  <span className="text-sm font-semibold text-white leading-tight">
+                    {card.label}
+                  </span>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Stat row */}
+          <div className="border-t border-white/20 pt-5">
+            <div className="flex gap-8">
+              {[
+                { value: "10", label: "Grade Levels" },
+                { value: "4", label: "Skills Tracked" },
+                { value: "100%", label: "Adaptive" },
+              ].map((stat) => (
+                <div key={stat.label}>
+                  <p className="text-2xl font-extrabold text-white">
+                    {stat.value}
+                  </p>
+                  <p className="text-xs text-indigo-200 mt-0.5 font-medium">
+                    {stat.label}
+                  </p>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
       </div>
 
-      {/* Right panel — white login form */}
-      <div className="w-full md:w-1/2 flex items-center justify-center bg-white px-8 py-12">
+      {/* ── Right panel — login form ── */}
+      <div className="w-full md:w-1/2 flex items-center justify-center bg-slate-50 px-8 py-12">
         <div className="w-full max-w-md">
-          {/* Mobile logo */}
-          <div className="flex md:hidden items-center gap-3 mb-6">
+          {/* Logo — always visible (top of form) */}
+          <div className="flex items-center gap-3 mb-8">
             <img
               src="/assets/uploads/Classio_logo_reel-1.jpeg"
               alt="Classio"
-              className="w-10 h-10 rounded-lg object-cover"
+              className="w-12 h-12 rounded-xl object-cover shadow-md ring-2 ring-indigo-100"
             />
-            <span className="text-xl font-bold text-gray-900">Classio</span>
+            <div>
+              <p className="text-lg font-bold text-indigo-700 leading-none">
+                Classio
+              </p>
+              <p className="text-xs text-slate-400 mt-0.5">
+                Reading Comprehension Platform
+              </p>
+            </div>
           </div>
 
-          <div className="mb-8">
-            <h1 className="text-2xl font-bold text-gray-900">
+          <div className="mb-7">
+            <h2 className="text-2xl font-bold text-gray-900">
               Hello! Let's Get Started
-            </h1>
+            </h2>
             <p className="text-gray-500 text-sm mt-1">
               Sign in to continue your learning journey
             </p>
@@ -208,7 +252,10 @@ export function LandingPage({ onNavigate }: LandingPageProps) {
 
           <form onSubmit={handleLogin} className="space-y-5">
             <div className="space-y-1.5">
-              <Label htmlFor="username" className="text-gray-700 font-medium">
+              <Label
+                htmlFor="username"
+                className="text-gray-700 font-medium text-sm"
+              >
                 Username
               </Label>
               <Input
@@ -218,13 +265,16 @@ export function LandingPage({ onNavigate }: LandingPageProps) {
                 onChange={(e) => setUsername(e.target.value)}
                 required
                 autoComplete="username"
-                className="border-gray-300 bg-gray-50 focus:border-indigo-500 h-11 rounded-lg"
+                className="border-gray-200 bg-white focus:border-indigo-500 focus:ring-indigo-500/20 h-11 rounded-lg shadow-sm"
                 data-ocid="login.input"
               />
             </div>
 
             <div className="space-y-1.5">
-              <Label htmlFor="password" className="text-gray-700 font-medium">
+              <Label
+                htmlFor="password"
+                className="text-gray-700 font-medium text-sm"
+              >
                 Password
               </Label>
               <div className="relative">
@@ -236,26 +286,26 @@ export function LandingPage({ onNavigate }: LandingPageProps) {
                   onChange={(e) => setPassword(e.target.value)}
                   required
                   autoComplete="current-password"
-                  className="border-gray-300 bg-gray-50 focus:border-indigo-500 h-11 rounded-lg pr-12"
+                  className="border-gray-200 bg-white focus:border-indigo-500 focus:ring-indigo-500/20 h-11 rounded-lg shadow-sm pr-12"
                   data-ocid="login.input"
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
                 >
                   {showPassword ? (
-                    <EyeOff className="w-4.5 h-4.5" />
+                    <EyeOff className="w-4 h-4" />
                   ) : (
-                    <Eye className="w-4.5 h-4.5" />
+                    <Eye className="w-4 h-4" />
                   )}
                 </button>
               </div>
             </div>
 
-            {/* Quick Fill buttons */}
+            {/* Quick Fill */}
             <div>
-              <p className="text-xs text-gray-500 mb-2 flex items-center gap-1">
+              <p className="text-xs text-gray-500 mb-2 flex items-center gap-1.5">
                 <Zap className="w-3 h-3 text-indigo-500" />
                 Quick fill credentials:
               </p>
@@ -269,10 +319,11 @@ export function LandingPage({ onNavigate }: LandingPageProps) {
                       setPassword(role.password);
                       toast.success(`${role.label} credentials filled!`);
                     }}
-                    className="flex-1 text-xs py-1.5 px-2 rounded-md border border-indigo-200 text-indigo-700 bg-indigo-50 hover:bg-indigo-100 hover:border-indigo-300 font-medium transition-colors"
+                    className="flex-1 text-xs py-2 px-2 rounded-full border border-indigo-200 text-indigo-700 bg-indigo-50 hover:bg-indigo-100 hover:border-indigo-300 font-semibold transition-all flex items-center justify-center gap-1"
                     data-ocid="login.secondary_button"
                   >
-                    {role.label}
+                    <span>{role.emoji}</span>
+                    <span>{role.label}</span>
                   </button>
                 ))}
               </div>
@@ -283,7 +334,7 @@ export function LandingPage({ onNavigate }: LandingPageProps) {
 
             <Button
               type="submit"
-              className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-semibold h-11 rounded-lg text-base"
+              className="w-full bg-gradient-to-r from-indigo-600 to-indigo-700 hover:from-indigo-700 hover:to-indigo-800 text-white font-semibold h-11 rounded-lg text-base shadow-md hover:shadow-lg transition-all"
               disabled={loading}
               data-ocid="login.submit_button"
             >

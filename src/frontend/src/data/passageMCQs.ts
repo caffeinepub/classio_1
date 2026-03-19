@@ -5,1508 +5,1555 @@ export interface MCQ {
 }
 
 export const PASSAGE_MCQS: Record<number, MCQ[]> = {
-  // Grade 1 - Passage 1: Plants Need Sun
+  // Grade 1 - Passage 1: The Helpful Dog
   1: [
     {
-      question: "What three things do plants need to grow?",
-      options: [
-        "Sunlight, water, and soil",
-        "Only water and shade",
-        "Sand, rocks, and ice",
-        "Clouds, wind, and rain",
-      ],
-      correctIndex: 0,
-    },
-    {
-      question: "What does a seed do when it is planted in the ground?",
-      options: [
-        "Flies up into the air",
-        "Drinks water from the soil",
-        "Turns into a rock",
-        "Makes flowers right away",
-      ],
+      question: "What was the dog's name in the story?",
+      options: ["Rex", "Max", "Buddy", "Sam"],
       correctIndex: 1,
     },
     {
-      question: "What do roots do for a plant?",
+      question: "What did Max do when Sam dropped his bag?",
       options: [
-        "Catch sunlight for the plant",
-        "Make seeds for new plants",
-        "Help the plant drink water",
-        "Attract birds and butterflies",
+        "He barked loudly",
+        "He ran away from it",
+        "He picked it up and brought it back",
+        "He sat and waited",
       ],
       correctIndex: 2,
     },
     {
-      question: "Which creature visits the flowers on a plant?",
-      options: ["Fish", "Dogs", "Clouds", "Bees"],
+      question: "What did Sam give Max every morning?",
+      options: [
+        "A ball and a toy",
+        "A bowl of water and a bone",
+        "Some bread and milk",
+        "A warm blanket",
+      ],
+      correctIndex: 1,
+    },
+    {
+      question: "What did Max do after Sam gave him a big hug?",
+      options: [
+        "He ran into the house",
+        "He fell asleep",
+        "He barked and walked away",
+        "He licked Sam's face and barked happily",
+      ],
       correctIndex: 3,
     },
     {
-      question: "What happens to seeds that fall to the ground?",
+      question: "What did Sam give Max as a reward at the end?",
       options: [
-        "They disappear forever",
-        "They become soil",
-        "New plants grow from them",
-        "Animals eat them all immediately",
+        "A new ball",
+        "A bowl of water",
+        "An extra treat",
+        "A long walk",
       ],
       correctIndex: 2,
     },
   ],
 
-  // Grade 1 - Passage 2: My Community
+  // Grade 1 - Passage 2: A Rainy Day
   2: [
     {
-      question: "Long ago, where did people live?",
+      question: "What colour was Lily's raincoat?",
+      options: ["Blue", "Green", "Red", "Yellow"],
+      correctIndex: 3,
+    },
+    {
+      question: "What did Lily and her brother do in the rain?",
       options: [
-        "In big cities",
-        "In small villages",
-        "On islands",
-        "Underground",
+        "They stayed inside and read",
+        "They held hands and danced in the rain",
+        "They watched television",
+        "They built a shelter",
       ],
       correctIndex: 1,
     },
     {
-      question: "What did farmers do for the village?",
-      options: [
-        "Built new homes",
-        "Helped sick people",
-        "Grew food for the village",
-        "Taught children to read",
-      ],
-      correctIndex: 2,
-    },
-    {
-      question: "What were markets described as in the passage?",
-      options: [
-        "Quiet and empty",
-        "Busy and noisy",
-        "Dark and cold",
-        "Small and peaceful",
-      ],
+      question: "What did Mother call them inside for?",
+      options: ["Hot chocolate", "Warm soup", "A dry towel", "Some toast"],
       correctIndex: 1,
     },
     {
-      question: "What did people do at markets?",
+      question: "What did the little bird do on the fence?",
       options: [
-        "Played sports",
-        "Went to sleep",
-        "Traded things they made",
-        "Built houses",
+        "It sang a song",
+        "It flew away quickly",
+        "It shook the water from its wings",
+        "It pecked at the ground",
       ],
       correctIndex: 2,
     },
     {
-      question:
-        "According to the passage, what makes every community stronger?",
-      options: [
-        "Having more money",
-        "Building bigger cities",
-        "Being kind",
-        "Working alone",
-      ],
-      correctIndex: 2,
+      question: "What appeared in the sky when the rain stopped?",
+      options: ["Stars", "A rainbow", "Dark clouds", "The moon"],
+      correctIndex: 1,
     },
   ],
 
-  // Grade 1 - Passage 3: Land and Water
+  // Grade 1 - Passage 3: The Kind Boy
   3: [
     {
-      question:
-        "What are the two main features of Earth described in the passage?",
+      question: "What did Tom bring to school in his bag?",
+      options: ["A red apple", "A sandwich", "A book", "An orange"],
+      correctIndex: 0,
+    },
+    {
+      question: "Why did Tom feel sorry for Miss Green?",
       options: [
-        "Ice and fire",
-        "Land and water",
-        "Mountains and caves",
-        "Sun and moon",
+        "She was very tired",
+        "She had a sore throat",
+        "She had lost her book",
+        "She was sad",
       ],
       correctIndex: 1,
     },
     {
-      question: "What do rivers do according to the passage?",
+      question: "What did Tom do with the apple?",
       options: [
-        "Form clouds",
-        "Carry water to the sea",
-        "Create mountains",
-        "Cover hills with trees",
+        "He ate it at break time",
+        "He gave it to Miss Green",
+        "He shared it with Sara",
+        "He put it back in his bag",
       ],
       correctIndex: 1,
     },
     {
-      question: "What are deserts described as?",
+      question: "What did Sara do when she noticed Tom had no fruit?",
       options: [
-        "Cold and wet",
-        "Flat and wide open",
-        "Dry and hot",
-        "Covered with forests",
+        "She gave him a biscuit",
+        "She bought him an apple",
+        "She gave him half her orange",
+        "She told the teacher",
       ],
       correctIndex: 2,
     },
     {
-      question: "What are islands?",
+      question: "What lesson did Tom learn at the end of the story?",
       options: [
-        "Very tall mountains",
-        "Flat open land",
-        "Land with water all around",
-        "Valleys between hills",
+        "Always bring extra food",
+        "Teachers need more rest",
+        "Kindness always comes back to you",
+        "Sharing is sometimes difficult",
       ],
-      correctIndex: 2,
-    },
-    {
-      question: "What can a map help us do?",
-      options: ["Grow food", "Catch fish", "Find places", "Predict weather"],
       correctIndex: 2,
     },
   ],
 
-  // Grade 2 - Passage 4: Animals and Their Homes
+  // Grade 2 - Passage 4: The Lost Kite
   4: [
     {
-      question: "What is a habitat?",
+      question: "What colour was Priya's kite?",
+      options: ["Red", "Green", "Yellow", "Blue"],
+      correctIndex: 3,
+    },
+    {
+      question: "Where was the kite found?",
       options: [
-        "A type of food",
-        "A place that gives an animal food, water, and shelter",
-        "A kind of animal home decoration",
-        "A special animal trick",
+        "On the roof of a house",
+        "Caught between branches of a tall oak tree",
+        "Floating in the pond",
+        "Tangled in a fence",
       ],
       correctIndex: 1,
     },
     {
-      question: "How do fish breathe according to the passage?",
+      question: "Who helped bring the kite down?",
       options: [
-        "Through their skin",
-        "Through their mouths",
-        "Through gills",
-        "Through their fins",
-      ],
-      correctIndex: 2,
-    },
-    {
-      question: "Where do bears sleep during winter?",
-      options: ["In trees", "Under the ground", "In caves", "Near rivers"],
-      correctIndex: 2,
-    },
-    {
-      question: "What do beavers build in rivers?",
-      options: [
-        "Nests",
-        "Dams to make ponds",
-        "Underground tunnels",
-        "Icy dens",
+        "Priya's mother",
+        "A park worker with a ladder",
+        "A group of children",
+        "The old man climbed the tree",
       ],
       correctIndex: 1,
     },
     {
-      question: "What happens when habitats are destroyed?",
+      question: "What happened to the kite's tail?",
       options: [
-        "Animals become bigger",
-        "Animals find better food",
-        "Animals lose their homes",
-        "Animals move to cities",
+        "It was completely destroyed",
+        "It was missing",
+        "It was a little torn",
+        "It was wet and dirty",
+      ],
+      correctIndex: 2,
+    },
+    {
+      question:
+        "What did Priya do differently the next time she flew the kite?",
+      options: [
+        "She flew it in a different park",
+        "She asked her mother to watch",
+        "She held the string very tightly",
+        "She tied the string to a post",
       ],
       correctIndex: 2,
     },
   ],
 
-  // Grade 2 - Passage 5: Early Explorers
+  // Grade 2 - Passage 5: A Day at the Market
   5: [
     {
-      question: "What were early explorers looking for?",
+      question: "When did Grandma take Ravi to the market?",
       options: [
-        "New schools",
-        "New lands across the ocean",
-        "Underground treasure",
-        "Better weather",
+        "Every Sunday",
+        "Every Saturday",
+        "Every Friday",
+        "Every Monday",
       ],
       correctIndex: 1,
     },
     {
-      question: "When did Christopher Columbus sail west from Spain?",
-      options: ["In 1320", "In 1450", "In 1492", "In 1620"],
+      question: "What did Ravi pick from the fruit stall?",
+      options: [
+        "Mangoes and oranges",
+        "Two bananas and a bunch of grapes",
+        "Watermelons and berries",
+        "Apples and pears",
+      ],
+      correctIndex: 1,
+    },
+    {
+      question:
+        "What did the vegetable seller always give Grandma as an extra?",
+      options: [
+        "An extra onion",
+        "An extra tomato",
+        "A free bunch of herbs",
+        "A discount",
+      ],
+      correctIndex: 1,
+    },
+    {
+      question: "Where did Grandma and Ravi eat their sweets?",
+      options: [
+        "On the way home in the street",
+        "At the fruit stall",
+        "On a bench near the fountain",
+        "At home in the kitchen",
+      ],
       correctIndex: 2,
     },
     {
-      question: "What did explorers make to help other sailors travel safely?",
+      question: "What did Grandma tell Ravi about the market?",
       options: [
-        "Better ships",
-        "Careful maps",
-        "Stronger ropes",
-        "Larger sails",
-      ],
-      correctIndex: 1,
-    },
-    {
-      question: "What did Vasco da Gama find?",
-      options: [
-        "The Americas",
-        "A sea route from Europe to India",
-        "The South Pole",
-        "New islands in the Pacific",
-      ],
-      correctIndex: 1,
-    },
-    {
-      question: "What did explorers bring back from their voyages?",
-      options: [
-        "Books and paintings",
-        "Spices, gold, and new foods",
-        "Soldiers and weapons",
-        "Only maps and journals",
+        "She had opened it herself",
+        "She had visited it since she was a little girl",
+        "It was the biggest market in the country",
+        "It only opened in summer",
       ],
       correctIndex: 1,
     },
   ],
 
-  // Grade 2 - Passage 6: Continents of the World
+  // Grade 2 - Passage 6: Maya's Garden
   6: [
     {
-      question: "How many continents does the world have?",
-      options: ["Five", "Six", "Seven", "Eight"],
+      question: "When did Maya plant seeds in her garden?",
+      options: ["Every autumn", "Every winter", "Every spring", "Every summer"],
       correctIndex: 2,
     },
     {
-      question: "Which is the biggest continent in size and population?",
-      options: ["Africa", "Europe", "Asia", "North America"],
-      correctIndex: 2,
-    },
-    {
-      question: "Which continent is both a continent and a country?",
-      options: ["Europe", "Australia", "Antarctica", "South America"],
+      question: "How long did it take before tiny green shoots appeared?",
+      options: ["One day", "One week", "One month", "Two weeks"],
       correctIndex: 1,
     },
     {
-      question: "What is special about Antarctica?",
+      question: "Why did Maya put a small fence around her plants?",
       options: [
-        "It is the hottest continent",
-        "It is the most populated continent",
-        "It is the coldest and windiest place on Earth",
-        "It is the smallest continent",
+        "To keep the wind away",
+        "To keep rabbits away",
+        "To mark where the seeds were",
+        "To hold up the tall plants",
+      ],
+      correctIndex: 1,
+    },
+    {
+      question: "What did Maya pick from the garden for her mother's birthday?",
+      options: [
+        "Vegetables",
+        "A bunch of flowers",
+        "Fresh herbs",
+        "Ripe fruit",
+      ],
+      correctIndex: 1,
+    },
+    {
+      question: "What did Maya's mother do with the flowers?",
+      options: [
+        "She gave them to a neighbour",
+        "She dried them and kept them",
+        "She placed them in a vase on the table",
+        "She planted them in the garden",
       ],
       correctIndex: 2,
     },
-    {
-      question: "Which is the largest ocean on Earth?",
-      options: [
-        "Atlantic Ocean",
-        "Indian Ocean",
-        "Arctic Ocean",
-        "Pacific Ocean",
-      ],
-      correctIndex: 3,
-    },
   ],
 
-  // Grade 3 - Passage 7: The Water Cycle
+  // Grade 3 - Passage 7: The Old Lighthouse
   7: [
     {
-      question:
-        "What starts the water cycle by heating water in oceans and lakes?",
-      options: ["Wind", "The Sun", "Clouds", "Rain"],
+      question: "What was the lighthouse keeper's name?",
+      options: ["Mr. Ahmed", "Mr. Hasan", "Mr. Hassan", "Mr. Harris"],
       correctIndex: 1,
     },
     {
-      question: "What forms when water vapor rises and cools?",
-      options: ["Ice caps", "Oceans", "Clouds", "Rivers"],
+      question: "Why did sailors watch for the lighthouse's flash?",
+      options: [
+        "To know the time of day",
+        "To check the weather",
+        "To know where the rocks were",
+        "To find the nearest port",
+      ],
       correctIndex: 2,
     },
     {
-      question: "What is precipitation?",
+      question: "What happened one stormy night at the lighthouse?",
       options: [
-        "Water turning into vapor",
-        "Rain, snow, sleet, or hail falling from clouds",
-        "Water flowing in rivers",
-        "Plants releasing water",
+        "A ship crashed on the rocks",
+        "Mr. Hasan was not there",
+        "The electricity went out and the lamp stopped turning",
+        "The lighthouse was damaged by the storm",
       ],
-      correctIndex: 1,
+      correctIndex: 2,
+    },
+    {
+      question: "How long had Mr. Hasan been keeping the logbook?",
+      options: ["Twenty years", "Thirty years", "Forty years", "Fifty years"],
+      correctIndex: 2,
     },
     {
       question:
-        "What is the process called when plants release water vapor through their leaves?",
+        "What did Mr. Hasan always say about keeping the light burning?",
       options: [
-        "Precipitation",
-        "Evaporation",
-        "Condensation",
-        "Transpiration",
-      ],
-      correctIndex: 3,
-    },
-    {
-      question: "What would happen without the water cycle?",
-      options: [
-        "The Earth would have more oceans",
-        "Life on Earth could not survive",
-        "There would be more rain",
-        "Plants would grow faster",
+        "It was a lonely job",
+        "It was the most important job in the world",
+        "It was difficult but rewarding",
+        "It was his favourite thing to do",
       ],
       correctIndex: 1,
     },
   ],
 
-  // Grade 3 - Passage 8: Ancient Egypt
+  // Grade 3 - Passage 8: A Letter to a Friend
   8: [
     {
-      question: "Where did Ancient Egyptian civilization begin?",
+      question: "Why had Amara moved to a new city?",
       options: [
-        "Near the Mediterranean Sea",
-        "In the Sahara Desert",
-        "Near the Nile River",
-        "On the Red Sea coast",
+        "Her family wanted a change",
+        "She moved at the start of the school year",
+        "She went to visit relatives",
+        "The passage does not explain why",
+      ],
+      correctIndex: 3,
+    },
+    {
+      question: "What did Amara include in the envelope besides her letter?",
+      options: [
+        "A pressed flower",
+        "A photograph",
+        "A little sketch of the grey cat",
+        "A piece of ribbon",
       ],
       correctIndex: 2,
     },
     {
-      question: "What were Egyptian rulers called?",
-      options: ["Emperors", "Pharaohs", "Sultans", "Chieftains"],
+      question: "What was Amara's new teacher known for?",
+      options: [
+        "Being very strict",
+        "Telling funny jokes and letting the class read freely on Fridays",
+        "Assigning lots of homework",
+        "Organising school trips",
+      ],
       correctIndex: 1,
     },
     {
-      question: "What was the Egyptian writing system called?",
-      options: ["Cuneiform", "Latin", "Hieroglyphics", "Sanskrit"],
-      correctIndex: 2,
+      question: "How long did it take for a reply to arrive?",
+      options: ["One week", "Two weeks", "Three weeks", "One month"],
+      correctIndex: 1,
     },
     {
-      question: "What did Egyptians build as grand tombs for their pharaohs?",
-      options: ["Coliseums", "Temples", "Obelisks", "Pyramids"],
-      correctIndex: 3,
-    },
-    {
-      question: "How long did Ancient Egyptian civilization last?",
+      question: "What did Amara do with Lily's reply?",
       options: [
-        "About one hundred years",
-        "About five hundred years",
-        "Over three thousand years",
-        "About one thousand years",
+        "She wrote back immediately",
+        "She read it once and put it away",
+        "She read it twice and kept it in a tin box under her bed",
+        "She shared it with her parents",
       ],
       correctIndex: 2,
     },
   ],
 
-  // Grade 3 - Passage 9: Deserts and Rainforests
+  // Grade 3 - Passage 9: The Street Musician
   9: [
     {
-      question: "About how much of Earth's land surface do deserts cover?",
+      question: "When did the old man play the violin in the town square?",
       options: [
-        "About one-tenth",
-        "About one-third",
-        "About one-half",
-        "About two-thirds",
+        "Every morning",
+        "Every Sunday afternoon",
+        "Every Friday evening",
+        "Every Saturday",
       ],
-      correctIndex: 1,
+      correctIndex: 2,
     },
     {
-      question: "Where is the Sahara Desert located?",
-      options: ["In Asia", "In South America", "In Australia", "In Africa"],
-      correctIndex: 3,
-    },
-    {
-      question: "How do cacti survive long droughts?",
+      question: "How did people react as they passed the musician?",
       options: [
-        "By finding underground water",
-        "By storing water in their thick stems",
-        "By shedding their leaves",
-        "By moving to cooler areas",
+        "They all stopped and watched immediately",
+        "They hurried past without listening",
+        "Many of them slowed their steps without realising it",
+        "They formed a queue to hear him",
       ],
-      correctIndex: 1,
-    },
-    {
-      question: "Where is the Amazon Rainforest located?",
-      options: ["In Africa", "In Asia", "In North America", "In South America"],
-      correctIndex: 3,
+      correctIndex: 2,
     },
     {
       question:
-        "What do rainforest plants produce that is important for all life?",
+        "What did the old man say his teacher had told him about music?",
       options: [
-        "Fresh water",
-        "Much of the world's oxygen",
-        "Most of the world's food",
-        "Natural medicines",
+        "Music is the hardest skill to learn",
+        "Music is a gift you give away so that it grows bigger",
+        "Music is most beautiful when played alone",
+        "Music should only be played in concert halls",
       ],
       correctIndex: 1,
     },
+    {
+      question: "What did the young girl ask the old man?",
+      options: [
+        "Where he bought his violin",
+        "How much he earned",
+        "Where he had learned to play",
+        "What the songs were called",
+      ],
+      correctIndex: 2,
+    },
+    {
+      question: "What did the girl's parents buy her after she went home?",
+      options: ["A piano", "A flute", "A guitar", "A small second-hand violin"],
+      correctIndex: 3,
+    },
   ],
 
-  // Grade 4 - Passage 10: Forces and Motion
+  // Grade 4 - Passage 10: The Night Shift
   10: [
     {
-      question: "What is a force?",
+      question: "What do street cleaners do before dawn?",
       options: [
-        "A type of energy stored in batteries",
-        "A push or pull that can change how an object moves",
-        "The speed at which an object travels",
-        "The weight of an object",
+        "They deliver newspapers",
+        "They push wide brushes along the pavements",
+        "They collect rubbish from houses",
+        "They repair the roads",
       ],
       correctIndex: 1,
     },
     {
-      question: "What does gravity do?",
+      question: "At what time do bakers typically start kneading dough?",
       options: [
-        "Pushes objects away from Earth",
-        "Slows things down when surfaces rub",
-        "Pulls all objects toward Earth's center",
-        "Makes objects float in water",
+        "Midnight",
+        "Two in the morning",
+        "Three in the morning",
+        "Five in the morning",
       ],
       correctIndex: 2,
     },
     {
-      question: "What is friction?",
+      question: "Why do signal engineers test railway lines at night?",
       options: [
-        "A force that speeds things up",
-        "A force that slows things down when two surfaces rub together",
-        "A magnetic force between objects",
-        "The force of gravity on water",
+        "The equipment works better in the dark",
+        "They prefer to work at night",
+        "The tracks are empty and still at that time",
+        "Night testing is required by law",
       ],
-      correctIndex: 1,
-    },
-    {
-      question: "In what unit do scientists measure forces?",
-      options: ["Watts", "Joules", "Newtons", "Meters"],
       correctIndex: 2,
     },
     {
       question:
-        "Who discovered the laws of motion more than three hundred years ago?",
+        "According to the passage, what would happen without night shift workers?",
       options: [
-        "Albert Einstein",
-        "Isaac Newton",
-        "Galileo Galilei",
-        "Marie Curie",
+        "Cities would be noisier during the day",
+        "Ordinary life would quickly fall apart",
+        "Daytime workers would have more to do",
+        "Public transport would improve",
+      ],
+      correctIndex: 1,
+    },
+    {
+      question: "What does the passage encourage readers to remember?",
+      options: [
+        "To sleep early every night",
+        "The hands that made their morning bread and newspaper possible",
+        "To thank every worker they meet",
+        "That night-time is the busiest time of day",
       ],
       correctIndex: 1,
     },
   ],
 
-  // Grade 4 - Passage 11: The Roman Empire
+  // Grade 4 - Passage 11: A Young Painter
   11: [
     {
-      question: "Where did Rome begin as a small city-state?",
+      question: "How old was Zara when she found the watercolour paints?",
+      options: ["Seven", "Eight", "Nine", "Ten"],
+      correctIndex: 2,
+    },
+    {
+      question: "What was the subject of Zara's first painting?",
       options: [
-        "On the banks of the Rhine River",
-        "Near the coast of Spain",
-        "On the banks of the Tiber River in Italy",
-        "Near the Nile River in Egypt",
+        "Her family in the garden",
+        "A narrow lane, a red post box, and a cat on a wall",
+        "Birds flying over the city",
+        "The inside of her grandmother's house",
+      ],
+      correctIndex: 1,
+    },
+    {
+      question: "What did her parents notice about Zara?",
+      options: [
+        "She was very fast at painting",
+        "She liked to copy other artists",
+        "She observed everything around her with unusual attention",
+        "She painted best in the mornings",
       ],
       correctIndex: 2,
     },
     {
-      question:
-        "What did Roman engineers build to carry fresh water into cities?",
-      options: ["Dams", "Aqueducts", "Reservoirs", "Canals"],
+      question: "What was the prize Zara received in the competition?",
+      options: [
+        "A certificate and medal",
+        "A set of professional oil paints and a place at a summer art class",
+        "A trip to an art museum",
+        "A large cash award",
+      ],
       correctIndex: 1,
     },
     {
-      question:
-        "Which modern languages have roots in Latin, the Roman language?",
+      question: "What did Zara do after reading the prize letter?",
       options: [
-        "English, German, and Dutch",
-        "Arabic, Persian, and Turkish",
-        "Spanish, French, and Italian",
-        "Russian, Polish, and Czech",
+        "She called her art teacher immediately",
+        "She showed her parents the letter",
+        "She went to her room and began to paint",
+        "She went to the art shop to spend her prize",
       ],
       correctIndex: 2,
-    },
-    {
-      question: "When did the Western Roman Empire fall?",
-      options: ["In 100 AD", "In 300 AD", "In 476 AD", "In 1000 AD"],
-      correctIndex: 2,
-    },
-    {
-      question:
-        "What helped soldiers march quickly and merchants trade efficiently?",
-      options: [
-        "Large warships",
-        "An impressive network of roads",
-        "Fast horses and chariots",
-        "Detailed maps of the empire",
-      ],
-      correctIndex: 1,
     },
   ],
 
-  // Grade 4 - Passage 12: Climate Zones
+  // Grade 4 - Passage 12: The Forest Trail
   12: [
     {
-      question: "What determines the climate zones on Earth?",
+      question: "How long did the forest trail take to walk return?",
+      options: ["One hour", "Two hours", "Three hours", "Half a day"],
+      correctIndex: 1,
+    },
+    {
+      question:
+        "What did walkers often do at the flat boulder in the clearing?",
       options: [
-        "Soil type and vegetation",
-        "Average temperature and rainfall",
-        "Distance from the ocean only",
-        "The size of the landmass",
+        "They lit fires and camped there",
+        "They stopped to rest and eat packed lunches",
+        "They left messages for other walkers",
+        "They climbed it to see the view",
       ],
       correctIndex: 1,
     },
     {
-      question: "What are the tropics?",
+      question: "What did children do at the shallow stream?",
       options: [
-        "Regions near the poles",
-        "Cold mountain areas",
-        "Regions near the equator that receive intense sunlight",
-        "Desert regions with no rainfall",
+        "They swam in the cool water",
+        "They built small dams",
+        "They caught tadpoles in jars",
+        "They threw stones to make ripples",
       ],
       correctIndex: 2,
     },
     {
-      question: "How many seasons do temperate zones experience?",
+      question:
+        "What effect did the forest trail have on people who did not talk in the street?",
       options: [
-        "One season all year",
-        "Two seasons",
-        "Three seasons",
-        "Four distinct seasons",
+        "They still avoided each other on the trail",
+        "They found themselves talking easily on the trail",
+        "They competed to walk the fastest",
+        "They chose different routes to avoid meeting",
       ],
-      correctIndex: 3,
+      correctIndex: 1,
     },
     {
-      question: "Why are mountain regions cooler than lower areas?",
+      question: "Why was the old wooden bridge easy to recognise?",
       options: [
-        "They are closer to the poles",
-        "They receive less sunlight",
-        "Air grows colder at higher elevations",
-        "They have more cloud cover",
-      ],
-      correctIndex: 2,
-    },
-    {
-      question: "What human activity is altering climate zones globally?",
-      options: [
-        "Farming and fishing",
-        "Building cities and roads",
-        "Burning fossil fuels",
-        "Cutting down rainforests only",
+        "It was the only bridge in the forest",
+        "It had been painted bright red",
+        "No two planks were the same colour",
+        "It had a carved sign above it",
       ],
       correctIndex: 2,
     },
   ],
 
-  // Grade 5 - Passage 13: The Solar System
+  // Grade 5 - Passage 13: The New Student
   13: [
     {
-      question: "What is the Sun?",
+      question: "Why was Daniel sitting alone at lunch?",
       options: [
-        "A planet that orbits Earth",
-        "A moon in the solar system",
-        "A star that provides heat and light energy",
-        "An asteroid near Earth",
+        "He preferred to eat alone",
+        "He had been told to sit separately",
+        "Most students were unsure how to begin talking to him",
+        "He arrived late and there were no other seats",
       ],
       correctIndex: 2,
     },
     {
-      question: "How many planets orbit the Sun?",
-      options: ["Six", "Seven", "Eight", "Nine"],
+      question: "What made Aisha approach Daniel?",
+      options: [
+        "She wanted to welcome all new students",
+        "Her teacher asked her to",
+        "She noticed he was reading a novel she had finished the previous month",
+        "They had met before at another school",
+      ],
       correctIndex: 2,
     },
     {
-      question: "Which planet is the largest in the solar system?",
-      options: ["Saturn", "Jupiter", "Uranus", "Neptune"],
-      correctIndex: 1,
-    },
-    {
-      question: "What are Saturn's rings made of?",
+      question: "What did Daniel say about the novel's ending?",
       options: [
-        "Gas and dust",
-        "Ice and rock particles",
-        "Water and metal",
-        "Clouds and mist",
+        "It was perfect",
+        "It was too sad",
+        "It was too easy and the author should have let the reader decide",
+        "It was confusing",
       ],
-      correctIndex: 1,
+      correctIndex: 2,
     },
     {
-      question: "Why is Earth the only planet known to support life?",
+      question: "What did Aisha later say she had done to help Daniel?",
       options: [
-        "It is closest to the Sun",
-        "It is the largest rocky planet",
-        "It has liquid water and an atmosphere",
-        "It has the most moons",
+        "She had introduced him to all her friends",
+        "She had helped him with his schoolwork",
+        "She had not done anything special — just noticed someone and asked a question",
+        "She had spoken to the teacher on his behalf",
+      ],
+      correctIndex: 2,
+    },
+    {
+      question: "By Friday, where was Daniel sitting at lunchtime?",
+      options: [
+        "Still alone by the window",
+        "With the teachers",
+        "With Aisha and her friends",
+        "In the library",
       ],
       correctIndex: 2,
     },
   ],
 
-  // Grade 5 - Passage 14: The Silk Road
+  // Grade 5 - Passage 14: Grandmother's Stories
   14: [
     {
-      question: "What was the Silk Road?",
+      question: "What was unusual about Grandmother's stories?",
       options: [
-        "A river connecting China and India",
-        "An ancient network of trade routes connecting China to the Mediterranean",
-        "A wall built to protect China",
-        "A type of road paved with silk",
-      ],
-      correctIndex: 1,
-    },
-    {
-      question: "What did Chinese merchants export along the Silk Road?",
-      options: [
-        "Iron, coal, and timber",
-        "Silk, porcelain, and tea",
-        "Cotton, rice, and spices",
-        "Gold, silver, and gems",
+        "They were always very short",
+        "They were never the same twice, even about the same events",
+        "They were always about famous people",
+        "She only told them on special occasions",
       ],
       correctIndex: 1,
     },
     {
       question:
-        "Which religion spread from India to China along the Silk Road?",
-      options: ["Christianity", "Islam", "Buddhism", "Hinduism"],
+        "What was the one part of each story Grandmother was not allowed to change?",
+      options: [
+        "The names of the characters",
+        "The setting of the story",
+        "The lesson at the end",
+        "How the story began",
+      ],
       correctIndex: 2,
     },
     {
-      question:
-        "Which empire briefly brought peace to the Silk Road in the 13th century?",
+      question: "What did Neha begin doing to remember the stories?",
       options: [
-        "The Roman Empire",
-        "The Ottoman Empire",
-        "The Persian Empire",
-        "The Mongol Empire",
+        "She recorded them on a device",
+        "She drew pictures of them",
+        "She wrote them down in a notebook",
+        "She retold them to friends at school",
       ],
-      correctIndex: 3,
+      correctIndex: 2,
     },
     {
-      question: "Why did overland Silk Road routes gradually decline?",
+      question: "What did Grandmother say a story truly needed to come alive?",
       options: [
-        "Too many bandits attacked caravans",
-        "Sea trade routes were established",
-        "The roads became too damaged",
-        "Wars destroyed the trading cities",
+        "To be written down carefully",
+        "Someone willing to give it their voice",
+        "A large and attentive audience",
+        "Beautiful language and detail",
+      ],
+      correctIndex: 1,
+    },
+    {
+      question: "What did Neha do for the first time that night?",
+      options: [
+        "She wrote a story of her own",
+        "She told one of Grandmother's stories back to her",
+        "She recorded Grandmother telling a story",
+        "She asked Grandmother to write the stories herself",
       ],
       correctIndex: 1,
     },
   ],
 
-  // Grade 5 - Passage 15: River Systems and Deltas
+  // Grade 5 - Passage 15: The Village Baker
   15: [
     {
-      question: "Where do rivers begin?",
+      question: "How many years had Mr. Ferreira run the bakery?",
       options: [
-        "In the ocean",
-        "In deserts",
-        "In mountains or highlands as small streams",
-        "In underground caves",
+        "Twenty years",
+        "Twenty-five years",
+        "Thirty-one years",
+        "Forty years",
       ],
       correctIndex: 2,
     },
     {
-      question: "Which river carries more freshwater than any other on Earth?",
+      question:
+        "At what time did Mr. Ferreira arrive at the bakery every morning?",
+      options: ["Two o'clock", "Three o'clock", "Four o'clock", "Five o'clock"],
+      correctIndex: 2,
+    },
+    {
+      question: "What did Mr. Ferreira say about the bakery?",
       options: [
-        "The Nile River",
-        "The Amazon River",
-        "The Mississippi River",
-        "The Ganges River",
+        "It was his life's greatest achievement",
+        "It was not his business — it was the street's bakery",
+        "It was the best bakery in the region",
+        "He planned to pass it on to his children",
       ],
       correctIndex: 1,
     },
     {
-      question: "What are deltas?",
+      question:
+        "What did the neighbours do on Mr. Ferreira's thirtieth anniversary?",
       options: [
-        "Deep ocean trenches at river mouths",
-        "Fan-shaped landforms of deposited sediment at river mouths",
-        "Mountain ranges formed by rivers",
-        "Lakes created by blocked rivers",
+        "They gave him a large sum of money",
+        "They organised a surprise, hung a banner, and filled the shop with people",
+        "They published a story about him in the newspaper",
+        "They sent him flowers and cards",
       ],
       correctIndex: 1,
     },
     {
-      question: "What was Mesopotamia called?",
+      question: "What did Mr. Ferreira say he hoped at the end of the passage?",
       options: [
-        "The cradle of civilization",
-        "The heart of the desert",
-        "The birthplace of exploration",
-        "The land of rivers",
-      ],
-      correctIndex: 0,
-    },
-    {
-      question: "What threatens the health of river systems worldwide?",
-      options: [
-        "Too many fish in rivers",
-        "Natural flooding each year",
-        "Pollution and over-extraction",
-        "Too much rainfall",
+        "To retire and rest",
+        "To open a second bakery",
+        "To be there for another thirty years",
+        "To pass the bakery to his son",
       ],
       correctIndex: 2,
     },
   ],
 
-  // Grade 6 - Passage 16: Cells: Building Blocks of Life
+  // Grade 6 - Passage 16: The Chess Champion
   16: [
     {
-      question: "What is the fundamental unit of life?",
-      options: ["The atom", "The molecule", "The cell", "The tissue"],
-      correctIndex: 2,
-    },
-    {
-      question: "What is the role of the nucleus in a cell?",
+      question: "What made Leila's preparation for chess unusual?",
       options: [
-        "Generating energy for the cell",
-        "Acting as the control center and housing DNA",
-        "Controlling what enters and leaves the cell",
-        "Building proteins the cell needs",
-      ],
-      correctIndex: 1,
-    },
-    {
-      question: "What do mitochondria do?",
-      options: [
-        "Store genetic information",
-        "Capture sunlight for photosynthesis",
-        "Generate energy through cellular respiration",
-        "Control what enters the cell",
+        "She hired a professional coach",
+        "She studied opening sequences online",
+        "She mostly played against her grandfather, who used slightly different rules",
+        "She memorised every famous game ever played",
       ],
       correctIndex: 2,
     },
     {
-      question: "What do chloroplasts within plant cells do?",
+      question: "What did her grandfather teach her about patience?",
       options: [
-        "Store water for the plant",
-        "Break down waste products",
-        "Capture sunlight and convert it into sugar through photosynthesis",
-        "Transport materials within the cell",
+        "Patience meant waiting for the opponent to make a mistake",
+        "Patience was passive and unhelpful in competition",
+        "Patience was a form of pressure applied slowly and without announcement",
+        "Patience was only useful in the endgame",
       ],
       correctIndex: 2,
     },
     {
-      question: "What does cell theory state?",
+      question: "How did Leila's opponent respond to her slow early moves?",
       options: [
-        "Cells only exist in animals",
-        "All life comes from pre-existing cells",
-        "Cells are made of atoms",
-        "All cells have a nucleus",
+        "He immediately changed his strategy",
+        "He conceded defeat after five moves",
+        "He waited twelve moves for her plan to reveal itself",
+        "He challenged the referee",
+      ],
+      correctIndex: 2,
+    },
+    {
+      question: "How many moves did it take Leila to win the final?",
+      options: [
+        "Fifteen moves",
+        "Twenty moves",
+        "Twenty-three moves",
+        "Thirty moves",
+      ],
+      correctIndex: 2,
+    },
+    {
+      question: "What happened that evening after the tournament?",
+      options: [
+        "Leila gave an interview to a journalist",
+        "Leila played three more games with her grandfather — and lost all three",
+        "Her grandfather taught her a new strategy",
+        "Her family held a celebration dinner",
       ],
       correctIndex: 1,
     },
   ],
 
-  // Grade 6 - Passage 17: The Renaissance
+  // Grade 6 - Passage 17: A Journey by Train
   17: [
     {
-      question: "What does the word renaissance mean?",
-      options: ["Revolution", "Discovery", "Rebirth", "Enlightenment"],
-      correctIndex: 2,
-    },
-    {
-      question: "Which country did the Renaissance begin in?",
-      options: ["France", "Germany", "England", "Italy"],
-      correctIndex: 3,
-    },
-    {
-      question: "What did Leonardo da Vinci's notebooks contain?",
+      question: "At what time did the overnight train leave Platform 4?",
       options: [
-        "Only paintings and sketches",
-        "Designs for flying machines, tanks, and anatomical studies",
-        "Mathematical equations",
-        "Maps of the world",
-      ],
-      correctIndex: 1,
-    },
-    {
-      question: "What did Johannes Gutenberg invent around 1440?",
-      options: [
-        "The telescope",
-        "The microscope",
-        "The printing press",
-        "The steam engine",
+        "Eight o'clock",
+        "Nine o'clock",
+        "Ten past nine",
+        "Half past ten",
       ],
       correctIndex: 2,
     },
     {
-      question: "What philosophy became the guiding spirit of the Renaissance?",
-      options: ["Stoicism", "Humanism", "Nihilism", "Rationalism"],
+      question:
+        "What happened to the window when the train entered the long tunnel at midnight?",
+      options: [
+        "Clara could see the tunnel walls clearly",
+        "The window turned completely black",
+        "Her reflection disappeared",
+        "The lights in the carriage went out",
+      ],
       correctIndex: 1,
+    },
+    {
+      question:
+        "What was unusual about the small station the train passed through?",
+      options: [
+        "It was completely dark with no lights",
+        "It was crowded with late-night travellers",
+        "Snow was falling and no one boarded",
+        "The train stopped there for a long time",
+      ],
+      correctIndex: 2,
+    },
+    {
+      question:
+        "What did Clara feel about arriving somewhere by train in the early morning?",
+      options: [
+        "It was exhausting and uncomfortable",
+        "It gave a journey its proper weight — the place felt earned",
+        "It made the destination seem less exciting",
+        "It was the same as arriving by any other means",
+      ],
+      correctIndex: 1,
+    },
+    {
+      question: "What was the man across the aisle doing on the train?",
+      options: [
+        "Listening to music with headphones",
+        "Looking out of the window",
+        "Reading a thick novel with a torn cover",
+        "Writing in a notebook",
+      ],
+      correctIndex: 2,
     },
   ],
 
-  // Grade 6 - Passage 18: Monsoons and Seasonal Winds
+  // Grade 6 - Passage 18: The Lighthouse Keeper's Last Year
   18: [
     {
-      question: "What are monsoons?",
+      question: "How many years had Agnes Shore worked as lighthouse keeper?",
       options: [
-        "Permanent trade winds near the equator",
-        "Powerful seasonal wind patterns that affect weather",
-        "Cold polar winds that blow in winter",
-        "Ocean currents near the coast",
-      ],
-      correctIndex: 1,
-    },
-    {
-      question: "Where does the word monsoon come from?",
-      options: [
-        "From Greek",
-        "From Sanskrit",
-        "From Arabic",
-        "From Portuguese",
+        "Ten years",
+        "Fifteen years",
+        "Nineteen years",
+        "Twenty-five years",
       ],
       correctIndex: 2,
     },
     {
-      question: "When does the South Asian summer monsoon begin?",
-      options: ["In March", "In June", "In September", "In December"],
+      question: "How was the lighthouse accessed?",
+      options: [
+        "By a bridge from the mainland",
+        "By a supply boat that came once a fortnight",
+        "By helicopter every week",
+        "By a small motorboat available at all times",
+      ],
       correctIndex: 1,
     },
     {
-      question: "What happens when the monsoon brings too much rainfall?",
+      question: "What did Agnes do before she left her post?",
       options: [
-        "The desert expands",
-        "Crops grow better than usual",
-        "Catastrophic flooding destroys homes and farmland",
-        "Temperatures drop dramatically",
+        "She trained her replacement",
+        "She wrote a detailed record of everything she knew about the surrounding water",
+        "She painted the lighthouse and repaired the lamp",
+        "She gave a speech to the coastal authority",
       ],
-      correctIndex: 2,
+      correctIndex: 1,
     },
     {
-      question: "What drives the monsoon's seasonal switching?",
+      question: "How did Agnes describe what she had written?",
       options: [
-        "Changes in Earth's orbit",
-        "Ocean temperature differences between sea and land",
-        "The tilt of the Earth's axis",
-        "Volcanic eruptions",
+        "She said it was her life's work",
+        "She said it was what the sea had taught her",
+        "She said it was a warning for future keepers",
+        "She said it was a scientific report",
+      ],
+      correctIndex: 1,
+    },
+    {
+      question:
+        "What did neighbours notice about Agnes after she moved to the mainland?",
+      options: [
+        "She rarely went outside",
+        "She still watched the horizon every morning before breakfast",
+        "She took up painting seascapes",
+        "She wrote a book about her years at the lighthouse",
       ],
       correctIndex: 1,
     },
   ],
 
-  // Grade 7 - Passage 19: Ecosystems and Food Webs
+  // Grade 7 - Passage 19: The Apprentice
   19: [
     {
-      question: "What is an ecological niche?",
-      options: [
-        "A type of habitat in a forest",
-        "The specific role an organism fills in an ecosystem",
-        "A method of scientific classification",
-        "The area an animal defends as territory",
-      ],
+      question: "What was Mr. Voss's profession?",
+      options: ["A watchmaker", "A clockmaker", "A jeweller", "An engineer"],
       correctIndex: 1,
+    },
+    {
+      question: "What was Jamal only allowed to do for the first three months?",
+      options: [
+        "Watch, clean, and arrange tools",
+        "Repair simple watches",
+        "Study technical manuals",
+        "Answer customer enquiries",
+      ],
+      correctIndex: 0,
     },
     {
       question:
-        "What do producers use to convert solar energy into organic matter?",
+        "What was the first task Mr. Voss gave Jamal to work on independently?",
       options: [
-        "Cellular respiration",
-        "Decomposition",
-        "Photosynthesis",
-        "Fermentation",
+        "A broken pocket watch",
+        "A damaged grandfather clock",
+        "A broken bracket clock",
+        "A small carriage clock",
       ],
       correctIndex: 2,
     },
     {
-      question: "What are decomposers?",
+      question:
+        "How did Mr. Voss respond when Jamal presented the repaired clock?",
       options: [
-        "Animals that eat plants",
-        "Top predators in a food chain",
-        "Bacteria and fungi that break down dead organisms",
-        "Plants that grow in wetlands",
-      ],
-      correctIndex: 2,
-    },
-    {
-      question: "What is a keystone species?",
-      options: [
-        "The most numerous species in an ecosystem",
-        "A species that plays a disproportionately important role in maintaining balance",
-        "The largest animal in an ecosystem",
-        "A species that only eats plants",
+        "He praised Jamal in front of other workers",
+        "He tested it, said nothing for a long time, then nodded once",
+        "He immediately gave Jamal a more difficult task",
+        "He told Jamal to repeat the repair more carefully",
       ],
       correctIndex: 1,
     },
     {
-      question: "What increases an ecosystem's resilience and productivity?",
+      question: "What did Jamal hang above the door of his own workshop?",
       options: [
-        "Having fewer species",
-        "Stable temperature",
-        "Biodiversity — the variety of species",
-        "Large amounts of rainfall",
+        "A sign with his name on it",
+        "A clock he had repaired himself",
+        "A photograph of Mr. Voss",
+        "A certificate from his apprenticeship",
       ],
       correctIndex: 2,
     },
   ],
 
-  // Grade 7 - Passage 20: The Industrial Revolution
+  // Grade 7 - Passage 20: The Cartographer's Daughter
   20: [
     {
-      question: "Where did the Industrial Revolution begin?",
+      question: "What was Sofia's father's profession?",
       options: [
-        "In France",
-        "In Germany",
-        "In the United States",
-        "In Britain",
-      ],
-      correctIndex: 3,
-    },
-    {
-      question: "Who invented the steam engine in 1769?",
-      options: [
-        "Thomas Edison",
-        "James Watt",
-        "Richard Arkwright",
-        "George Stephenson",
+        "A geography teacher",
+        "A cartographer who made maps",
+        "A historian",
+        "A land surveyor",
       ],
       correctIndex: 1,
     },
     {
-      question:
-        "What replaced handloom weavers during the Industrial Revolution?",
-      options: ["Coal mines", "Textile mills", "Steam ships", "Iron foundries"],
+      question: "What did Sofia's father say a map always was?",
+      options: [
+        "A perfect record of the world",
+        "A scientific measurement of land",
+        "A decision and an argument about the world",
+        "A guide for travellers",
+      ],
+      correctIndex: 2,
+    },
+    {
+      question: "What subject did Sofia write her first important essay about?",
+      options: [
+        "The history of exploration",
+        "How maps shaped the way people saw themselves and each other",
+        "The science of measuring land",
+        "Famous cartographers of the past",
+      ],
       correctIndex: 1,
     },
     {
-      question: "What did trade unions form to do?",
+      question: "What did Sofia specialise in at university?",
       options: [
-        "Increase factory production",
-        "Train factory managers",
-        "Negotiate wages and improve conditions for workers",
-        "Expand the railway network",
+        "Physical geography and climate",
+        "Urban planning",
+        "The history of cartography",
+        "Environmental science",
       ],
       correctIndex: 2,
     },
     {
-      question: "What were working conditions in early factories like?",
+      question: "What did Sofia's father say after her first public lecture?",
       options: [
-        "Safe and well-paid",
-        "Relaxed with short hours",
-        "Grueling, with long hours, low pay, and dangerous machinery",
-        "Only for adults with training",
+        "He told her the lecture needed improvement",
+        "He said she had understood the thing that mattered most",
+        "He told her to continue her research further",
+        "He suggested she write a book about it",
       ],
-      correctIndex: 2,
+      correctIndex: 1,
     },
   ],
 
-  // Grade 7 - Passage 21: Plate Tectonics
+  // Grade 7 - Passage 21: Crossing the Gorge
   21: [
     {
-      question: "What are tectonic plates?",
+      question: "How wide was the rope bridge across the Navar Gorge?",
       options: [
-        "Large slow-moving segments of Earth's outer shell",
-        "Underground rivers of molten rock",
-        "Layers of the atmosphere",
-        "Sections of the ocean floor only",
+        "Wide enough for two people side by side",
+        "Wide enough for one person at a time",
+        "Wide enough for small carts",
+        "Wide enough for three people abreast",
       ],
-      correctIndex: 0,
+      correctIndex: 1,
     },
     {
-      question: "Who proposed the earlier idea of continental drift?",
+      question: "How far was the nearest alternative crossing?",
       options: [
-        "Charles Darwin",
-        "Isaac Newton",
-        "Alfred Wegener",
-        "Charles Lyell",
+        "One hour",
+        "Two hours",
+        "A four-hour detour around the mountain",
+        "Half a day's walk",
       ],
       correctIndex: 2,
     },
     {
       question:
-        "What happens when two plates collide and one is forced beneath the other?",
+        "How did the village elder cross the bridge at the opening ceremony?",
       options: [
-        "Volcanic eruption at the surface",
-        "The process called subduction",
-        "Formation of mid-ocean ridges",
-        "An earthquake at a transform boundary",
+        "She ran across quickly",
+        "She crossed slowly while holding both rails",
+        "She walked at a measured pace, not holding the rope rails, looking straight ahead",
+        "She was carried across on a chair",
+      ],
+      correctIndex: 2,
+    },
+    {
+      question: "How did the schoolteacher cross the bridge?",
+      options: [
+        "He ran across quickly to get it over with",
+        "He gripped both rails and inched forward step by step",
+        "He closed his eyes and walked steadily",
+        "He refused to cross on the first day",
       ],
       correctIndex: 1,
     },
     {
-      question: "What is the San Andreas Fault in California?",
+      question:
+        "By the day after crossing, how did the teacher cross the bridge?",
       options: [
-        "A subduction zone",
-        "A mid-ocean ridge",
-        "A volcanic chain",
-        "A famous transform boundary",
+        "He still needed to grip both rails",
+        "He crossed more easily and the day after without holding the rails at all",
+        "He still refused to cross it alone",
+        "He found another route",
       ],
-      correctIndex: 3,
-    },
-    {
-      question: "What do geologists use to monitor seismic activity?",
-      options: ["Satellites", "Seismographs", "Thermometers", "Barometers"],
       correctIndex: 1,
     },
   ],
 
-  // Grade 8 - Passage 22: Genetics and Heredity
+  // Grade 8 - Passage 22: The Poet's Gift
   22: [
     {
-      question:
-        "Who laid the foundation of genetics through experiments with pea plants?",
+      question: "At what age did Yasmin Khalil publish her first collection?",
+      options: ["Forty", "Fifty", "Sixty-two", "Seventy"],
+      correctIndex: 2,
+    },
+    {
+      question: "How did the manuscript come to be sent to publishers?",
       options: [
-        "Charles Darwin",
-        "Gregor Mendel",
-        "James Watson",
-        "Francis Crick",
+        "Yasmin submitted it herself after years of consideration",
+        "A friend discovered it and sent it to three publishers without asking permission",
+        "A literary agent found it at an exhibition",
+        "A publisher contacted her after reading a poem in a journal",
       ],
       correctIndex: 1,
     },
     {
-      question: "What are alleles?",
+      question: "What condition did Yasmin attach to the book's publication?",
       options: [
-        "Types of genetic mutations",
-        "Pairs of genes, one from each parent",
-        "Sequences of proteins",
-        "Sections of a chromosome",
+        "It should be published in a limited edition only",
+        "No photograph of her and no biographical note beyond her name",
+        "It should only be sold in independent bookshops",
+        "The price should be kept very low",
       ],
       correctIndex: 1,
     },
     {
-      question: "What did Watson and Crick discover in 1953?",
+      question: "What caused the book's sales to increase significantly?",
       options: [
-        "The existence of chromosomes",
-        "How cells divide",
-        "DNA's double helix structure",
-        "The genetic code for proteins",
+        "Yasmin gave several radio interviews",
+        "It was chosen as a school reading text",
+        "A brief review in a literary journal used the word 'essential' three times",
+        "A famous author recommended it publicly",
       ],
       correctIndex: 2,
     },
     {
-      question: "What are mutations?",
+      question: "What did Yasmin continue to do after the book was published?",
       options: [
-        "Normal processes in healthy cells",
-        "Changes in DNA sequences that can alter how traits are expressed",
-        "The way genes are passed to offspring",
-        "Proteins that protect cells",
+        "She began writing a second collection immediately",
+        "She went on a reading tour across the country",
+        "She wrote poems she did not show anyone, keeping them in the same drawer",
+        "She started a writing school for other poets",
       ],
-      correctIndex: 1,
-    },
-    {
-      question: "What does gene therapy hold promise for?",
-      options: [
-        "Creating new animal species",
-        "Treating inherited diseases by correcting faulty DNA",
-        "Improving crop yields",
-        "Making organisms live longer",
-      ],
-      correctIndex: 1,
+      correctIndex: 2,
     },
   ],
 
-  // Grade 8 - Passage 23: World War I and Its Causes
+  // Grade 8 - Passage 23: The Archive
   23: [
     {
-      question: "What was the immediate trigger for World War I?",
+      question: "What did the archive in the library basement contain?",
       options: [
-        "Germany's invasion of France",
-        "The assassination of Archduke Franz Ferdinand in Sarajevo",
-        "Britain's declaration of war on Germany",
-        "The sinking of a passenger ship",
+        "Forty years of letters from library visitors",
+        "Forty years of photographs taken by a single person",
+        "The records of every book borrowed from the library",
+        "Rare books donated by the public",
       ],
       correctIndex: 1,
     },
     {
-      question: "Which nations formed the Central Powers in WWI?",
+      question: "What was the condition Miriam Osei attached to her donation?",
       options: [
-        "Britain, France, and Russia",
-        "Germany, Austria-Hungary, and the Ottoman Empire",
-        "USA, Italy, and Japan",
-        "Spain, Portugal, and Belgium",
+        "It should never be exhibited publicly",
+        "It should only be viewed by professional photographers",
+        "It was not to be exhibited for twenty-five years",
+        "It should be exhibited within five years of her death",
+      ],
+      correctIndex: 2,
+    },
+    {
+      question: "What struck the archivists most about the photographs?",
+      options: [
+        "The technical perfection of each image",
+        "The consistency of attention and quality of regard in each photograph",
+        "The famous people who appeared in many of them",
+        "The unusual cameras and techniques Miriam had used",
       ],
       correctIndex: 1,
     },
     {
-      question: "What type of warfare dominated the Western Front?",
+      question:
+        "Did the subjects of Miriam's photographs appear to know they were being photographed?",
       options: [
-        "Naval warfare",
-        "Air combat",
-        "Trench warfare",
-        "Desert warfare",
+        "Yes, they had all signed consent forms",
+        "Yes, they often posed for her",
+        "No, they had been caught simply being themselves",
+        "Only some of them were aware",
       ],
       correctIndex: 2,
     },
     {
-      question: "What happened when the United States entered the war in 1917?",
+      question: "Why did people come to the archive after it was opened?",
       options: [
-        "The war immediately ended",
-        "Germany surrendered at once",
-        "It tipped the balance toward the Allies",
-        "Russia re-entered the war",
+        "To see the historic building in the basement",
+        "To find themselves, their parents, or their past selves looking back",
+        "To purchase prints of their favourite photographs",
+        "To learn about the history of photography",
       ],
-      correctIndex: 2,
-    },
-    {
-      question: "How many people died in World War I?",
-      options: [
-        "About one million",
-        "About five million",
-        "About ten million",
-        "Seventeen million",
-      ],
-      correctIndex: 3,
+      correctIndex: 1,
     },
   ],
 
-  // Grade 8 - Passage 24: Ocean Currents and Climate
+  // Grade 8 - Passage 24: The Translator
   24: [
     {
-      question: "What drives ocean currents?",
-      options: [
-        "Only wind patterns",
-        "Wind, temperature differences, salinity, and Earth's rotation",
-        "The gravitational pull of the Moon",
-        "Changes in ocean depth",
-      ],
-      correctIndex: 1,
-    },
-    {
-      question: "What does the Gulf Stream do?",
-      options: [
-        "Carries cold water from the Arctic southward",
-        "Brings rainfall to the Sahara Desert",
-        "Transports warm water from the Gulf of Mexico toward northwestern Europe",
-        "Creates the El Niño weather pattern",
-      ],
+      question: "How many languages did Elena Vasquez speak professionally?",
+      options: ["Three", "Four", "Five", "Six"],
       correctIndex: 2,
     },
     {
-      question: "What is thermohaline circulation driven by?",
+      question: "What did Elena say each language gave her?",
       options: [
-        "Wind patterns alone",
-        "Differences in temperature and salinity",
-        "Tidal forces from the Moon",
-        "Volcanic activity on the ocean floor",
+        "Access to different careers",
+        "A different self — a different facet of her identity",
+        "A more accurate way of thinking",
+        "A connection to a different culture",
       ],
       correctIndex: 1,
     },
     {
-      question: "What do El Niño events do?",
+      question:
+        "What did Elena regard as the most interesting thing about being alive?",
       options: [
-        "Strengthen the Gulf Stream",
-        "Create permanent changes in ocean temperature",
-        "Disrupt normal Pacific currents, causing unusual weather patterns",
-        "Only affect South American fisheries",
+        "That the world was not translatable without remainder",
+        "That language could be learned at any age",
+        "That every language had its own beauty",
+        "That people connected through language across cultures",
+      ],
+      correctIndex: 0,
+    },
+    {
+      question:
+        "Why did Elena write her memoirs in her second language rather than her first?",
+      options: [
+        "Her first language had no word for many of her experiences",
+        "Her publisher required it",
+        "Writing in her first language would have felt too much like thinking out loud",
+        "Her second language had more precise vocabulary",
       ],
       correctIndex: 2,
     },
     {
       question:
-        "How could melting glacial ice affect thermohaline circulation?",
+        "What did the necessary distance of her second language allow her to do?",
       options: [
-        "It would speed up the circulation",
-        "It would have no effect on circulation",
-        "It would warm the Atlantic Ocean significantly",
-        "Adding freshwater could weaken the circulation",
+        "Write with more precise technical language",
+        "Observe her own life as if it belonged to someone slightly different",
+        "Express emotions she could not name in her first language",
+        "Reach a wider international audience",
       ],
-      correctIndex: 3,
+      correctIndex: 1,
     },
   ],
 
-  // Grade 9 - Passage 25: Photosynthesis and Cellular Respiration
+  // Grade 9 - Passage 25: The Unfinished Map
   25: [
     {
-      question: "Where does photosynthesis occur in plant cells?",
-      options: [
-        "In the mitochondria",
-        "In the nucleus",
-        "In the chloroplasts",
-        "In the cell membrane",
-      ],
+      question: "How long had Anselm Brauer been drawing the map when he died?",
+      options: ["Ten years", "Fifteen years", "Eighteen years", "Twenty years"],
       correctIndex: 2,
     },
     {
       question:
-        "What does photosynthesis convert carbon dioxide and water into?",
+        "What made the map extraordinary beyond its physical precision?",
       options: [
-        "Protein and oxygen",
-        "Glucose and oxygen",
-        "ATP and water",
-        "Nitrogen and carbon",
+        "Its enormous size and detailed colour",
+        "Its layering of physical, human, and seasonal information",
+        "The fact that it had been drawn entirely by hand",
+        "The rare materials Brauer had used",
       ],
       correctIndex: 1,
     },
     {
-      question:
-        "Where does cellular respiration primarily occur in eukaryotic cells?",
-      options: [
-        "In the chloroplasts",
-        "In the nucleus",
-        "In the ribosomes",
-        "In the mitochondria",
-      ],
-      correctIndex: 3,
-    },
-    {
-      question:
-        "Approximately how many ATP molecules does complete aerobic respiration of one glucose molecule yield?",
-      options: ["About 10", "About 20", "About 36 to 38", "About 50"],
+      question: "How many layers did Brauer intend the map to have in total?",
+      options: ["Three", "Four", "Five", "Six"],
       correctIndex: 2,
     },
     {
       question:
-        "How are photosynthesis and cellular respiration described in the passage?",
+        "What divided scholars who studied the map after Brauer's death?",
       options: [
-        "Identical processes occurring in different locations",
-        "Complementary processes that together sustain nearly all life on Earth",
-        "Competing processes that alternate by season",
-        "Independent processes with no connection to each other",
+        "Whether the map was accurate enough to be useful",
+        "Whether it was truly unfinished or intentionally incomplete",
+        "Whether it should be publicly exhibited",
+        "Whether Brauer had drawn it alone",
+      ],
+      correctIndex: 1,
+    },
+    {
+      question: "What did museum staff feel the map was doing to visitors?",
+      options: [
+        "Telling them something about the valley's history",
+        "Asking them something rather than telling them",
+        "Showing them how maps had changed over time",
+        "Inviting them to contribute information",
       ],
       correctIndex: 1,
     },
   ],
 
-  // Grade 9 - Passage 26: The Cold War and Global Tensions
+  // Grade 9 - Passage 26: The Silence Between Notes
   26: [
     {
-      question: "What was the Cold War?",
+      question:
+        "What paradox had troubled Arjun Mehta since his student years?",
       options: [
-        "A war fought in Antarctica",
-        "A prolonged geopolitical rivalry between the US and Soviet Union from 1947 to 1991",
-        "A series of naval battles in the Pacific Ocean",
-        "A diplomatic effort to end nuclear weapons",
+        "That music needed an audience to be complete",
+        "That silence was not the absence of music but one of its essential components",
+        "That composers were always misunderstood in their own time",
+        "That recorded music could never match a live performance",
       ],
       correctIndex: 1,
     },
     {
-      question: "What was the Cuban Missile Crisis of 1962?",
+      question:
+        "What did Mehta notice when listening to his own early recordings?",
       options: [
-        "A US invasion of Cuba",
-        "A Cuban revolt against the Soviet Union",
-        "A moment when Soviet missiles in Cuba brought the world near nuclear war",
-        "An economic embargo against Cuba",
+        "The technical quality was poor",
+        "He had been afraid of silence and had filled every gap with sound",
+        "The music was too slow and needed more energy",
+        "He had used too many different instruments",
+      ],
+      correctIndex: 1,
+    },
+    {
+      question: "How did Mehta describe the silences in his mature work?",
+      options: [
+        "Empty pauses for the audience to reflect",
+        "Mistakes that became part of the composition",
+        "Loaded — containing everything the preceding notes had set in motion",
+        "Moments of rest built into the structure",
       ],
       correctIndex: 2,
     },
     {
       question:
-        "What was the doctrine that paradoxically prevented direct conflict between the superpowers?",
+        "What happened during the longest pause at the first performance of Mehta's final composition?",
       options: [
-        "Détente",
-        "NATO alliance",
-        "Mutually assured destruction",
-        "The Marshall Plan",
-      ],
-      correctIndex: 2,
-    },
-    {
-      question:
-        "What event in 1989 symbolized the end of the Cold War division?",
-      options: [
-        "The dissolution of the Soviet Union",
-        "The fall of the Berlin Wall",
-        "The signing of the SALT treaty",
-        "The withdrawal from Afghanistan",
+        "The entire audience sat in perfect silence",
+        "Several audience members left, uncertain whether the concert had ended",
+        "The performers stood and acknowledged the audience",
+        "The lights dimmed as part of the performance",
       ],
       correctIndex: 1,
     },
     {
-      question: "When did the Soviet Union formally dissolve?",
-      options: ["In 1985", "In 1989", "In December 1991", "In 1995"],
+      question:
+        "What did those who stayed say about the music resuming after the long pause?",
+      options: [
+        "They were relieved it had finally continued",
+        "They felt the music was too quiet after the silence",
+        "They heard it entirely differently",
+        "They wished the silence had lasted longer",
+      ],
       correctIndex: 2,
     },
   ],
 
-  // Grade 9 - Passage 27: Urbanization and Megacities
+  // Grade 9 - Passage 27: A Forgotten Letter
   27: [
     {
-      question:
-        "What percentage of the world's population lived in urban areas in 1800?",
+      question: "Where were the letters discovered?",
       options: [
-        "Less than three percent",
-        "About ten percent",
-        "About twenty-five percent",
-        "About forty percent",
-      ],
-      correctIndex: 0,
-    },
-    {
-      question: "What is a megacity?",
-      options: [
-        "Any city with a subway system",
-        "An urban agglomeration with more than ten million inhabitants",
-        "A city with more than one million people",
-        "The capital city of a large country",
+        "In an old trunk in the attic",
+        "Inside the wall cavity behind the plaster during renovation",
+        "In a safe found beneath the floorboards",
+        "In the garden during landscaping work",
       ],
       correctIndex: 1,
     },
     {
-      question: "What are informal settlements or slums?",
+      question: "How did Elio Marchetti address the woman he wrote to?",
       options: [
-        "New planned neighborhoods in cities",
-        "Areas near industrial zones",
-        "Housing for hundreds of millions in inadequate conditions without secure tenure",
-        "Temporary camps for migrant workers",
+        "By her first name",
+        "As 'Dear friend'",
+        "Only as M",
+        "By a code name",
       ],
       correctIndex: 2,
     },
     {
       question:
-        "What do smart city technologies use to optimize city functions?",
+        "What did the letters notably not discuss, despite its presence being felt?",
       options: [
-        "Large teams of human planners",
-        "Sensors and data analytics",
-        "Artificial rivers and green spaces",
-        "Solar panels and wind turbines only",
+        "His feelings for M",
+        "The political situation of the time",
+        "His own fear",
+        "His plans for the future",
+      ],
+      correctIndex: 2,
+    },
+    {
+      question: "What did research suggest had happened to M?",
+      options: [
+        "She had fled to another country safely",
+        "She had been deported in late 1943 and had not returned",
+        "She had survived the war and moved away",
+        "She had been in hiding until the war ended",
       ],
       correctIndex: 1,
     },
     {
-      question: "What does the UN project about urban population by 2050?",
+      question: "Why had the letters apparently never been sent?",
       options: [
-        "Half of humanity will be urban",
-        "Cities will begin to shrink",
-        "Two-thirds of humanity will be urban dwellers",
-        "All people will live in megacities",
+        "Elio had been unable to find M's address",
+        "They had been written, hidden, and intended for someone who might come later",
+        "The postal service had broken down during the occupation",
+        "Elio had decided they were too personal to send",
       ],
-      correctIndex: 2,
+      correctIndex: 1,
     },
   ],
 
-  // Grade 10 - Passage 28: Quantum Mechanics and Modern Physics
+  // Grade 10 - Passage 28: The Weight of Words
   28: [
     {
-      question: "What does quantum mechanics govern?",
+      question:
+        "What central question did Adaeze Nwosu spend her career examining?",
       options: [
-        "The motion of planets and stars",
-        "The behavior of matter and energy at atomic and subatomic scales",
-        "The flow of electricity in circuits",
-        "The movement of fluids",
+        "How languages develop and change over time",
+        "What it means for a word to have a meaning",
+        "Whether translation between languages is ever fully possible",
+        "How children acquire language naturally",
       ],
       correctIndex: 1,
     },
     {
-      question: "What did Max Planck propose in 1900?",
+      question:
+        "What did Nwosu argue was always partly a function of the relationship between speaker and world?",
       options: [
-        "That atoms have a nucleus",
-        "That light travels at a constant speed",
-        "That energy is quantized, exchanged only in discrete packets",
-        "That electrons orbit nuclei in fixed paths",
+        "The grammar of a language",
+        "The vocabulary available in any language",
+        "Meaning — not simply a property of language as a system",
+        "The ability to translate between languages",
       ],
       correctIndex: 2,
     },
     {
-      question: "What does Heisenberg's Uncertainty Principle establish?",
+      question:
+        "What implicit commitment did Nwosu argue the act of naming carried?",
       options: [
-        "Particles travel faster than light",
-        "Energy and mass are equivalent",
-        "Position and momentum of a particle cannot both be known with perfect precision simultaneously",
-        "All particles have wave properties",
+        "A commitment to use language accurately",
+        "A responsibility to the thing named",
+        "An obligation to translate the word for others",
+        "A promise to keep the word's meaning stable",
+      ],
+      correctIndex: 1,
+    },
+    {
+      question:
+        "In what area did Nwosu's work find its most complete expression?",
+      options: [
+        "The language of children's literature",
+        "Political speeches and public discourse",
+        "Testimony — the language used by witnesses to atrocity and survivors",
+        "Scientific writing and its limitations",
       ],
       correctIndex: 2,
     },
     {
-      question: "What is quantum entanglement?",
+      question:
+        "What did Nwosu say the best testimony about extreme events did?",
       options: [
-        "A type of chemical bonding between atoms",
-        "Particles correlated such that measuring one instantly determines the state of the other",
-        "The way electrons orbit atomic nuclei",
-        "A method for splitting atoms",
+        "It resolved the problem of inadequate language",
+        "It found new words to describe what had happened",
+        "It made the problem of inadequate language visible rather than solving it",
+        "It avoided the problem by using very simple language",
       ],
-      correctIndex: 1,
-    },
-    {
-      question: "Which technologies does quantum mechanics underpin?",
-      options: [
-        "Steam engines and internal combustion",
-        "Transistors, lasers, MRI scanners, and solar cells",
-        "Radio waves and satellite communications",
-        "Dams and hydroelectric power",
-      ],
-      correctIndex: 1,
+      correctIndex: 2,
     },
   ],
 
-  // Grade 10 - Passage 29: Colonialism and Its Legacy
+  // Grade 10 - Passage 29: The Bridge Between Worlds
   29: [
     {
-      question: "What did the Berlin Conference of 1884-1885 formalize?",
-      options: [
-        "A peace treaty between European nations",
-        "The carving of Africa among European powers with minimal regard for existing boundaries",
-        "The creation of the United Nations",
-        "Trade agreements between Europe and Asia",
-      ],
-      correctIndex: 1,
+      question:
+        "Into how many languages had Selin Çelik's novels been translated?",
+      options: ["Fifteen", "Twenty", "Twenty-three", "Thirty"],
+      correctIndex: 2,
     },
     {
-      question: "What were colonial economic structures designed to do?",
+      question: "Why did Çelik choose her fourth language for writing novels?",
       options: [
-        "Develop local industries in colonies",
-        "Educate indigenous populations",
-        "Extract resources and channel profits to metropolitan centers",
-        "Create equal trading partnerships",
+        "It was the most widely spoken language in the world",
+        "It was the language her publisher required",
+        "It was the language in which she felt least defended and most porous",
+        "It had the richest literary tradition",
       ],
       correctIndex: 2,
     },
     {
       question:
-        "Who are scholars associated with post-colonial theory mentioned in the passage?",
+        "Why was writing in her first or second language difficult for sustained fiction?",
       options: [
-        "Marx, Engels, and Lenin",
-        "Fanon, Said, and Achebe",
-        "Kant, Hegel, and Nietzsche",
-        "Rousseau, Voltaire, and Montesquieu",
+        "She was not fluent enough in them for complex writing",
+        "They carried the weight of family and early experience, making objectivity impossible",
+        "They lacked the vocabulary she needed",
+        "Her publishers did not accept manuscripts in those languages",
       ],
       correctIndex: 1,
     },
     {
-      question: "What accelerated decolonization after World War II?",
+      question: "How did critics describe the language in her novels?",
       options: [
-        "Weakened European powers facing nationalist movements and international pressure",
-        "Military victories by colonial nations",
-        "A United Nations decree ordering independence",
-        "Economic agreements between Europe and Africa",
+        "Formal and academic in style",
+        "Simple and accessible to all readers",
+        "Precise but slightly tilted, as if translated from a language that did not quite exist",
+        "Dense with metaphor and very difficult to follow",
       ],
-      correctIndex: 0,
+      correctIndex: 2,
     },
     {
       question:
-        "What are contemporary responses to colonial history mentioned in the passage?",
+        "What was Çelik attempting to achieve by writing from the space between languages?",
       options: [
-        "Military interventions and sanctions",
-        "Reparations debates, cultural restitution, and truth and reconciliation processes",
-        "New trade agreements and investment funds",
-        "Border adjustments and population transfers",
+        "To make her novels appeal to readers in many countries",
+        "To create a new language that combined elements of all her languages",
+        "To use the gap as a position rather than simply an absence",
+        "To demonstrate that translation between languages was always imperfect",
       ],
-      correctIndex: 1,
+      correctIndex: 2,
     },
   ],
 
-  // Grade 10 - Passage 30: Climate Change and Environmental Policy
+  // Grade 10 - Passage 30: Shadows and Light
   30: [
     {
       question:
-        "What has driven climate change primarily, according to the passage?",
+        "What did Flemish painters of the seventeenth century understand about darkness?",
       options: [
-        "Natural volcanic activity and solar cycles",
-        "Anthropogenic greenhouse gas emissions from fossil fuel combustion, deforestation, and industrial agriculture",
-        "Changes in Earth's orbit around the Sun",
-        "Ocean current disruptions",
+        "It was simply the absence of light in technical terms",
+        "It was a presence in its own right with texture, depth, and moral weight",
+        "It was a problem to be overcome with better materials",
+        "It was best avoided in religious subject matter",
       ],
       correctIndex: 1,
     },
     {
       question:
-        "By approximately how much have global average temperatures risen above pre-industrial baselines?",
-      options: [
-        "0.5 degrees Celsius",
-        "1.1 degrees Celsius",
-        "2.5 degrees Celsius",
-        "3 degrees Celsius",
-      ],
-      correctIndex: 1,
+        "What is the term for Caravaggio's technique of extreme contrast between light and dark?",
+      options: ["Sfumato", "Impasto", "Chiaroscuro", "Pentimento"],
+      correctIndex: 2,
     },
     {
-      question: "What did the Paris Agreement of 2015 commit nations to?",
+      question:
+        "What does the literary tradition of irony depend on, according to the passage?",
       options: [
-        "Eliminating all fossil fuel use by 2030",
-        "Limiting warming to well below 2 degrees Celsius above pre-industrial levels",
-        "Planting one trillion trees worldwide",
-        "Replacing all coal power by 2025",
+        "Exaggerated language and dramatic situations",
+        "Meaning placed in the space between what is said and what is meant",
+        "The use of darkness as a recurring symbol",
+        "Contrast between minor and major characters",
       ],
       correctIndex: 1,
     },
     {
       question:
-        "What are nature-based solutions for climate change mentioned in the passage?",
+        "What does the passage say the most powerful works in any medium tend to do?",
       options: [
-        "Building seawalls and flood barriers",
-        "Using nuclear power instead of fossil fuels",
-        "Restoring forests, wetlands, and mangroves for carbon sequestration",
-        "Developing carbon capture machines",
+        "Explain themselves as clearly and completely as possible",
+        "Use the latest available technology to reach audiences",
+        "Preserve a residue of shadow that requires the audience to find their own orientation",
+        "Follow the established conventions of their form",
       ],
       correctIndex: 2,
     },
     {
       question:
-        "What concentration of CO2 (parts per million) exists in the atmosphere today?",
+        "What does the passage say shadow is, in contrast to a merely decorative element?",
       options: [
-        "About 280 ppm",
-        "About 350 ppm",
-        "Over 420 ppm",
-        "About 500 ppm",
+        "A technical necessity in visual art only",
+        "Constitutive — an essential part of meaning rather than an ornament",
+        "A stylistic choice that varies between artists",
+        "A symbol for ignorance and lack of understanding",
       ],
-      correctIndex: 2,
+      correctIndex: 1,
     },
   ],
 };
