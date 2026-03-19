@@ -55,10 +55,12 @@ interface Segment {
 
 function subjectBadgeClass(subject: string): string {
   const s = subject.toLowerCase();
-  if (s === "science") return "bg-teal-500/15 text-teal-700 border-teal-200";
-  if (s === "history") return "bg-amber-500/15 text-amber-700 border-amber-200";
-  if (s === "geography") return "bg-blue-500/15 text-blue-700 border-blue-200";
-  return "bg-muted text-muted-foreground border-border";
+  if (s === "science") return "bg-teal-500/20 text-teal-300 border-teal-500/30";
+  if (s === "history")
+    return "bg-amber-500/20 text-amber-300 border-amber-500/30";
+  if (s === "geography")
+    return "bg-blue-500/20 text-blue-300 border-blue-500/30";
+  return "bg-white/10 text-gray-400 border-white/10";
 }
 
 // ── Skill Scoring ─────────────────────────────────────────────────────────────
@@ -307,7 +309,7 @@ const LEVEL_BADGES = [
   {
     min: 2.0,
     label: "🌱 Growing",
-    cls: "bg-amber-100 text-amber-800 border-amber-200",
+    cls: "bg-amber-500/20 text-amber-300 border-amber-200",
   },
   {
     min: 0,
@@ -479,7 +481,11 @@ function ReportCard({
   const journeyLevel = foundLevel ?? gradeLevel;
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-gray-950 relative overflow-hidden">
+      {/* Background glow effects */}
+      <div className="fixed top-0 left-1/3 w-96 h-96 bg-indigo-500/10 rounded-full blur-3xl pointer-events-none" />
+      <div className="fixed bottom-1/4 right-1/3 w-80 h-80 bg-purple-500/10 rounded-full blur-3xl pointer-events-none" />
+      <div className="fixed top-1/2 right-0 w-72 h-72 bg-cyan-500/8 rounded-full blur-3xl pointer-events-none" />
       <AppHeader title="Reading Report Card" />
       <main
         className="max-w-5xl mx-auto px-4 py-8"
@@ -500,7 +506,7 @@ function ReportCard({
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-6">
             <div>
               <h2 className="text-2xl font-bold">Reading Report Card</h2>
-              <p className="text-sm text-muted-foreground">
+              <p className="text-sm text-gray-400">
                 {studentName} · Grade {grade}
               </p>
             </div>
@@ -531,13 +537,13 @@ function ReportCard({
               >
                 <StarRating value={scores.pronunciation} max={5} />
                 <div className="space-y-1 text-xs mt-2">
-                  <p className="text-emerald-700 font-medium">
+                  <p className="text-emerald-400 font-medium">
                     ✓ Correct Pronounced Words — {correctWords}
                   </p>
-                  <p className="text-amber-700 font-medium">
+                  <p className="text-amber-400 font-medium">
                     ⚠ Mispronounced Words — {mispronounced}
                   </p>
-                  <p className="text-red-700 font-medium">
+                  <p className="text-red-400 font-medium">
                     ✗ Missed Words — {missedWords}
                   </p>
                 </div>
@@ -653,7 +659,11 @@ function TryNextLevelScreen({
   ];
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-gray-950 relative overflow-hidden">
+      {/* Background glow effects */}
+      <div className="fixed top-0 left-1/3 w-96 h-96 bg-indigo-500/10 rounded-full blur-3xl pointer-events-none" />
+      <div className="fixed bottom-1/4 right-1/3 w-80 h-80 bg-purple-500/10 rounded-full blur-3xl pointer-events-none" />
+      <div className="fixed top-1/2 right-0 w-72 h-72 bg-cyan-500/8 rounded-full blur-3xl pointer-events-none" />
       <AppHeader title="Keep Going!" />
       <main className="max-w-5xl mx-auto px-4 py-8">
         <motion.div
@@ -666,23 +676,23 @@ function TryNextLevelScreen({
             initial={{ opacity: 0, scale: 0.97 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.4 }}
-            className="rounded-2xl border border-amber-200 bg-amber-50 dark:bg-amber-900/20 dark:border-amber-700 p-6 mb-6"
+            className="rounded-2xl border border-amber-500/40 bg-amber-500/10 p-6 mb-6"
             data-ocid="test.panel"
           >
             <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
-              <div className="w-14 h-14 rounded-full bg-amber-100 border border-amber-200 flex items-center justify-center shrink-0 text-2xl">
+              <div className="w-14 h-14 rounded-full bg-amber-500/20 border border-amber-500/30 flex items-center justify-center shrink-0 text-2xl">
                 💪
               </div>
               <div className="flex-1">
                 <div className="flex items-center gap-3 flex-wrap mb-2">
-                  <h2 className="text-xl font-bold text-amber-900 dark:text-amber-200">
+                  <h2 className="text-xl font-bold text-amber-200">
                     Keep Going!
                   </h2>
-                  <span className="inline-flex items-center px-2.5 py-1 rounded-full bg-amber-100 text-amber-800 border border-amber-200 text-xs font-semibold">
+                  <span className="inline-flex items-center px-2.5 py-1 rounded-full bg-amber-100 text-amber-300 border border-amber-500/30 text-xs font-semibold">
                     Attempt {attemptsMade}/{enrolledGrade}
                   </span>
                 </div>
-                <p className="text-sm text-amber-800 dark:text-amber-300 leading-relaxed">
+                <p className="text-sm text-amber-300 leading-relaxed">
                   Your pronunciation, rhythm, and speed show you are working
                   toward <strong>Grade {currentTestLevel} level</strong>. Let's
                   try a <strong>Grade {newLevel}</strong> passage next to find
@@ -693,7 +703,7 @@ function TryNextLevelScreen({
           </motion.div>
 
           {/* Score overview */}
-          <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide mb-4">
+          <h3 className="text-sm font-semibold text-gray-400 uppercase tracking-wide mb-4">
             Your Scores This Attempt
           </h3>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-5 mb-6">
@@ -719,13 +729,13 @@ function TryNextLevelScreen({
               >
                 <StarRating value={scores.pronunciation} max={5} />
                 <div className="space-y-1 text-xs mt-2">
-                  <p className="text-emerald-700 font-medium">
+                  <p className="text-emerald-400 font-medium">
                     ✓ Correct — {correctWords}
                   </p>
-                  <p className="text-amber-700 font-medium">
+                  <p className="text-amber-400 font-medium">
                     ⚠ Mispronounced — {mispronounced}
                   </p>
-                  <p className="text-red-700 font-medium">
+                  <p className="text-red-400 font-medium">
                     ✗ Missed — {missedWords}
                   </p>
                 </div>
@@ -993,7 +1003,11 @@ export function StudentTest({ onNavigate }: StudentTestProps) {
     }
 
     return (
-      <div className="min-h-screen bg-background">
+      <div className="min-h-screen bg-gray-950 relative overflow-hidden">
+        {/* Background glow effects */}
+        <div className="fixed top-0 left-1/3 w-96 h-96 bg-indigo-500/10 rounded-full blur-3xl pointer-events-none" />
+        <div className="fixed bottom-1/4 right-1/3 w-80 h-80 bg-purple-500/10 rounded-full blur-3xl pointer-events-none" />
+        <div className="fixed top-1/2 right-0 w-72 h-72 bg-cyan-500/8 rounded-full blur-3xl pointer-events-none" />
         <AppHeader title="Test Complete" />
         <main
           className="max-w-xl mx-auto px-6 py-16 text-center"
@@ -1002,14 +1016,16 @@ export function StudentTest({ onNavigate }: StudentTestProps) {
           <div className="w-20 h-20 rounded-full mx-auto mb-6 flex items-center justify-center bg-green-500/15">
             <CheckCircle className="w-10 h-10 text-green-600" />
           </div>
-          <h2 className="text-3xl font-bold mb-3">Test Submitted!</h2>
-          <p className="text-muted-foreground mb-8">
+          <h2 className="text-3xl font-bold mb-3 text-white">
+            Test Submitted!
+          </h2>
+          <p className="text-gray-400 mb-8">
             Your recording has been submitted and your skills have been
             assessed.
           </p>
           <Button
             onClick={() => onNavigate("/student")}
-            className="bg-classio-blue hover:bg-classio-blue/90 text-white px-8"
+            className="bg-gradient-to-r from-indigo-600 to-cyan-500 hover:from-indigo-500 hover:to-cyan-400 text-white px-8"
             data-ocid="test.primary_button"
           >
             Back to Dashboard
@@ -1020,7 +1036,11 @@ export function StudentTest({ onNavigate }: StudentTestProps) {
   }
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-gray-950 relative overflow-hidden">
+      {/* Background glow effects */}
+      <div className="fixed top-0 left-1/3 w-96 h-96 bg-indigo-500/10 rounded-full blur-3xl pointer-events-none" />
+      <div className="fixed bottom-1/4 right-1/3 w-80 h-80 bg-purple-500/10 rounded-full blur-3xl pointer-events-none" />
+      <div className="fixed top-1/2 right-0 w-72 h-72 bg-cyan-500/8 rounded-full blur-3xl pointer-events-none" />
       <AppHeader title="Reading Test" />
       <main className="max-w-3xl mx-auto px-6 py-8">
         <div className="flex items-center gap-3 mb-6">
@@ -1036,11 +1056,11 @@ export function StudentTest({ onNavigate }: StudentTestProps) {
           <div>
             <h2 className="text-xl font-bold">Reading Proficiency Test</h2>
             <div className="flex items-center gap-2 mt-0.5">
-              <p className="text-sm text-muted-foreground">
+              <p className="text-sm text-gray-400">
                 Grade {user?.grade?.toString()} — Read the passage aloud and
                 record yourself
               </p>
-              <span className="inline-flex items-center px-2 py-0.5 rounded-full bg-amber-100 text-amber-800 border border-amber-200 text-xs font-semibold">
+              <span className="inline-flex items-center px-2 py-0.5 rounded-full bg-amber-100 text-amber-300 border border-amber-500/30 text-xs font-semibold">
                 Attempt {attemptsMade}/{enrolledGrade}
               </span>
             </div>
@@ -1049,19 +1069,19 @@ export function StudentTest({ onNavigate }: StudentTestProps) {
 
         {!passage ? (
           <Card
-            className="rounded-xl border-border"
+            className="rounded-xl bg-white/5 backdrop-blur-sm border border-white/10"
             data-ocid="test.error_state"
           >
             <CardContent className="py-12 text-center">
-              <Loader2 className="w-8 h-8 animate-spin text-muted-foreground mx-auto mb-3" />
+              <Loader2 className="w-8 h-8 animate-spin text-gray-400 mx-auto mb-3" />
               <p className="font-medium">Loading your passage...</p>
             </CardContent>
           </Card>
         ) : (
           <div className="space-y-5">
             {/* 1. Passage */}
-            <Card className="rounded-xl shadow-card border-border">
-              <CardHeader className="border-b border-border pb-4">
+            <Card className="rounded-xl bg-white/5 backdrop-blur-sm border border-white/10 shadow-lg shadow-black/20">
+              <CardHeader className="border-b border-white/10 pb-4 bg-transparent">
                 <div className="flex items-start justify-between gap-3 flex-wrap">
                   <CardTitle className="text-lg">{passage.title}</CardTitle>
                   <div className="flex items-center gap-2 shrink-0">
@@ -1072,34 +1092,34 @@ export function StudentTest({ onNavigate }: StudentTestProps) {
                         {passage.subject}
                       </Badge>
                     )}
-                    <Badge className="bg-primary/10 text-primary border-0">
+                    <Badge className="bg-indigo-500/20 text-primary border-0">
                       Grade {passage.gradeLevel}
                     </Badge>
                   </div>
                 </div>
               </CardHeader>
               <CardContent className="pt-5">
-                <p className="text-base leading-8 text-foreground whitespace-pre-wrap">
+                <p className="text-base leading-8 text-white whitespace-pre-wrap">
                   {passage.content}
                 </p>
               </CardContent>
             </Card>
 
             {/* 2. Recording */}
-            <Card className="rounded-xl shadow-card border-border">
-              <CardHeader className="border-b border-border pb-4">
+            <Card className="rounded-xl bg-white/5 backdrop-blur-sm border border-white/10 shadow-lg shadow-black/20">
+              <CardHeader className="border-b border-white/10 pb-4 bg-transparent">
                 <CardTitle className="text-base flex items-center gap-2">
                   <Mic className="w-4 h-4" />
                   Record Your Reading
                   {recorder.audioUrl && (
-                    <Badge className="ml-auto bg-green-500/15 text-green-700 dark:text-green-400 border-0 gap-1">
+                    <Badge className="ml-auto bg-green-500/20 text-green-300 dark:text-green-400 border-0 gap-1">
                       <CheckCircle className="w-3 h-3" /> Recorded
                     </Badge>
                   )}
                 </CardTitle>
               </CardHeader>
               <CardContent className="pt-5 space-y-4">
-                <p className="text-sm text-muted-foreground">
+                <p className="text-sm text-gray-400">
                   Read the passage aloud. The system will listen and
                   automatically score your{" "}
                   <strong>
@@ -1183,14 +1203,14 @@ export function StudentTest({ onNavigate }: StudentTestProps) {
                         exit={{ opacity: 0, height: 0 }}
                         transition={{ duration: 0.25 }}
                       >
-                        <div className="rounded-lg border border-border bg-muted/40 p-3">
-                          <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-2">
+                        <div className="rounded-lg border border-white/10 bg-white/5 p-3">
+                          <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-2">
                             Live Transcript
                           </p>
                           <p className="text-sm leading-relaxed min-h-[2rem]">
                             <span>{speech.transcript}</span>
                             {speech.interimText && (
-                              <span className="text-muted-foreground/60 italic">
+                              <span className="text-gray-400/60 italic">
                                 {" "}
                                 {speech.interimText}
                               </span>
@@ -1198,7 +1218,7 @@ export function StudentTest({ onNavigate }: StudentTestProps) {
                             {!speech.transcript &&
                               !speech.interimText &&
                               recorder.isRecording && (
-                                <span className="text-muted-foreground/50 text-xs">
+                                <span className="text-gray-400/50 text-xs">
                                   Listening...
                                 </span>
                               )}
@@ -1219,8 +1239,8 @@ export function StudentTest({ onNavigate }: StudentTestProps) {
                   exit={{ opacity: 0 }}
                   transition={{ duration: 0.3 }}
                 >
-                  <Card className="rounded-xl border-border shadow-card">
-                    <CardHeader className="border-b border-border pb-4">
+                  <Card className="rounded-xl bg-white/5 backdrop-blur-sm border border-white/10 shadow-lg shadow-black/20">
+                    <CardHeader className="border-b border-white/10 pb-4 bg-transparent">
                       <CardTitle className="text-base">
                         Skill Score Preview
                       </CardTitle>
@@ -1251,11 +1271,11 @@ export function StudentTest({ onNavigate }: StudentTestProps) {
                         ].map((skill) => {
                           const score = computedScores[skill.key];
                           const colorMap: Record<number, string> = {
-                            5: "bg-emerald-500/15 text-emerald-700 border-emerald-200",
-                            4: "bg-teal-500/15 text-teal-700 border-teal-200",
-                            3: "bg-blue-500/15 text-blue-700 border-blue-200",
-                            2: "bg-amber-500/15 text-amber-700 border-amber-200",
-                            1: "bg-red-500/15 text-red-700 border-red-200",
+                            5: "bg-emerald-500/20 text-emerald-300 border-emerald-500/30",
+                            4: "bg-teal-500/20 text-teal-300 border-teal-500/30",
+                            3: "bg-blue-500/20 text-blue-300 border-blue-500/30",
+                            2: "bg-amber-500/20 text-amber-300 border-amber-500/30",
+                            1: "bg-red-500/20 text-red-300 border-red-200",
                           };
                           const colorCls = colorMap[score] || colorMap[1];
                           return (
@@ -1282,7 +1302,7 @@ export function StudentTest({ onNavigate }: StudentTestProps) {
 
             {/* Submit */}
             <div className="flex items-center justify-between pb-8">
-              <p className="text-sm text-muted-foreground">
+              <p className="text-sm text-gray-400">
                 {recorder.audioUrl ? (
                   <span className="text-green-600 dark:text-green-400 font-medium flex items-center gap-1">
                     <CheckCircle className="w-4 h-4" /> Ready to submit
@@ -1293,7 +1313,7 @@ export function StudentTest({ onNavigate }: StudentTestProps) {
               </p>
               <Button
                 size="lg"
-                className="bg-classio-blue hover:bg-classio-blue/90 text-white px-8"
+                className="bg-gradient-to-r from-indigo-600 to-cyan-500 hover:from-indigo-500 hover:to-cyan-400 text-white px-8"
                 disabled={!recorder.audioUrl || submitTest.isPending}
                 onClick={handleSubmit}
                 data-ocid="test.submit_button"

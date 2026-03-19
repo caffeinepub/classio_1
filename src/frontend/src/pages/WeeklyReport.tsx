@@ -199,7 +199,11 @@ export function WeeklyReport({ onNavigate }: WeeklyReportProps) {
   const wpmEstimate = Math.round(65 + (pronScore / 5) * 60 + grade * 5);
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-gray-950 relative overflow-hidden">
+      {/* Background glow effects */}
+      <div className="fixed top-0 left-1/3 w-96 h-96 bg-indigo-500/10 rounded-full blur-3xl pointer-events-none" />
+      <div className="fixed bottom-1/4 right-1/3 w-80 h-80 bg-purple-500/10 rounded-full blur-3xl pointer-events-none" />
+      <div className="fixed top-1/2 right-0 w-72 h-72 bg-cyan-500/8 rounded-full blur-3xl pointer-events-none" />
       <AppHeader title="Weekly Report" />
       <main className="max-w-5xl mx-auto px-4 py-8">
         {/* Top bar */}
@@ -229,14 +233,12 @@ export function WeeklyReport({ onNavigate }: WeeklyReportProps) {
           className="space-y-6"
         >
           {/* Report Header */}
-          <div className="bg-gradient-to-r from-primary/10 to-accent/10 rounded-2xl p-6">
-            <p className="text-sm text-muted-foreground">
-              Week of {getWeekStart()}
-            </p>
+          <div className="bg-gradient-to-r from-indigo-500/20 to-purple-500/20 rounded-2xl p-6">
+            <p className="text-sm text-gray-400">Week of {getWeekStart()}</p>
             <h2 className="text-2xl font-bold mt-1">
               {user?.username ?? "Student"}'s Weekly Report Card
             </h2>
-            <p className="text-sm text-muted-foreground mt-1">
+            <p className="text-sm text-gray-400 mt-1">
               Grade {grade} · Reading Comprehension Progress
             </p>
           </div>
@@ -275,22 +277,22 @@ export function WeeklyReport({ onNavigate }: WeeklyReportProps) {
                       <p className="text-lg font-bold text-emerald-600">
                         {correctWords}
                       </p>
-                      <p className="text-xs text-emerald-700/70">Correct</p>
+                      <p className="text-xs text-emerald-400/70">Correct</p>
                     </div>
                     <div>
                       <p className="text-lg font-bold text-amber-500">
                         {mispronounced}
                       </p>
-                      <p className="text-xs text-emerald-700/70">Mispron.</p>
+                      <p className="text-xs text-emerald-400/70">Mispron.</p>
                     </div>
                     <div>
                       <p className="text-lg font-bold text-red-500">{missed}</p>
-                      <p className="text-xs text-emerald-700/70">Missed</p>
+                      <p className="text-xs text-emerald-400/70">Missed</p>
                     </div>
                   </div>
                 ) : (
                   <p
-                    className="text-xs text-emerald-700/70"
+                    className="text-xs text-emerald-400/70"
                     data-ocid="report.empty_state"
                   >
                     No data yet
@@ -304,11 +306,11 @@ export function WeeklyReport({ onNavigate }: WeeklyReportProps) {
               >
                 <div className="flex flex-col gap-2">
                   <div className="flex items-center justify-between">
-                    <span className="text-xs text-rose-700/70">Rhythm</span>
+                    <span className="text-xs text-rose-400/70">Rhythm</span>
                     <StarRating value={report.avgRhythm} max={5} />
                   </div>
                   <div className="flex items-center justify-between">
-                    <span className="text-xs text-rose-700/70">Intonation</span>
+                    <span className="text-xs text-rose-400/70">Intonation</span>
                     <StarRating value={report.avgIntonation} max={5} />
                   </div>
                 </div>
@@ -322,8 +324,8 @@ export function WeeklyReport({ onNavigate }: WeeklyReportProps) {
                   <p className="text-2xl font-bold text-sky-800">
                     {report.avgPronunciation !== null ? `${wpmEstimate}` : "—"}
                   </p>
-                  <p className="text-xs text-sky-700/70">words/min</p>
-                  <Badge className="mt-2 bg-sky-100 text-sky-800 border-0 text-xs">
+                  <p className="text-xs text-sky-400/70">words/min</p>
+                  <Badge className="mt-2 bg-sky-500/20 text-sky-300 border-0 text-xs">
                     Grade {grade}: {fluencyRange}
                   </Badge>
                 </div>
@@ -333,7 +335,7 @@ export function WeeklyReport({ onNavigate }: WeeklyReportProps) {
 
           {/* Achievements */}
           {earnedBadges.length > 0 && (
-            <Card className="rounded-2xl border-border shadow-sm">
+            <Card className="rounded-2xl bg-white/5 backdrop-blur-sm border border-white/10 shadow-lg">
               <CardHeader className="pb-2">
                 <CardTitle className="text-base flex items-center gap-2">
                   <span>🎖️</span> This Week's Achievements
@@ -347,7 +349,7 @@ export function WeeklyReport({ onNavigate }: WeeklyReportProps) {
                       initial={{ scale: 0 }}
                       animate={{ scale: 1 }}
                       transition={{ type: "spring", bounce: 0.5 }}
-                      className="flex items-center gap-2 bg-primary/10 rounded-full px-4 py-2"
+                      className="flex items-center gap-2 bg-indigo-500/20 rounded-full px-4 py-2"
                     >
                       <span className="text-lg">{badge.emoji}</span>
                       <span className="text-sm font-semibold text-primary">
@@ -363,13 +365,13 @@ export function WeeklyReport({ onNavigate }: WeeklyReportProps) {
           <Separator />
 
           {/* Teacher's Note */}
-          <div className="bg-muted/40 rounded-2xl p-5">
+          <div className="bg-white/5 rounded-2xl p-5">
             <p className="text-sm font-semibold mb-1">📋 Teacher's Note</p>
-            <p className="text-sm text-muted-foreground">{recommendation}</p>
+            <p className="text-sm text-gray-400">{recommendation}</p>
           </div>
 
           <Button
-            className="w-full bg-classio-blue hover:bg-classio-blue/90 text-white"
+            className="w-full bg-gradient-to-r from-indigo-600 to-cyan-500 hover:from-indigo-500 hover:to-cyan-400 text-white"
             onClick={() => onNavigate("/student")}
             data-ocid="report.primary_button"
           >
