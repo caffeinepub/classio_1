@@ -132,9 +132,34 @@ export function StudentDashboard({ onNavigate }: StudentDashboardProps) {
   const todayKey = new Date().toISOString().split("T")[0];
   const currentWeekNumber = getWeekNumber();
 
-  const vocabDone = !!localStorage.getItem(
-    `classio_vocab_${userId}_${grade}_${todayKey}`,
+  const vocabDay1Done = !!localStorage.getItem(
+    `classio_vocab_day_${userId}_${grade}_1`,
   );
+  const vocabDay2Done = !!localStorage.getItem(
+    `classio_vocab_day_${userId}_${grade}_2`,
+  );
+  const vocabDay3Done = !!localStorage.getItem(
+    `classio_vocab_day_${userId}_${grade}_3`,
+  );
+  const vocabDay4Done = !!localStorage.getItem(
+    `classio_vocab_day_${userId}_${grade}_4`,
+  );
+  const vocabDay5Done = !!localStorage.getItem(
+    `classio_vocab_day_${userId}_${grade}_5`,
+  );
+  const vocabQuizDone = !!localStorage.getItem(
+    `classio_vocab_quiz_${userId}_${grade}`,
+  );
+  const vocabLessonsCompleted = [
+    vocabDay1Done,
+    vocabDay2Done,
+    vocabDay3Done,
+    vocabDay4Done,
+    vocabDay5Done,
+    vocabQuizDone,
+  ].filter(Boolean).length;
+  const vocabDone = vocabLessonsCompleted > 0;
+
   const practiceDone = !!localStorage.getItem(
     `classio_practice_${userId}_${todayKey}`,
   );
@@ -158,7 +183,13 @@ export function StudentDashboard({ onNavigate }: StudentDashboardProps) {
   );
   const vocabData = vocabRaw ? JSON.parse(vocabRaw) : null;
 
-  const vocabPercent = vocabDone ? 21.6 : 0;
+  const practiceCount = [0, 1, 2, 3, 4, 5].filter((i) =>
+    localStorage.getItem(
+      `classio_practice_${userId}_${new Date(Date.now() - i * 86400000).toISOString().split("T")[0]}`,
+    ),
+  ).length;
+
+  const vocabPercent = (vocabLessonsCompleted / 6) * 100;
   const rcaPercent = practiceDone
     ? Math.round(((practiceScore ?? 0) / 5) * 100)
     : 40;
@@ -243,7 +274,7 @@ export function StudentDashboard({ onNavigate }: StudentDashboardProps) {
       subtitle: "6 core words — meanings & spelling",
       icon: "📖",
       route: "/student/vocab",
-      done: vocabDone,
+      done: vocabDay1Done,
     },
     {
       day: 2,
@@ -252,7 +283,7 @@ export function StudentDashboard({ onNavigate }: StudentDashboardProps) {
       subtitle: "6 new words — synonyms & usage",
       icon: "✏️",
       route: "/student/vocab",
-      done: vocabDone,
+      done: vocabDay2Done,
     },
     {
       day: 3,
@@ -261,7 +292,7 @@ export function StudentDashboard({ onNavigate }: StudentDashboardProps) {
       subtitle: "6 words + review of lessons 1–2",
       icon: "🔁",
       route: "/student/vocab",
-      done: vocabDone,
+      done: vocabDay3Done,
     },
     {
       day: 4,
@@ -270,7 +301,7 @@ export function StudentDashboard({ onNavigate }: StudentDashboardProps) {
       subtitle: "Pronunciation focus — say each word aloud",
       icon: "🎙️",
       route: "/student/vocab",
-      done: vocabDone,
+      done: vocabDay4Done,
     },
     {
       day: 5,
@@ -279,7 +310,7 @@ export function StudentDashboard({ onNavigate }: StudentDashboardProps) {
       subtitle: "Words in context — sentence building",
       icon: "💬",
       route: "/student/vocab",
-      done: vocabDone,
+      done: vocabDay5Done,
     },
     {
       day: 6,
@@ -288,7 +319,7 @@ export function StudentDashboard({ onNavigate }: StudentDashboardProps) {
       subtitle: "Test all 30 words — score 80% to unlock reading",
       icon: "🧠",
       route: "/student/vocab",
-      done: vocabDone,
+      done: vocabQuizDone,
     },
     {
       day: 7,
@@ -459,7 +490,7 @@ export function StudentDashboard({ onNavigate }: StudentDashboardProps) {
                             </p>
                             <p className="text-xs text-gray-400 flex items-center gap-1 mt-0.5">
                               <span className="text-orange-400">●</span>
-                              {vocabDone ? 1 : 0} / 6 lessons completed
+                              {vocabLessonsCompleted} / 6 lessons completed
                             </p>
                           </div>
                           <Button
@@ -493,7 +524,7 @@ export function StudentDashboard({ onNavigate }: StudentDashboardProps) {
                             </p>
                             <p className="text-xs text-teal-500 flex items-center gap-1 mt-0.5 font-semibold">
                               <span className="text-teal-500">●</span>
-                              {practiceDone ? 2 : 2} / 5
+                              {practiceCount} / 5
                             </p>
                           </div>
 

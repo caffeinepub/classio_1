@@ -453,6 +453,14 @@ export function StudentTest({ onNavigate }: StudentTestProps) {
     setTestKey((k) => k + 1);
   };
 
+  // Auto-navigate to dashboard after proficiency level is found
+  useEffect(() => {
+    if (submitTest.isSuccess && levelFound) {
+      const t = setTimeout(() => onNavigate("/student"), 1500);
+      return () => clearTimeout(t);
+    }
+  }, [submitTest.isSuccess, levelFound, onNavigate]);
+
   // Auto level-down: automatically retry at lower level after a brief transition
   // biome-ignore lint/correctness/useExhaustiveDependencies: handleRetry is stable
   useEffect(() => {

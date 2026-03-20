@@ -139,14 +139,30 @@ export function VocabActivity({ onNavigate }: VocabActivityProps) {
   const nextQuizQuestion = () => {
     if (quizIndex + 1 >= quizQuestions.length) {
       setQuizDone(true);
+      const finalScore =
+        quizScore +
+        (selectedAnswer === quizQuestions[quizIndex]?.correctIndex ? 1 : 0);
       localStorage.setItem(
         storageKey,
         JSON.stringify({
-          score:
-            quizScore +
-            (selectedAnswer === quizQuestions[quizIndex]?.correctIndex ? 1 : 0),
+          score: finalScore,
           date: getTodayKey(),
         }),
+      );
+      // Save per-day vocab completion key
+      const existingDays = [1, 2, 3, 4, 5].filter((d) =>
+        localStorage.getItem(`classio_vocab_day_${userId}_${grade}_${d}`),
+      ).length;
+      if (existingDays < 5) {
+        localStorage.setItem(
+          `classio_vocab_day_${userId}_${grade}_${existingDays + 1}`,
+          JSON.stringify({ completedAt: Date.now() }),
+        );
+      }
+      // Save quiz completion key
+      localStorage.setItem(
+        `classio_vocab_quiz_${userId}_${grade}`,
+        JSON.stringify({ score: finalScore, completedAt: Date.now() }),
       );
     } else {
       setQuizIndex(quizIndex + 1);

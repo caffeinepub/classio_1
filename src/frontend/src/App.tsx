@@ -7,6 +7,7 @@ import { AdminDashboard } from "./pages/AdminDashboard";
 import { LandingPage } from "./pages/LandingPage";
 import { PracticeTest } from "./pages/PracticeTest";
 import { StudentDashboard } from "./pages/StudentDashboard";
+import { StudentHome } from "./pages/StudentHome";
 import { StudentTest } from "./pages/StudentTest";
 import { TeacherDashboard } from "./pages/TeacherDashboard";
 import { VocabActivity } from "./pages/VocabActivity";
@@ -33,6 +34,7 @@ function AppRoutes() {
     return <TeacherDashboard />;
   }
 
+  // Student routes
   if (page === "/student/test") {
     return <StudentTest onNavigate={navigate} />;
   }
@@ -51,6 +53,19 @@ function AppRoutes() {
 
   if (page === "/student/weekly-report") {
     return <WeeklyReport onNavigate={navigate} />;
+  }
+
+  // Check if proficiency test has been completed
+  const profData = localStorage.getItem(
+    `classio_proficiency_search_${user.userId}`,
+  );
+  const proficiencyFound = profData
+    ? (JSON.parse(profData).levelFound as boolean)
+    : false;
+
+  // If proficiency not yet completed, show StudentHome with only the proficiency test
+  if (!proficiencyFound) {
+    return <StudentHome onNavigate={navigate} />;
   }
 
   return <StudentDashboard onNavigate={navigate} />;

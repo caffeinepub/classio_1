@@ -144,7 +144,7 @@ export function LandingPage({ onNavigate }: LandingPageProps) {
       <div className="hidden md:flex md:w-1/2 flex-col relative overflow-hidden">
         {/* Full-height hero image */}
         <img
-          src="/assets/generated/edtech-hero.dim_800x900.png"
+          src="/assets/generated/edtech-login-bg.dim_900x1000.png"
           alt="EdTech illustration"
           className="absolute inset-0 w-full h-full object-cover"
         />
