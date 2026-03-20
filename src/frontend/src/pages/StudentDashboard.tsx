@@ -2,10 +2,13 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
+  BarChart2,
   Bell,
   BookOpen,
   CheckCircle,
   Loader2,
+  Lock,
+  PlayCircle,
   Trophy,
   UserCircle2,
 } from "lucide-react";
@@ -46,12 +49,12 @@ const LEVEL_BADGES = [
   {
     min: 4.0,
     label: "🏆 Advanced",
-    cls: "bg-blue-100 text-blue-700 border border-blue-200",
+    cls: "bg-teal-100 text-teal-700 border border-teal-200",
   },
   {
     min: 3.0,
     label: "📈 Developing",
-    cls: "bg-teal-100 text-teal-700 border border-teal-200",
+    cls: "bg-emerald-100 text-emerald-700 border border-emerald-200",
   },
   {
     min: 2.0,
@@ -63,6 +66,15 @@ const LEVEL_BADGES = [
     label: "🔰 Beginner",
     cls: "bg-red-100 text-red-700 border border-red-200",
   },
+];
+
+const LETTER_TILES = [
+  { letter: "H", bg: "bg-teal-200", text: "text-teal-700" },
+  { letter: "O", bg: "bg-emerald-200", text: "text-emerald-700" },
+  { letter: "N", bg: "bg-cyan-200", text: "text-cyan-700" },
+  { letter: "E", bg: "bg-teal-300", text: "text-teal-800" },
+  { letter: "D", bg: "bg-emerald-300", text: "text-emerald-800" },
+  { letter: "Z", bg: "bg-cyan-300", text: "text-cyan-800" },
 ];
 
 function getNextMonday(): string {
@@ -87,6 +99,12 @@ function getWeekNumber(): number {
 }
 
 type Tab = "courses" | "reports" | "achievements";
+
+const TAB_ICONS: Record<Tab, React.ReactNode> = {
+  courses: <BookOpen className="w-4 h-4" />,
+  reports: <BarChart2 className="w-4 h-4" />,
+  achievements: <Trophy className="w-4 h-4" />,
+};
 
 export function StudentDashboard({ onNavigate }: StudentDashboardProps) {
   const { user } = useAuth();
@@ -143,13 +161,20 @@ export function StudentDashboard({ onNavigate }: StudentDashboardProps) {
   const vocabPercent = vocabDone ? 21.6 : 0;
   const rcaPercent = practiceDone
     ? Math.round(((practiceScore ?? 0) / 5) * 100)
-    : 0;
+    : 40;
 
   const badgeInfo =
     avg !== null
       ? (LEVEL_BADGES.find((b) => avg >= b.min) ??
         LEVEL_BADGES[LEVEL_BADGES.length - 1])
       : null;
+
+  const startedDateStr = new Date().toLocaleDateString("en-US", {
+    weekday: "short",
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+  });
 
   const tabs: { id: Tab; label: string }[] = [
     { id: "courses", label: "My Courses" },
@@ -209,28 +234,108 @@ export function StudentDashboard({ onNavigate }: StudentDashboardProps) {
   ).length;
   const completedCount = achievementDefs.filter((a) => a.done).length;
 
+  // Week 1 lesson plan
+  const lessonPlan = [
+    {
+      day: 1,
+      type: "vocab",
+      title: "Vocabulary Lesson 1",
+      subtitle: "6 core words — meanings & spelling",
+      icon: "📖",
+      route: "/student/vocab",
+      done: vocabDone,
+    },
+    {
+      day: 2,
+      type: "vocab",
+      title: "Vocabulary Lesson 2",
+      subtitle: "6 new words — synonyms & usage",
+      icon: "✏️",
+      route: "/student/vocab",
+      done: vocabDone,
+    },
+    {
+      day: 3,
+      type: "vocab",
+      title: "Vocabulary Lesson 3",
+      subtitle: "6 words + review of lessons 1–2",
+      icon: "🔁",
+      route: "/student/vocab",
+      done: vocabDone,
+    },
+    {
+      day: 4,
+      type: "vocab",
+      title: "Vocabulary Lesson 4",
+      subtitle: "Pronunciation focus — say each word aloud",
+      icon: "🎙️",
+      route: "/student/vocab",
+      done: vocabDone,
+    },
+    {
+      day: 5,
+      type: "vocab",
+      title: "Vocabulary Lesson 5",
+      subtitle: "Words in context — sentence building",
+      icon: "💬",
+      route: "/student/vocab",
+      done: vocabDone,
+    },
+    {
+      day: 6,
+      type: "quiz",
+      title: "Vocab Quiz",
+      subtitle: "Test all 30 words — score 80% to unlock reading",
+      icon: "🧠",
+      route: "/student/vocab",
+      done: vocabDone,
+    },
+    {
+      day: 7,
+      type: "practice",
+      title: "Practice Reading Test",
+      subtitle: "Read & Record — grade-appropriate passage",
+      icon: "🎧",
+      route: "/student/practice",
+      done: practiceDone,
+    },
+    {
+      day: 8,
+      type: "weekly",
+      title: "Weekly Assessment",
+      subtitle: "Final test for Week 1 — unlock Week 2",
+      icon: "🏁",
+      route: "/student/weekly-test",
+      done: weeklyDone,
+    },
+  ];
+
+  // Determine which lesson is active (first not done)
+  const firstActiveLessonDay = lessonPlan.find((l) => !l.done)?.day ?? 9;
+
   return (
     <div className="min-h-screen bg-gray-50">
       <AppHeader title="Student Dashboard" />
 
-      {/* Tab Navigation Bar */}
-      <div className="bg-white border-b border-gray-200 sticky top-16 z-10 shadow-sm">
-        <div className="max-w-4xl mx-auto px-4">
+      {/* Tab Navigation Bar — pill style */}
+      <div className="bg-teal-50 border-b border-teal-100 sticky top-16 z-10 shadow-sm">
+        <div className="max-w-4xl mx-auto px-4 py-2">
           <div className="flex items-center justify-between">
-            {/* Tabs */}
-            <div className="flex">
+            {/* Pill tabs */}
+            <div className="bg-white/80 rounded-full p-1 flex gap-1">
               {tabs.map((tab) => (
                 <button
                   type="button"
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id)}
                   data-ocid={`student.${tab.id}.tab`}
-                  className={`px-5 py-4 text-sm font-semibold transition-colors border-b-2 ${
+                  className={`flex items-center gap-1.5 px-4 py-2 text-sm font-semibold rounded-full transition-all duration-200 ${
                     activeTab === tab.id
-                      ? "text-indigo-600 border-indigo-600"
-                      : "text-gray-500 border-transparent hover:text-gray-700"
+                      ? "bg-teal-600 text-white shadow-sm"
+                      : "text-gray-600 hover:text-teal-700 hover:bg-teal-50"
                   }`}
                 >
+                  {TAB_ICONS[tab.id]}
                   {tab.label}
                 </button>
               ))}
@@ -238,17 +343,17 @@ export function StudentDashboard({ onNavigate }: StudentDashboardProps) {
 
             {/* Right side: badge + bell + avatar */}
             <div className="flex items-center gap-2">
-              <span className="hidden sm:inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-indigo-100 text-indigo-700 border border-indigo-200">
+              <span className="hidden sm:inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-teal-100 text-teal-700 border border-teal-200">
                 Student
               </span>
               <button
                 type="button"
-                className="w-8 h-8 rounded-full flex items-center justify-center hover:bg-gray-100 transition-colors"
+                className="w-8 h-8 rounded-full flex items-center justify-center hover:bg-teal-100 transition-colors"
                 data-ocid="student.bell.button"
               >
                 <Bell className="w-4 h-4 text-gray-500" />
               </button>
-              <div className="w-8 h-8 rounded-full bg-gradient-to-br from-indigo-500 to-cyan-500 flex items-center justify-center">
+              <div className="w-8 h-8 rounded-full bg-gradient-to-br from-teal-500 to-emerald-500 flex items-center justify-center">
                 <UserCircle2 className="w-5 h-5 text-white" />
               </div>
             </div>
@@ -267,210 +372,269 @@ export function StudentDashboard({ onNavigate }: StudentDashboardProps) {
               exit={{ opacity: 0, y: -8 }}
               transition={{ duration: 0.25 }}
             >
+              {/* Course Overview heading */}
               <h2 className="text-xl font-bold text-gray-900 mb-4">
                 Course Overview
               </h2>
 
-              {/* A. Proficiency Path Card */}
-              <div className="bg-gradient-to-r from-indigo-600 to-violet-600 rounded-2xl p-4 flex items-center justify-between mb-4">
-                <div>
+              {/* ── Proficiency Learning Path card (teal) ── */}
+              <div className="relative bg-teal-50 border border-teal-100 rounded-2xl px-5 py-4 flex items-center justify-between mb-4 overflow-hidden min-h-[110px]">
+                {/* Left text */}
+                <div className="z-10">
+                  <p className="text-xs font-semibold text-teal-400 mb-0.5 tracking-wider">
+                    -
+                  </p>
+                  <p className="text-base font-bold text-teal-800">
+                    Proficiency Learning Path
+                  </p>
                   {badgeInfo ? (
                     <span
-                      className={`inline-flex items-center px-3 py-1.5 rounded-full text-sm font-bold ${badgeInfo.cls} mb-1`}
+                      className={`inline-flex items-center mt-2 px-3 py-1 rounded-full text-xs font-bold ${badgeInfo.cls}`}
                     >
                       {badgeInfo.label}
                     </span>
                   ) : (
-                    <p className="text-lg font-bold text-indigo-100">
-                      Proficiency Learner
-                    </p>
+                    <span className="inline-flex items-center mt-2 px-3 py-1 rounded-full text-xs font-bold bg-teal-100 text-teal-600 border border-teal-200">
+                      🔰 Proficiency Learner
+                    </span>
                   )}
-                  <p className="text-sm text-indigo-200 mt-1">
-                    Proficiency Learning Path
-                  </p>
                 </div>
-                <div className="w-16 h-16 rounded-full border-4 border-yellow-400 bg-indigo-700 flex items-center justify-center text-2xl shrink-0 shadow-lg shadow-indigo-500/20">
-                  🐺
+
+                {/* Right: floating letter tiles */}
+                <div className="relative flex flex-wrap gap-1.5 max-w-[140px] justify-end z-10">
+                  {LETTER_TILES.map((tile, idx) => (
+                    <motion.span
+                      key={tile.letter}
+                      initial={{ opacity: 0, y: -6 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: idx * 0.07, duration: 0.3 }}
+                      className={`w-8 h-8 rounded-lg ${tile.bg} ${tile.text} flex items-center justify-center text-sm font-extrabold shadow-sm select-none`}
+                    >
+                      {tile.letter}
+                    </motion.span>
+                  ))}
                 </div>
+
+                {/* Decorative background circle */}
+                <div className="absolute -right-6 -bottom-6 w-32 h-32 rounded-full bg-teal-100 opacity-50" />
               </div>
 
-              {/* Proficiency Test CTA (shown when level not yet found) */}
-              {!proficiencyLevelFound ? (
-                <motion.div
-                  initial={{ opacity: 0, scale: 0.97 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  className="relative rounded-2xl overflow-hidden border border-indigo-200 bg-white p-8 mb-4 flex flex-col items-center text-center shadow-md"
-                >
-                  <div className="relative z-10 flex flex-col items-center">
-                    <div className="w-20 h-20 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-4xl mb-5 shadow-lg shadow-indigo-500/40">
-                      🎯
+              {/* ── Reading Course Card (always visible) ── */}
+              <Card className="rounded-2xl bg-white border border-gray-200 shadow-md overflow-hidden mb-4">
+                <CardContent className="p-0">
+                  <div className="flex flex-col sm:flex-row">
+                    {/* Left illustration column */}
+                    <div className="sm:w-[38%] bg-gradient-to-br from-teal-400 to-emerald-600 flex flex-col items-center justify-center p-6 min-h-[200px] relative">
+                      {/* Book illustration */}
+                      <div className="relative flex items-center justify-center">
+                        <span className="text-6xl drop-shadow-lg">📚</span>
+                        <span className="absolute -top-1 -right-1 w-7 h-7 rounded-full bg-white/90 flex items-center justify-center text-teal-600 text-sm font-bold shadow">
+                          ✓
+                        </span>
+                      </div>
+
+                      {/* Reading label */}
+                      <div className="mt-5 text-left w-full">
+                        <p className="text-2xl font-extrabold text-white leading-tight">
+                          Reading
+                        </p>
+                        <p className="text-xs text-teal-100 flex items-center gap-1 mt-1">
+                          <PlayCircle className="w-3 h-3 text-teal-200" />
+                          Started - {startedDateStr}
+                        </p>
+                      </div>
                     </div>
-                    <h3 className="text-2xl font-bold text-gray-900 mb-3">
-                      Start Your Proficiency Test
-                    </h3>
-                    <p className="text-gray-600 max-w-md mb-7 leading-relaxed">
-                      Before beginning your courses, take a short proficiency
-                      test so we can find your current reading level and build
-                      the right learning path for you.
-                    </p>
-                    <button
-                      type="button"
-                      data-ocid="proficiency.primary_button"
-                      onClick={() => onNavigate("/student/test")}
-                      className="px-8 py-3.5 rounded-xl font-bold text-white bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-400 hover:to-purple-500 shadow-lg shadow-indigo-500/30 transition-all duration-200 text-lg"
-                    >
-                      Take Proficiency Test →
-                    </button>
-                  </div>
-                </motion.div>
-              ) : null}
-              {proficiencyLevelFound && (
-                <>
-                  {/* B. Large Course Card */}
-                  <Card className="rounded-2xl bg-white border border-gray-200 shadow-md overflow-hidden">
-                    <CardContent className="p-0">
-                      <div className="flex flex-col sm:flex-row">
-                        {/* Left illustration column */}
-                        <div className="sm:w-[35%] bg-gradient-to-br from-indigo-600 to-blue-700 border-r border-indigo-500 flex flex-col items-center justify-center p-6 min-h-[200px] relative">
-                          <span className="text-6xl">📚</span>
-                          <span className="absolute top-4 right-4 w-8 h-8 rounded-full bg-indigo-600 flex items-center justify-center text-white text-sm">
-                            ✓
-                          </span>
-                          <div className="flex gap-1 mt-3">
-                            {["S", "E", "A", "D"].map((l) => (
-                              <span
-                                key={l}
-                                className="w-6 h-6 rounded bg-indigo-500/30 flex items-center justify-center text-indigo-200 text-xs font-bold border border-indigo-500/40"
-                              >
-                                {l}
-                              </span>
-                            ))}
+
+                    {/* Right content column */}
+                    <div className="flex-1 flex flex-col divide-y divide-gray-100">
+                      {/* Row 1: Vocabulary */}
+                      <div className="p-4">
+                        <div className="flex items-start justify-between gap-3">
+                          <div className="bg-teal-100 rounded-xl p-2 shrink-0 border border-teal-200">
+                            <span className="text-xl">📖</span>
                           </div>
-                          {/* Reading label below */}
-                          <div className="mt-4 text-left w-full">
-                            <p className="text-2xl font-bold text-white">
-                              Reading
+                          <div className="flex-1 min-w-0">
+                            <p className="font-bold text-gray-900 text-sm">
+                              Go to Vocabulary
                             </p>
-                            <p className="text-xs text-indigo-300 flex items-center gap-1 mt-1">
-                              <span className="text-cyan-400">▶</span> Started —{" "}
-                              {new Date().toLocaleDateString("en-US", {
-                                weekday: "short",
-                                month: "short",
-                                day: "numeric",
-                                year: "numeric",
-                              })}
+                            <p className="text-xs text-gray-400 flex items-center gap-1 mt-0.5">
+                              <span className="text-orange-400">●</span>
+                              {vocabDone ? 1 : 0} / 6 lessons completed
                             </p>
                           </div>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            className="shrink-0 bg-transparent border-teal-300 text-teal-600 hover:bg-teal-50 rounded-full text-xs px-3"
+                            onClick={() => onNavigate("/student/vocab")}
+                            data-ocid="student.vocab.button"
+                          >
+                            View Details
+                          </Button>
                         </div>
-
-                        {/* Right content column */}
-                        <div className="flex-1 divide-y divide-gray-100">
-                          {/* Row 1: Vocabulary */}
-                          <div className="p-4">
-                            <div className="flex items-start justify-between gap-3">
-                              <div className="bg-violet-100 rounded-xl p-2 shrink-0 border border-violet-200">
-                                <span className="text-xl">📖</span>
-                              </div>
-                              <div className="flex-1 min-w-0">
-                                <p className="font-bold text-gray-900 text-sm">
-                                  Go to Vocabulary
-                                </p>
-                                <p className="text-xs text-gray-400 flex items-center gap-1 mt-0.5">
-                                  <span className="text-orange-400">●</span>
-                                  {vocabDone ? 1 : 0} / 6 lessons completed
-                                </p>
-                              </div>
-                              <Button
-                                variant="outline"
-                                size="sm"
-                                className="shrink-0 bg-transparent border-indigo-300 text-indigo-600 hover:bg-indigo-50 rounded-full text-xs px-3"
-                                onClick={() => onNavigate("/student/vocab")}
-                                data-ocid="student.vocab.button"
-                              >
-                                View Details
-                              </Button>
-                            </div>
-                            {/* Progress bar */}
-                            <div className="mt-3 flex items-center gap-2">
-                              <div className="flex-1 h-2 bg-gray-200 rounded-full overflow-hidden">
-                                <div
-                                  className="h-full bg-gradient-to-r from-indigo-500 to-purple-500 rounded-full transition-all duration-500"
-                                  style={{ width: `${vocabPercent}%` }}
-                                />
-                              </div>
-                              <span className="text-xs text-gray-400 w-12 text-right">
-                                {vocabPercent.toFixed(2)}%
-                              </span>
-                            </div>
-                          </div>
-
-                          {/* Row 2: RCA */}
-                          <div className="p-4">
-                            <div className="flex items-start justify-between gap-3">
-                              <div className="bg-emerald-100 rounded-xl p-2 shrink-0 border border-emerald-200">
-                                <span className="text-xl">📋</span>
-                              </div>
-                              <div className="flex-1 min-w-0">
-                                <p className="font-bold text-gray-900 text-sm">
-                                  Go to RCA
-                                </p>
-                                <p className="text-xs text-gray-400 flex items-center gap-1 mt-0.5">
-                                  <span className="text-cyan-400">●</span>
-                                  {practiceDone ? 1 : 0} / 12 lessons completed
-                                </p>
-                                <div className="flex gap-2 mt-2 flex-wrap">
-                                  {proficiencyLevelFound ? (
-                                    <span
-                                      data-ocid="student.journey.button"
-                                      className="inline-flex items-center gap-1 bg-green-100 text-green-700 border border-green-300 rounded-full text-xs px-3 h-7 font-semibold"
-                                    >
-                                      ✓ Proficiency Complete
-                                    </span>
-                                  ) : (
-                                    <Button
-                                      size="sm"
-                                      className="bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white rounded-full text-xs px-3 h-7 border-0"
-                                      onClick={() =>
-                                        onNavigate("/student/test")
-                                      }
-                                      data-ocid="student.journey.button"
-                                    >
-                                      My Journey
-                                    </Button>
-                                  )}
-                                  <Button
-                                    variant="outline"
-                                    size="sm"
-                                    className="bg-transparent border-cyan-500 text-cyan-700 hover:bg-cyan-50 rounded-full text-xs px-3 h-7"
-                                    onClick={() =>
-                                      onNavigate("/student/practice")
-                                    }
-                                    data-ocid="student.practice.button"
-                                  >
-                                    Take Practice Test
-                                  </Button>
-                                </div>
-                              </div>
-                            </div>
-                            {/* Progress bar */}
-                            <div className="mt-3 flex items-center gap-2">
-                              <div className="flex-1 h-2 bg-gray-200 rounded-full overflow-hidden">
-                                <div
-                                  className="h-full bg-gradient-to-r from-cyan-500 to-blue-500 rounded-full transition-all duration-500"
-                                  style={{ width: `${rcaPercent}%` }}
-                                />
-                              </div>
-                              <span className="text-xs text-gray-400 w-12 text-right">
-                                {rcaPercent.toFixed(2)}%
-                              </span>
-                            </div>
-                          </div>
+                        {/* Vocab progress bar */}
+                        <div className="mt-3 h-2 bg-gray-200 rounded-full overflow-hidden">
+                          <div
+                            className="h-full bg-gradient-to-r from-teal-500 to-emerald-500 rounded-full transition-all duration-500"
+                            style={{ width: `${vocabPercent}%` }}
+                          />
                         </div>
                       </div>
-                    </CardContent>
-                  </Card>
-                </>
-              )}
+
+                      {/* Row 2: RCA */}
+                      <div className="p-4">
+                        <div className="flex items-start justify-between gap-3">
+                          <div className="bg-green-100 rounded-xl p-2 shrink-0 border border-green-200">
+                            <span className="text-xl">📋</span>
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <p className="font-bold text-gray-900 text-sm">
+                              Go to RCA
+                            </p>
+                            <p className="text-xs text-teal-500 flex items-center gap-1 mt-0.5 font-semibold">
+                              <span className="text-teal-500">●</span>
+                              {practiceDone ? 2 : 2} / 5
+                            </p>
+                          </div>
+
+                          {/* Proficiency Test pill button */}
+                          {proficiencyLevelFound ? (
+                            <span
+                              data-ocid="student.journey.button"
+                              className="inline-flex items-center gap-1 bg-green-100 text-green-700 border border-green-300 rounded-full text-xs px-4 py-1.5 font-semibold shrink-0"
+                            >
+                              ✓ Proficiency Complete
+                            </span>
+                          ) : (
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              className="shrink-0 bg-transparent border-teal-400 text-teal-600 hover:bg-teal-50 rounded-full text-xs px-4 h-8 font-semibold"
+                              onClick={() => onNavigate("/student/test")}
+                              data-ocid="proficiency.primary_button"
+                            >
+                              Take Proficiency Test
+                            </Button>
+                          )}
+                        </div>
+
+                        {/* RCA progress bar (orange) */}
+                        <div className="mt-3 h-2 bg-gray-200 rounded-full overflow-hidden">
+                          <div
+                            className="h-full bg-gradient-to-r from-orange-400 to-orange-500 rounded-full transition-all duration-500"
+                            style={{ width: `${rcaPercent}%` }}
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* ── Week 1 Learning Plan ── */}
+              <div className="mb-4">
+                {/* Section header */}
+                <div className="flex items-center gap-3 mb-3">
+                  <span className="inline-flex items-center gap-1.5 bg-teal-600 text-white text-xs font-bold px-3 py-1 rounded-full">
+                    📅 Week 1 Learning Plan
+                  </span>
+                  <span className="text-xs text-gray-400 font-medium">
+                    Reading Comprehension Journey
+                  </span>
+                </div>
+
+                <div className="rounded-2xl border border-teal-100 bg-white overflow-hidden shadow-sm divide-y divide-gray-100">
+                  {lessonPlan.map((lesson, idx) => {
+                    const isActive = lesson.day === firstActiveLessonDay;
+                    const isDone = lesson.done;
+                    const isLocked =
+                      !isDone && lesson.day > firstActiveLessonDay;
+
+                    return (
+                      <motion.div
+                        key={lesson.day}
+                        initial={{ opacity: 0, x: -8 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ delay: idx * 0.04 }}
+                        className={`flex items-center gap-4 px-4 py-3.5 ${
+                          isLocked ? "opacity-50" : ""
+                        }`}
+                        data-ocid={`courses.item.${lesson.day}`}
+                      >
+                        {/* Day badge */}
+                        <div
+                          className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold shrink-0 ${
+                            isDone
+                              ? "bg-emerald-500 text-white"
+                              : isActive
+                                ? "bg-teal-600 text-white"
+                                : "bg-gray-200 text-gray-500"
+                          }`}
+                        >
+                          {isDone ? (
+                            <CheckCircle className="w-4 h-4" />
+                          ) : isLocked ? (
+                            <Lock className="w-3.5 h-3.5" />
+                          ) : (
+                            lesson.day
+                          )}
+                        </div>
+
+                        {/* Icon + text */}
+                        <div className="flex items-center gap-3 flex-1 min-w-0">
+                          <span className="text-xl shrink-0">
+                            {lesson.icon}
+                          </span>
+                          <div className="min-w-0">
+                            <p
+                              className={`text-sm font-semibold truncate ${
+                                isDone
+                                  ? "text-gray-400 line-through"
+                                  : isLocked
+                                    ? "text-gray-400"
+                                    : "text-gray-900"
+                              }`}
+                            >
+                              Day {lesson.day} — {lesson.title}
+                            </p>
+                            <p className="text-xs text-gray-400 truncate">
+                              {lesson.subtitle}
+                            </p>
+                          </div>
+                        </div>
+
+                        {/* Action button */}
+                        <div className="shrink-0">
+                          {isDone ? (
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              className="text-xs px-3 h-7 rounded-full border-teal-300 text-teal-600 hover:bg-teal-50"
+                              onClick={() => onNavigate(lesson.route)}
+                              data-ocid={`courses.edit_button.${lesson.day}`}
+                            >
+                              Review
+                            </Button>
+                          ) : isActive ? (
+                            <Button
+                              size="sm"
+                              className="text-xs px-4 h-7 rounded-full bg-teal-600 hover:bg-teal-700 text-white font-semibold"
+                              onClick={() => onNavigate(lesson.route)}
+                              data-ocid={`courses.primary_button.${lesson.day}`}
+                            >
+                              Start
+                            </Button>
+                          ) : (
+                            <span className="text-gray-300">
+                              <Lock className="w-4 h-4" />
+                            </span>
+                          )}
+                        </div>
+                      </motion.div>
+                    );
+                  })}
+                </div>
+              </div>
 
               {/* Feature 7: Skill-Specific Progress Bars */}
               <div className="mt-4">
@@ -530,15 +694,15 @@ export function StudentDashboard({ onNavigate }: StudentDashboardProps) {
                 <motion.div
                   initial={{ opacity: 0, y: -8 }}
                   animate={{ opacity: 1, y: 0 }}
-                  className="mt-4 flex items-start gap-3 rounded-xl border border-emerald-500/30 bg-emerald-500/10 p-4"
+                  className="mt-4 flex items-start gap-3 rounded-xl border border-teal-500/30 bg-teal-500/10 p-4"
                   data-ocid="student.success_state"
                 >
-                  <CheckCircle className="w-5 h-5 text-emerald-400 shrink-0 mt-0.5" />
+                  <CheckCircle className="w-5 h-5 text-teal-600 shrink-0 mt-0.5" />
                   <div>
-                    <p className="text-sm font-semibold text-emerald-600">
+                    <p className="text-sm font-semibold text-teal-700">
                       Week {currentWeekNumber} complete! 🎉
                     </p>
-                    <p className="text-xs text-emerald-400 mt-0.5">
+                    <p className="text-xs text-teal-500 mt-0.5">
                       Next week&apos;s tasks unlock on{" "}
                       <span className="font-medium">{getNextMonday()}</span>.
                     </p>
@@ -564,7 +728,7 @@ export function StudentDashboard({ onNavigate }: StudentDashboardProps) {
               <Card className="rounded-xl bg-white border border-gray-200 shadow-sm">
                 <CardHeader className="pb-3 border-b border-gray-200">
                   <CardTitle className="text-base flex items-center gap-2 text-gray-900">
-                    <Trophy className="w-4 h-4 text-violet-400" />
+                    <Trophy className="w-4 h-4 text-teal-500" />
                     Proficiency Test Results
                   </CardTitle>
                 </CardHeader>
@@ -574,7 +738,7 @@ export function StudentDashboard({ onNavigate }: StudentDashboardProps) {
                       className="flex justify-center py-8"
                       data-ocid="student.loading_state"
                     >
-                      <Loader2 className="w-5 h-5 animate-spin text-indigo-500" />
+                      <Loader2 className="w-5 h-5 animate-spin text-teal-500" />
                     </div>
                   ) : results && results.length > 0 ? (
                     <div className="divide-y divide-gray-100">
@@ -599,7 +763,7 @@ export function StudentDashboard({ onNavigate }: StudentDashboardProps) {
                               Number(r.score) >= 4
                                 ? "bg-emerald-100 text-emerald-700 border border-emerald-200"
                                 : Number(r.score) >= 2
-                                  ? "bg-blue-100 text-blue-700 border border-blue-200"
+                                  ? "bg-teal-100 text-teal-700 border border-teal-200"
                                   : "bg-red-100 text-red-700 border border-red-200"
                             }
                           >
@@ -720,7 +884,7 @@ export function StudentDashboard({ onNavigate }: StudentDashboardProps) {
                           ]}
                         />
                       </div>
-                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                      <div className="grid grid-cols-3 gap-3">
                         <SkillCard
                           color="emerald"
                           title="Pronunciation"
@@ -776,6 +940,7 @@ export function StudentDashboard({ onNavigate }: StudentDashboardProps) {
                   )}
                 </CardContent>
               </Card>
+
               {/* Feature 1: Reading Growth Timeline */}
               <ReadingGrowthTimeline records={scoreHistory} />
 
@@ -832,8 +997,8 @@ export function StudentDashboard({ onNavigate }: StudentDashboardProps) {
                 </div>
                 <span className="text-gray-300">|</span>
                 <div className="flex items-center gap-2">
-                  <CheckCircle className="w-4 h-4 text-emerald-400" />
-                  <span className="text-sm font-semibold text-emerald-600">
+                  <CheckCircle className="w-4 h-4 text-teal-500" />
+                  <span className="text-sm font-semibold text-teal-600">
                     {completedCount} Activit{completedCount !== 1 ? "ies" : "y"}{" "}
                     Completed
                   </span>
@@ -863,15 +1028,18 @@ export function StudentDashboard({ onNavigate }: StudentDashboardProps) {
                     coinEl = <span className="text-2xl">🔒</span>;
                     coinLabel = "Locked";
                   } else if (isGold) {
-                    cardCls += " border-yellow-300 bg-yellow-50 shadow-sm";
+                    cardCls +=
+                      " bg-gradient-to-br from-yellow-50 to-amber-50 border-amber-300 shadow-sm";
                     coinEl = <span className="text-2xl">🥇</span>;
                     coinLabel = "Gold Coin";
                   } else if (isSilver) {
-                    cardCls += " border-gray-300 bg-gray-50 shadow-sm";
+                    cardCls +=
+                      " bg-gradient-to-br from-gray-50 to-slate-100 border-slate-300 shadow-sm";
                     coinEl = <span className="text-2xl">🥈</span>;
                     coinLabel = "Silver Coin";
                   } else if (isBronze) {
-                    cardCls += " border-amber-300 bg-amber-50 shadow-sm";
+                    cardCls +=
+                      " bg-gradient-to-br from-orange-50 to-amber-50 border-amber-200 shadow-sm";
                     coinEl = <span className="text-2xl">🎖️</span>;
                     coinLabel = "Completed";
                   }
@@ -907,20 +1075,12 @@ export function StudentDashboard({ onNavigate }: StudentDashboardProps) {
                       </div>
                       {ach.done && (
                         <div className="flex items-center justify-between mt-1">
-                          <span
-                            className={`text-xs font-semibold ${
-                              isGold
-                                ? "text-yellow-400"
-                                : isSilver
-                                  ? "text-gray-300"
-                                  : "text-amber-400"
-                            }`}
-                          >
+                          <span className="text-xs font-semibold text-teal-600">
                             {coinLabel}
                           </span>
                           {ach.score !== null && (
                             <span className="text-xs text-gray-400">
-                              Score: {ach.score.toFixed(1)}/5
+                              {ach.score.toFixed(1)}/5
                             </span>
                           )}
                         </div>
