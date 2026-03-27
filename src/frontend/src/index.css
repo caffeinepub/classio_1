@@ -1,4 +1,4 @@
-@import url("https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,700;12..96,800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap");
 
 @tailwind base;
 @tailwind components;
@@ -13,32 +13,32 @@
     --card-foreground: 0.13 0.028 262;
     --popover: 1 0 0;
     --popover-foreground: 0.13 0.028 262;
-    --primary: 0.52 0.19 262;
+    --primary: 0.4 0.19 262;
     --primary-foreground: 1 0 0;
     --secondary: 0.96 0.008 241;
     --secondary-foreground: 0.13 0.028 262;
     --muted: 0.96 0.008 241;
     --muted-foreground: 0.47 0.02 255;
-    --accent: 0.6 0.18 161;
+    --accent: 0.68 0.17 195;
     --accent-foreground: 1 0 0;
     --destructive: 0.577 0.245 27.325;
     --destructive-foreground: 0.985 0 0;
     --border: 0.93 0.012 255;
     --input: 0.93 0.012 255;
-    --ring: 0.52 0.19 262;
-    --chart-1: 0.52 0.19 262;
-    --chart-2: 0.6 0.18 161;
+    --ring: 0.4 0.19 262;
+    --chart-1: 0.4 0.19 262;
+    --chart-2: 0.68 0.17 195;
     --chart-3: 0.398 0.07 227.392;
     --chart-4: 0.828 0.189 84.429;
     --chart-5: 0.769 0.188 70.08;
     --sidebar: 0.985 0 0;
     --sidebar-foreground: 0.13 0.028 262;
-    --sidebar-primary: 0.52 0.19 262;
+    --sidebar-primary: 0.4 0.19 262;
     --sidebar-primary-foreground: 1 0 0;
     --sidebar-accent: 0.96 0.008 241;
     --sidebar-accent-foreground: 0.13 0.028 262;
     --sidebar-border: 0.93 0.012 255;
-    --sidebar-ring: 0.52 0.19 262;
+    --sidebar-ring: 0.4 0.19 262;
   }
 
   * {

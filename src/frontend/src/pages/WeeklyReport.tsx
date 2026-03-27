@@ -112,6 +112,22 @@ export function WeeklyReport({ onNavigate }: WeeklyReportProps) {
   const weeklyData = weeklyRaw ? JSON.parse(weeklyRaw) : null;
   const vocabData = vocabRaw ? JSON.parse(vocabRaw) : null;
 
+  const spellingRaw = localStorage.getItem(
+    `classio_spelling_${userId}_${grade}_${todayKey}`,
+  );
+  const spellingData = spellingRaw ? JSON.parse(spellingRaw) : null;
+  const spellingScore: number | null = spellingData
+    ? Math.round((spellingData.score / spellingData.total) * 100)
+    : null;
+
+  const grammarRaw = localStorage.getItem(
+    `classio_grammar_${userId}_${grade}_${todayKey}`,
+  );
+  const grammarData = grammarRaw ? JSON.parse(grammarRaw) : null;
+  const grammarScore: number | null = grammarData
+    ? Math.round((grammarData.score / grammarData.total) * 100)
+    : null;
+
   let avgRhythm: number | null = null;
   let avgIntonation: number | null = null;
   let avgChunking: number | null = null;
@@ -328,6 +344,107 @@ export function WeeklyReport({ onNavigate }: WeeklyReportProps) {
               </SkillCard>
             </div>
           </div>
+
+          {/* Additional Activities */}
+          <Card className="rounded-2xl bg-white border border-violet-200 shadow-sm">
+            <CardHeader className="pb-3 border-b border-violet-100">
+              <CardTitle className="text-base flex items-center gap-2 text-violet-900">
+                <span>✍️</span> Additional Activities
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="pt-4 space-y-4">
+              {/* Spelling */}
+              <div className="flex items-center gap-4 p-3 rounded-xl bg-violet-50 border border-violet-100">
+                <span className="text-2xl">📝</span>
+                <div className="flex-1">
+                  <p className="font-semibold text-sm text-violet-900">
+                    Spelling Activity
+                  </p>
+                  {spellingScore !== null ? (
+                    <div className="flex items-center gap-2 mt-0.5">
+                      <span className="text-xs text-gray-600">
+                        {spellingData?.score}/{spellingData?.total} words
+                      </span>
+                      <span
+                        className={`text-xs font-semibold px-2 py-0.5 rounded-full ${
+                          spellingScore >= 80
+                            ? "bg-green-100 text-green-700"
+                            : spellingScore >= 60
+                              ? "bg-amber-100 text-amber-700"
+                              : "bg-red-100 text-red-700"
+                        }`}
+                      >
+                        {spellingScore >= 80
+                          ? "Excellent"
+                          : spellingScore >= 60
+                            ? "Good"
+                            : "Needs Practice"}{" "}
+                        — {spellingScore}%
+                      </span>
+                    </div>
+                  ) : (
+                    <p className="text-xs text-gray-400 mt-0.5">
+                      Not attempted this week
+                    </p>
+                  )}
+                </div>
+                {spellingScore !== null && (
+                  <span className="text-xl">
+                    {spellingScore >= 80
+                      ? "🌟"
+                      : spellingScore >= 60
+                        ? "👍"
+                        : "📌"}
+                  </span>
+                )}
+              </div>
+              {/* Grammar */}
+              <div className="flex items-center gap-4 p-3 rounded-xl bg-violet-50 border border-violet-100">
+                <span className="text-2xl">📚</span>
+                <div className="flex-1">
+                  <p className="font-semibold text-sm text-violet-900">
+                    Grammar Activity
+                  </p>
+                  {grammarScore !== null ? (
+                    <div className="flex items-center gap-2 mt-0.5">
+                      <span className="text-xs text-gray-600">
+                        {grammarData?.score}/{grammarData?.total} questions
+                      </span>
+                      <span
+                        className={`text-xs font-semibold px-2 py-0.5 rounded-full ${
+                          grammarScore >= 80
+                            ? "bg-green-100 text-green-700"
+                            : grammarScore >= 60
+                              ? "bg-amber-100 text-amber-700"
+                              : "bg-red-100 text-red-700"
+                        }`}
+                      >
+                        {grammarScore >= 80
+                          ? "Excellent"
+                          : grammarScore >= 60
+                            ? "Good"
+                            : "Needs Practice"}{" "}
+                        — {grammarScore}%
+                      </span>
+                    </div>
+                  ) : (
+                    <p className="text-xs text-gray-400 mt-0.5">
+                      Not attempted this week
+                    </p>
+                  )}
+                </div>
+                {grammarScore !== null && (
+                  <span className="text-xl">
+                    {grammarScore >= 80
+                      ? "🌟"
+                      : grammarScore >= 60
+                        ? "👍"
+                        : "📌"}
+                  </span>
+                )}
+              </div>
+            </CardContent>
+          </Card>
 
           {/* Achievements */}
           {earnedBadges.length > 0 && (

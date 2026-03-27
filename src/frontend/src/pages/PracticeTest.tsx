@@ -31,6 +31,7 @@ export function PracticeTest({ onNavigate }: PracticeTestProps) {
   const [score, setScore] = useState(0);
   const [selected, setSelected] = useState<number | null>(null);
   const [answers, setAnswers] = useState<boolean[]>([]);
+  const [isReading, setIsReading] = useState(false);
 
   const handleAnswer = (idx: number) => {
     if (selected !== null) return;
@@ -87,6 +88,28 @@ export function PracticeTest({ onNavigate }: PracticeTestProps) {
             <h3 className="font-semibold text-base mb-3">
               {passage?.title ?? "Reading Passage"}
             </h3>
+            <div className="flex items-center gap-2 mb-3">
+              <button
+                type="button"
+                onClick={() => {
+                  if (isReading) {
+                    window.speechSynthesis.cancel();
+                    setIsReading(false);
+                  } else {
+                    const utt = new SpeechSynthesisUtterance(
+                      passage?.content ?? "",
+                    );
+                    utt.onend = () => setIsReading(false);
+                    window.speechSynthesis.speak(utt);
+                    setIsReading(true);
+                  }
+                }}
+                className="flex items-center gap-1.5 px-3 py-1.5 text-sm border border-indigo-300 text-indigo-700 rounded-lg hover:bg-indigo-50 transition-colors"
+                data-ocid="practice.toggle"
+              >
+                {isReading ? "⏹ Stop" : "🔊 Listen"}
+              </button>
+            </div>
             <ScrollArea className="h-64">
               <p className="text-sm leading-relaxed text-gray-800 whitespace-pre-line">
                 {passage?.content ?? "No passage available for your grade."}

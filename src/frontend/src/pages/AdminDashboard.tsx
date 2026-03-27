@@ -100,7 +100,7 @@ export function AdminDashboard() {
                 </div>
                 <div>
                   <p className="text-sm font-semibold text-gray-900">
-                    Classio1
+                    classio1
                   </p>
                   <p className="text-sm text-gray-500">Master Account</p>
                 </div>

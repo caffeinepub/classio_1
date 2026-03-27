@@ -3,38 +3,17 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   BarChart2,
-  Bell,
   BookOpen,
   CheckCircle,
-  Loader2,
   Lock,
   PlayCircle,
   Trophy,
-  UserCircle2,
 } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
 import { useState } from "react";
 import { AppHeader } from "../components/AppHeader";
-import { MonthlyProgressReport } from "../components/MonthlyProgressReport";
-import {
-  ComprehensionAccuracyTrend,
-  ReadingGrowthTimeline,
-  WPMTracker,
-} from "../components/ReadingGrowthCharts";
-import {
-  ReportingIndicatorsPanel,
-  ScoreOverviewPanel,
-  SkillCard,
-  StarRating,
-} from "../components/ReportCardLayout";
-import { SkillProgressBars } from "../components/SkillProgressBars";
-import { VocabMasteryMap } from "../components/VocabMasteryMap";
 import { useAuth } from "../context/AuthContext";
-import {
-  useMyResults,
-  useScoreHistory,
-  useVocabMastery,
-} from "../hooks/useQueries";
+import type { WeeklyReportEntry } from "./WeeklyTest";
 
 interface StudentDashboardProps {
   onNavigate: (page: string) => void;
@@ -68,160 +47,145 @@ const LEVEL_BADGES = [
   },
 ];
 
-const LETTER_TILES = [
-  { letter: "H", bg: "bg-teal-200", text: "text-teal-700" },
-  { letter: "O", bg: "bg-emerald-200", text: "text-emerald-700" },
-  { letter: "N", bg: "bg-cyan-200", text: "text-cyan-700" },
-  { letter: "E", bg: "bg-teal-300", text: "text-teal-800" },
-  { letter: "D", bg: "bg-emerald-300", text: "text-emerald-800" },
-  { letter: "Z", bg: "bg-cyan-300", text: "text-cyan-800" },
-];
-
-function getNextMonday(): string {
-  const now = new Date();
-  const day = now.getDay();
-  const daysUntilMonday = day === 1 ? 7 : (8 - day) % 7;
-  const nextMon = new Date(now);
-  nextMon.setDate(now.getDate() + daysUntilMonday);
-  return nextMon.toLocaleDateString("en-US", {
-    weekday: "short",
-    month: "short",
-    day: "numeric",
-  });
-}
-
-function getWeekNumber(): number {
-  const now = new Date();
-  const start = new Date(now.getFullYear(), 0, 1);
-  return Math.ceil(
-    ((now.getTime() - start.getTime()) / 86400000 + start.getDay() + 1) / 7,
-  );
-}
-
 type Tab = "courses" | "reports" | "achievements";
 
-const TAB_ICONS: Record<Tab, React.ReactNode> = {
-  courses: <BookOpen className="w-4 h-4" />,
-  reports: <BarChart2 className="w-4 h-4" />,
-  achievements: <Trophy className="w-4 h-4" />,
-};
+function StarRow({ score, max = 5 }: { score: number; max?: number }) {
+  return (
+    <div className="flex gap-0.5">
+      {Array.from({ length: max }).map((_, i) => (
+        <span
+          // biome-ignore lint/suspicious/noArrayIndexKey: star rating index is stable
+          key={i}
+          className={i < score ? "text-amber-400" : "text-gray-200"}
+        >
+          ★
+        </span>
+      ))}
+    </div>
+  );
+}
 
 export function StudentDashboard({ onNavigate }: StudentDashboardProps) {
   const { user } = useAuth();
   const userId = user?.userId ?? "";
-  const { data: results, isLoading } = useMyResults(userId);
-  const { data: scoreHistory = [] } = useScoreHistory(userId);
-  const { data: vocabWords = [] } = useVocabMastery(userId);
   const [activeTab, setActiveTab] = useState<Tab>("courses");
 
-  const avg =
-    results && results.length > 0
-      ? Math.round(
-          (results.reduce((s, r) => s + Number(r.score), 0) / results.length) *
-            10,
-        ) / 10
-      : null;
+  const grade = Number(user?.grade ?? 1n);
+  const todayKey = new Date().toISOString().split("T")[0];
 
+  // Proficiency state
   const profSearchRaw = localStorage.getItem(
     `classio_proficiency_search_${userId}`,
   );
   const profSearchData = profSearchRaw ? JSON.parse(profSearchRaw) : null;
   const proficiencyLevelFound: boolean = profSearchData?.levelFound ?? false;
 
-  const grade = Number(user?.grade ?? 1n);
-  const todayKey = new Date().toISOString().split("T")[0];
-  const currentWeekNumber = getWeekNumber();
+  // Skills badge from proficiency
+  const skillsRaw = localStorage.getItem(`classio_skills_${userId}`);
+  const skills = skillsRaw ? JSON.parse(skillsRaw) : null;
+  const avgSkill = skills
+    ? (skills.rhythm +
+        skills.intonation +
+        skills.chunking +
+        skills.pronunciation) /
+      4
+    : null;
+  const badgeInfo =
+    avgSkill !== null
+      ? (LEVEL_BADGES.find((b) => avgSkill >= b.min) ??
+        LEVEL_BADGES[LEVEL_BADGES.length - 1])
+      : null;
 
-  const vocabDay1Done = !!localStorage.getItem(
-    `classio_vocab_day_${userId}_${grade}_1`,
+  // Activity completion flags
+  const vocabDone = !!localStorage.getItem(
+    `classio_vocab_${userId}_${grade}_${todayKey}`,
   );
-  const vocabDay2Done = !!localStorage.getItem(
-    `classio_vocab_day_${userId}_${grade}_2`,
-  );
-  const vocabDay3Done = !!localStorage.getItem(
-    `classio_vocab_day_${userId}_${grade}_3`,
-  );
-  const vocabDay4Done = !!localStorage.getItem(
-    `classio_vocab_day_${userId}_${grade}_4`,
-  );
-  const vocabDay5Done = !!localStorage.getItem(
-    `classio_vocab_day_${userId}_${grade}_5`,
-  );
-  const vocabQuizDone = !!localStorage.getItem(
-    `classio_vocab_quiz_${userId}_${grade}`,
-  );
-  const vocabLessonsCompleted = [
-    vocabDay1Done,
-    vocabDay2Done,
-    vocabDay3Done,
-    vocabDay4Done,
-    vocabDay5Done,
-    vocabQuizDone,
-  ].filter(Boolean).length;
-  const vocabDone = vocabLessonsCompleted > 0;
-
   const practiceDone = !!localStorage.getItem(
     `classio_practice_${userId}_${todayKey}`,
   );
+  const weekNum = Math.ceil(
+    ((Date.now() - new Date(new Date().getFullYear(), 0, 1).getTime()) /
+      86400000 +
+      new Date(new Date().getFullYear(), 0, 1).getDay() +
+      1) /
+      7,
+  );
   const weeklyDone = !!localStorage.getItem(
-    `classio_weekly_${userId}_${currentWeekNumber}`,
+    `classio_weekly_${userId}_${weekNum}`,
+  );
+  const spellingDone = !!localStorage.getItem(
+    `classio_spelling_${userId}_${grade}_${todayKey}`,
+  );
+  const grammarDone = !!localStorage.getItem(
+    `classio_grammar_${userId}_${grade}_${todayKey}`,
   );
 
+  // Weekly reports list
+  const reportsRaw = localStorage.getItem(`classio_reports_${userId}`);
+  const weeklyReports: WeeklyReportEntry[] = reportsRaw
+    ? JSON.parse(reportsRaw)
+    : [];
+
+  // Journey steps
+  const journeySteps = [
+    {
+      label: "Proficiency Test",
+      icon: "🎯",
+      done: proficiencyLevelFound,
+      route: "/student/test",
+    },
+    {
+      label: "Vocabulary Building",
+      icon: "📚",
+      done: vocabDone,
+      route: "/student/vocab",
+    },
+    {
+      label: "Practice Tests",
+      icon: "📖",
+      done: practiceDone,
+      route: "/student/practice",
+    },
+    {
+      label: "Spelling Practice",
+      icon: "✍️",
+      done: spellingDone,
+      route: "/student/spelling",
+    },
+    {
+      label: "Grammar Practice",
+      icon: "📝",
+      done: grammarDone,
+      route: "/student/grammar",
+    },
+    {
+      label: "Weekly Assessment",
+      icon: "🏆",
+      done: weeklyDone,
+      route: "/student/weekly-test",
+    },
+  ];
+
+  // Achievements
   const practiceRaw = localStorage.getItem(
     `classio_practice_${userId}_${todayKey}`,
   );
   const practiceData = practiceRaw ? JSON.parse(practiceRaw) : null;
   const practiceScore: number | null = practiceData?.score ?? null;
 
-  const weeklyRaw = localStorage.getItem(
-    `classio_weekly_${userId}_${currentWeekNumber}`,
-  );
-  const weeklyData = weeklyRaw ? JSON.parse(weeklyRaw) : null;
-
   const vocabRaw = localStorage.getItem(
     `classio_vocab_${userId}_${grade}_${todayKey}`,
   );
-  const vocabData = vocabRaw ? JSON.parse(vocabRaw) : null;
+  const vocabActivityData = vocabRaw ? JSON.parse(vocabRaw) : null;
 
-  const practiceCount = [0, 1, 2, 3, 4, 5].filter((i) =>
-    localStorage.getItem(
-      `classio_practice_${userId}_${new Date(Date.now() - i * 86400000).toISOString().split("T")[0]}`,
-    ),
-  ).length;
-
-  const vocabPercent = (vocabLessonsCompleted / 6) * 100;
-  const rcaPercent = practiceDone
-    ? Math.round(((practiceScore ?? 0) / 5) * 100)
-    : 40;
-
-  const badgeInfo =
-    avg !== null
-      ? (LEVEL_BADGES.find((b) => avg >= b.min) ??
-        LEVEL_BADGES[LEVEL_BADGES.length - 1])
-      : null;
-
-  const startedDateStr = new Date().toLocaleDateString("en-US", {
-    weekday: "short",
-    month: "short",
-    day: "numeric",
-    year: "numeric",
-  });
-
-  const tabs: { id: Tab; label: string }[] = [
-    { id: "courses", label: "My Courses" },
-    { id: "reports", label: "My Reports" },
-    { id: "achievements", label: "Achievements" },
-  ];
-
-  // Achievement definitions
   const achievementDefs = [
     {
       id: "proficiency",
       title: "Proficiency Test",
-      desc: "Complete your proficiency assessment",
+      desc: "Complete proficiency assessment",
       icon: "🎯",
       done: proficiencyLevelFound,
-      score: avg,
+      score: avgSkill,
     },
     {
       id: "vocab",
@@ -229,7 +193,7 @@ export function StudentDashboard({ onNavigate }: StudentDashboardProps) {
       desc: "Complete daily vocabulary activity",
       icon: "📚",
       done: vocabDone,
-      score: vocabData?.score ?? null,
+      score: vocabActivityData?.score ?? null,
     },
     {
       id: "practice",
@@ -245,15 +209,39 @@ export function StudentDashboard({ onNavigate }: StudentDashboardProps) {
       desc: "Complete weekly combined test",
       icon: "🏆",
       done: weeklyDone,
-      score: weeklyData?.total != null ? (weeklyData.total / 10) * 5 : null,
+      score: weeklyReports[0]
+        ? Math.round((weeklyReports[0].total / weeklyReports[0].totalQ) * 5)
+        : null,
     },
     {
-      id: "report",
-      title: "Weekly Report",
-      desc: "View your weekly progress report",
-      icon: "📊",
-      done: weeklyDone,
-      score: weeklyData?.total != null ? (weeklyData.total / 10) * 5 : null,
+      id: "spelling",
+      title: "Spelling Activity",
+      desc: "Complete daily spelling practice",
+      icon: "✍️",
+      done: spellingDone,
+      score: (() => {
+        const r = localStorage.getItem(
+          `classio_spelling_${userId}_${grade}_${todayKey}`,
+        );
+        if (!r) return null;
+        const d = JSON.parse(r);
+        return d.total ? Math.round((d.score / d.total) * 5) : null;
+      })(),
+    },
+    {
+      id: "grammar",
+      title: "Grammar Activity",
+      desc: "Complete daily grammar practice",
+      icon: "📝",
+      done: grammarDone,
+      score: (() => {
+        const r = localStorage.getItem(
+          `classio_grammar_${userId}_${grade}_${todayKey}`,
+        );
+        if (!r) return null;
+        const d = JSON.parse(r);
+        return d.total ? Math.round((d.score / d.total) * 5) : null;
+      })(),
     },
   ];
 
@@ -265,858 +253,529 @@ export function StudentDashboard({ onNavigate }: StudentDashboardProps) {
   ).length;
   const completedCount = achievementDefs.filter((a) => a.done).length;
 
-  // Week 1 lesson plan
-  const lessonPlan = [
+  const tabs: { id: Tab; label: string; icon: React.ReactNode }[] = [
     {
-      day: 1,
-      type: "vocab",
-      title: "Vocabulary Lesson 1",
-      subtitle: "6 core words — meanings & spelling",
-      icon: "📖",
-      route: "/student/vocab",
-      done: vocabDay1Done,
+      id: "courses",
+      label: "My Courses",
+      icon: <BookOpen className="w-4 h-4" />,
     },
     {
-      day: 2,
-      type: "vocab",
-      title: "Vocabulary Lesson 2",
-      subtitle: "6 new words — synonyms & usage",
-      icon: "✏️",
-      route: "/student/vocab",
-      done: vocabDay2Done,
+      id: "reports",
+      label: "My Reports",
+      icon: <BarChart2 className="w-4 h-4" />,
     },
     {
-      day: 3,
-      type: "vocab",
-      title: "Vocabulary Lesson 3",
-      subtitle: "6 words + review of lessons 1–2",
-      icon: "🔁",
-      route: "/student/vocab",
-      done: vocabDay3Done,
-    },
-    {
-      day: 4,
-      type: "vocab",
-      title: "Vocabulary Lesson 4",
-      subtitle: "Pronunciation focus — say each word aloud",
-      icon: "🎙️",
-      route: "/student/vocab",
-      done: vocabDay4Done,
-    },
-    {
-      day: 5,
-      type: "vocab",
-      title: "Vocabulary Lesson 5",
-      subtitle: "Words in context — sentence building",
-      icon: "💬",
-      route: "/student/vocab",
-      done: vocabDay5Done,
-    },
-    {
-      day: 6,
-      type: "quiz",
-      title: "Vocab Quiz",
-      subtitle: "Test all 30 words — score 80% to unlock reading",
-      icon: "🧠",
-      route: "/student/vocab",
-      done: vocabQuizDone,
-    },
-    {
-      day: 7,
-      type: "practice",
-      title: "Practice Reading Test",
-      subtitle: "Read & Record — grade-appropriate passage",
-      icon: "🎧",
-      route: "/student/practice",
-      done: practiceDone,
-    },
-    {
-      day: 8,
-      type: "weekly",
-      title: "Weekly Assessment",
-      subtitle: "Final test for Week 1 — unlock Week 2",
-      icon: "🏁",
-      route: "/student/weekly-test",
-      done: weeklyDone,
+      id: "achievements",
+      label: "Achievements",
+      icon: <Trophy className="w-4 h-4" />,
     },
   ];
 
-  // Determine which lesson is active (first not done)
-  const firstActiveLessonDay = lessonPlan.find((l) => !l.done)?.day ?? 9;
-
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-slate-50">
       <AppHeader title="Student Dashboard" />
 
-      {/* Tab Navigation Bar — pill style */}
-      <div className="bg-teal-50 border-b border-teal-100 sticky top-16 z-10 shadow-sm">
-        <div className="max-w-4xl mx-auto px-4 py-2">
-          <div className="flex items-center justify-between">
-            {/* Pill tabs */}
-            <div className="bg-white/80 rounded-full p-1 flex gap-1">
-              {tabs.map((tab) => (
-                <button
-                  type="button"
-                  key={tab.id}
-                  onClick={() => setActiveTab(tab.id)}
-                  data-ocid={`student.${tab.id}.tab`}
-                  className={`flex items-center gap-1.5 px-4 py-2 text-sm font-semibold rounded-full transition-all duration-200 ${
-                    activeTab === tab.id
-                      ? "bg-teal-600 text-white shadow-sm"
-                      : "text-gray-600 hover:text-teal-700 hover:bg-teal-50"
-                  }`}
-                >
-                  {TAB_ICONS[tab.id]}
-                  {tab.label}
-                </button>
-              ))}
-            </div>
-
-            {/* Right side: badge + bell + avatar */}
-            <div className="flex items-center gap-2">
-              <span className="hidden sm:inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-teal-100 text-teal-700 border border-teal-200">
-                Student
-              </span>
+      {/* Tab bar */}
+      <div className="bg-white border-b border-gray-200 sticky top-16 z-10">
+        <div className="max-w-4xl mx-auto px-4">
+          <div className="flex items-center gap-1">
+            {tabs.map((tab) => (
               <button
                 type="button"
-                className="w-8 h-8 rounded-full flex items-center justify-center hover:bg-teal-100 transition-colors"
-                data-ocid="student.bell.button"
+                key={tab.id}
+                onClick={() => setActiveTab(tab.id)}
+                data-ocid={`student.${tab.id}.tab`}
+                className={`flex items-center gap-1.5 px-5 py-4 text-sm font-semibold border-b-2 transition-colors duration-200 ${
+                  activeTab === tab.id
+                    ? "border-indigo-600 text-indigo-600"
+                    : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
+                }`}
               >
-                <Bell className="w-4 h-4 text-gray-500" />
+                {tab.icon}
+                {tab.label}
               </button>
-              <div className="w-8 h-8 rounded-full bg-gradient-to-br from-teal-500 to-emerald-500 flex items-center justify-center">
-                <UserCircle2 className="w-5 h-5 text-white" />
-              </div>
-            </div>
+            ))}
           </div>
         </div>
       </div>
 
-      <main className="relative max-w-4xl mx-auto px-4 py-6">
+      <main className="max-w-4xl mx-auto px-4 py-6">
         <AnimatePresence mode="wait">
-          {/* ─── Tab 1: My Courses ─────────────────────────────────────── */}
+          {/* ── My Courses ── */}
           {activeTab === "courses" && (
             <motion.div
               key="courses"
-              initial={{ opacity: 0, y: 12 }}
+              initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -8 }}
-              transition={{ duration: 0.25 }}
+              transition={{ duration: 0.2 }}
+              className="space-y-5"
             >
-              {/* Course Overview heading */}
-              <h2 className="text-xl font-bold text-gray-900 mb-4">
-                Course Overview
-              </h2>
-
-              {/* ── Proficiency Learning Path card (teal) ── */}
-              <div className="relative bg-teal-50 border border-teal-100 rounded-2xl px-5 py-4 flex items-center justify-between mb-4 overflow-hidden min-h-[110px]">
-                {/* Left text */}
-                <div className="z-10">
-                  <p className="text-xs font-semibold text-teal-400 mb-0.5 tracking-wider">
-                    -
-                  </p>
-                  <p className="text-base font-bold text-teal-800">
-                    Proficiency Learning Path
-                  </p>
-                  {badgeInfo ? (
-                    <span
-                      className={`inline-flex items-center mt-2 px-3 py-1 rounded-full text-xs font-bold ${badgeInfo.cls}`}
-                    >
-                      {badgeInfo.label}
-                    </span>
-                  ) : (
-                    <span className="inline-flex items-center mt-2 px-3 py-1 rounded-full text-xs font-bold bg-teal-100 text-teal-600 border border-teal-200">
-                      🔰 Proficiency Learner
-                    </span>
-                  )}
-                </div>
-
-                {/* Right: floating letter tiles */}
-                <div className="relative flex flex-wrap gap-1.5 max-w-[140px] justify-end z-10">
-                  {LETTER_TILES.map((tile, idx) => (
-                    <motion.span
-                      key={tile.letter}
-                      initial={{ opacity: 0, y: -6 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: idx * 0.07, duration: 0.3 }}
-                      className={`w-8 h-8 rounded-lg ${tile.bg} ${tile.text} flex items-center justify-center text-sm font-extrabold shadow-sm select-none`}
-                    >
-                      {tile.letter}
-                    </motion.span>
-                  ))}
-                </div>
-
-                {/* Decorative background circle */}
-                <div className="absolute -right-6 -bottom-6 w-32 h-32 rounded-full bg-teal-100 opacity-50" />
+              <div className="flex items-center justify-between">
+                <h2 className="text-xl font-bold text-gray-900">
+                  Welcome back, {user?.username ?? "Student"}!
+                </h2>
               </div>
 
-              {/* ── Reading Course Card (always visible) ── */}
-              <Card className="rounded-2xl bg-white border border-gray-200 shadow-md overflow-hidden mb-4">
-                <CardContent className="p-0">
-                  <div className="flex flex-col sm:flex-row">
-                    {/* Left illustration column */}
-                    <div className="sm:w-[38%] bg-gradient-to-br from-teal-400 to-emerald-600 flex flex-col items-center justify-center p-6 min-h-[200px] relative">
-                      {/* Book illustration */}
-                      <div className="relative flex items-center justify-center">
-                        <span className="text-6xl drop-shadow-lg">📚</span>
-                        <span className="absolute -top-1 -right-1 w-7 h-7 rounded-full bg-white/90 flex items-center justify-center text-teal-600 text-sm font-bold shadow">
-                          ✓
+              {/* Proficiency badge card */}
+              <Card
+                className={`rounded-2xl border-2 shadow-md ${
+                  proficiencyLevelFound
+                    ? "border-emerald-400 bg-emerald-50"
+                    : "border-indigo-200 bg-white"
+                }`}
+              >
+                <CardContent className="p-5">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">
+                        Proficiency Badge
+                      </p>
+                      {badgeInfo ? (
+                        <span
+                          className={`inline-flex items-center px-4 py-1.5 rounded-full text-sm font-bold border ${badgeInfo.cls}`}
+                        >
+                          {badgeInfo.label}
                         </span>
-                      </div>
-
-                      {/* Reading label */}
-                      <div className="mt-5 text-left w-full">
-                        <p className="text-2xl font-extrabold text-white leading-tight">
-                          Reading
-                        </p>
-                        <p className="text-xs text-teal-100 flex items-center gap-1 mt-1">
-                          <PlayCircle className="w-3 h-3 text-teal-200" />
-                          Started - {startedDateStr}
-                        </p>
-                      </div>
+                      ) : (
+                        <span className="inline-flex items-center px-4 py-1.5 rounded-full text-sm font-bold bg-gray-100 text-gray-500 border border-gray-200">
+                          🔰 Not Yet Assessed
+                        </span>
+                      )}
+                      {proficiencyLevelFound && (
+                        <div className="flex items-center gap-1.5 mt-2">
+                          <CheckCircle className="w-4 h-4 text-emerald-500" />
+                          <span className="text-sm text-emerald-600 font-semibold">
+                            Proficiency level found
+                          </span>
+                        </div>
+                      )}
                     </div>
-
-                    {/* Right content column */}
-                    <div className="flex-1 flex flex-col divide-y divide-gray-100">
-                      {/* Row 1: Vocabulary */}
-                      <div className="p-4">
-                        <div className="flex items-start justify-between gap-3">
-                          <div className="bg-teal-100 rounded-xl p-2 shrink-0 border border-teal-200">
-                            <span className="text-xl">📖</span>
-                          </div>
-                          <div className="flex-1 min-w-0">
-                            <p className="font-bold text-gray-900 text-sm">
-                              Go to Vocabulary
-                            </p>
-                            <p className="text-xs text-gray-400 flex items-center gap-1 mt-0.5">
-                              <span className="text-orange-400">●</span>
-                              {vocabLessonsCompleted} / 6 lessons completed
-                            </p>
-                          </div>
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            className="shrink-0 bg-transparent border-teal-300 text-teal-600 hover:bg-teal-50 rounded-full text-xs px-3"
-                            onClick={() => onNavigate("/student/vocab")}
-                            data-ocid="student.vocab.button"
-                          >
-                            View Details
-                          </Button>
-                        </div>
-                        {/* Vocab progress bar */}
-                        <div className="mt-3 h-2 bg-gray-200 rounded-full overflow-hidden">
-                          <div
-                            className="h-full bg-gradient-to-r from-teal-500 to-emerald-500 rounded-full transition-all duration-500"
-                            style={{ width: `${vocabPercent}%` }}
-                          />
-                        </div>
-                      </div>
-
-                      {/* Row 2: RCA */}
-                      <div className="p-4">
-                        <div className="flex items-start justify-between gap-3">
-                          <div className="bg-green-100 rounded-xl p-2 shrink-0 border border-green-200">
-                            <span className="text-xl">📋</span>
-                          </div>
-                          <div className="flex-1 min-w-0">
-                            <p className="font-bold text-gray-900 text-sm">
-                              Go to RCA
-                            </p>
-                            <p className="text-xs text-teal-500 flex items-center gap-1 mt-0.5 font-semibold">
-                              <span className="text-teal-500">●</span>
-                              {practiceCount} / 5
-                            </p>
-                          </div>
-
-                          {/* Proficiency Test pill button */}
-                          {proficiencyLevelFound ? (
-                            <span
-                              data-ocid="student.journey.button"
-                              className="inline-flex items-center gap-1 bg-green-100 text-green-700 border border-green-300 rounded-full text-xs px-4 py-1.5 font-semibold shrink-0"
-                            >
-                              ✓ Proficiency Complete
-                            </span>
-                          ) : (
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              className="shrink-0 bg-transparent border-teal-400 text-teal-600 hover:bg-teal-50 rounded-full text-xs px-4 h-8 font-semibold"
-                              onClick={() => onNavigate("/student/test")}
-                              data-ocid="proficiency.primary_button"
-                            >
-                              Take Proficiency Test
-                            </Button>
-                          )}
-                        </div>
-
-                        {/* RCA progress bar (orange) */}
-                        <div className="mt-3 h-2 bg-gray-200 rounded-full overflow-hidden">
-                          <div
-                            className="h-full bg-gradient-to-r from-orange-400 to-orange-500 rounded-full transition-all duration-500"
-                            style={{ width: `${rcaPercent}%` }}
-                          />
-                        </div>
-                      </div>
+                    <div className="w-16 h-16 rounded-full bg-indigo-100 border-2 border-indigo-200 flex items-center justify-center text-3xl">
+                      {proficiencyLevelFound ? "✅" : "🎯"}
                     </div>
                   </div>
+                  {!proficiencyLevelFound && (
+                    <Button
+                      className="mt-4 w-full bg-gradient-to-r from-indigo-600 to-indigo-700 hover:from-indigo-700 hover:to-indigo-800 text-white"
+                      onClick={() => onNavigate("/student/test")}
+                      data-ocid="proficiency.primary_button"
+                    >
+                      Take Proficiency Test
+                    </Button>
+                  )}
                 </CardContent>
               </Card>
 
-              {/* ── Week 1 Learning Plan ── */}
-              <div className="mb-4">
-                {/* Section header */}
-                <div className="flex items-center gap-3 mb-3">
-                  <span className="inline-flex items-center gap-1.5 bg-teal-600 text-white text-xs font-bold px-3 py-1 rounded-full">
-                    📅 Week 1 Learning Plan
-                  </span>
-                  <span className="text-xs text-gray-400 font-medium">
-                    Reading Comprehension Journey
-                  </span>
-                </div>
-
-                <div className="rounded-2xl border border-teal-100 bg-white overflow-hidden shadow-sm divide-y divide-gray-100">
-                  {lessonPlan.map((lesson, idx) => {
-                    const isActive = lesson.day === firstActiveLessonDay;
-                    const isDone = lesson.done;
+              {/* Journey steps */}
+              <Card className="rounded-2xl border border-gray-200 bg-white shadow-sm">
+                <CardHeader className="border-b border-gray-100 pb-3">
+                  <CardTitle className="text-base flex items-center gap-2">
+                    <PlayCircle className="w-4 h-4 text-indigo-500" />
+                    Learning Journey
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="p-4 space-y-3">
+                  {journeySteps.map((step, idx) => {
                     const isLocked =
-                      !isDone && lesson.day > firstActiveLessonDay;
+                      !step.done && idx > 0 && !journeySteps[idx - 1].done;
+                    return (
+                      <div
+                        key={step.label}
+                        className={`flex items-center gap-3 p-3 rounded-xl border ${
+                          step.done
+                            ? "bg-emerald-50 border-emerald-200"
+                            : isLocked
+                              ? "bg-gray-50 border-gray-200 opacity-60"
+                              : "bg-indigo-50 border-indigo-200"
+                        }`}
+                        data-ocid={`courses.item.${idx + 1}`}
+                      >
+                        <span className="text-xl">{step.icon}</span>
+                        <span className="flex-1 text-sm font-semibold text-gray-800">
+                          {step.label}
+                        </span>
+                        {step.done ? (
+                          <CheckCircle className="w-5 h-5 text-emerald-500" />
+                        ) : isLocked ? (
+                          <Lock className="w-4 h-4 text-gray-400" />
+                        ) : (
+                          <Button
+                            size="sm"
+                            className="bg-indigo-600 hover:bg-indigo-700 text-white text-xs"
+                            onClick={() => onNavigate(step.route)}
+                            data-ocid={`courses.item.${idx + 1}.button`}
+                          >
+                            Start
+                          </Button>
+                        )}
+                      </div>
+                    );
+                  })}
+                </CardContent>
+              </Card>
+            </motion.div>
+          )}
+
+          {/* ── My Reports ── */}
+          {activeTab === "reports" && (
+            <motion.div
+              key="reports"
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -8 }}
+              transition={{ duration: 0.2 }}
+              className="space-y-5"
+            >
+              <div className="flex items-center justify-between">
+                <h2 className="text-xl font-bold text-gray-900">My Reports</h2>
+                <span className="text-sm text-gray-400">
+                  {weeklyReports.length} report
+                  {weeklyReports.length !== 1 ? "s" : ""}
+                </span>
+              </div>
+
+              {weeklyReports.length === 0 ? (
+                <Card
+                  className="rounded-2xl border border-gray-200 bg-white shadow-sm"
+                  data-ocid="reports.empty_state"
+                >
+                  <CardContent className="py-16 text-center">
+                    <BarChart2 className="w-12 h-12 text-gray-300 mx-auto mb-4" />
+                    <p className="text-gray-600 font-semibold">
+                      No reports yet
+                    </p>
+                    <p className="text-sm text-gray-400 mt-1 mb-4">
+                      Reports are generated after you complete a weekly
+                      assessment.
+                    </p>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      className="text-indigo-600 border-indigo-300"
+                      onClick={() => setActiveTab("courses")}
+                    >
+                      Go to My Courses
+                    </Button>
+                  </CardContent>
+                </Card>
+              ) : (
+                <div className="space-y-5">
+                  {weeklyReports.map((report, idx) => {
+                    const pct = Math.round(
+                      (report.total / report.totalQ) * 100,
+                    );
+                    const vocabPct = Math.round(
+                      (report.vocabScore / report.vocabTotal) * 100,
+                    );
+                    const compPct = Math.round(
+                      (report.compScore / report.compTotal) * 100,
+                    );
+                    const overallSkillAvg = report.skills
+                      ? (report.skills.rhythm +
+                          report.skills.intonation +
+                          report.skills.chunking +
+                          report.skills.pronunciation) /
+                        4
+                      : null;
+                    const reportBadge =
+                      overallSkillAvg !== null
+                        ? (LEVEL_BADGES.find((b) => overallSkillAvg >= b.min) ??
+                          LEVEL_BADGES[LEVEL_BADGES.length - 1])
+                        : null;
+                    const reportDate = new Date(report.date).toLocaleDateString(
+                      "en-GB",
+                      {
+                        day: "numeric",
+                        month: "short",
+                        year: "numeric",
+                      },
+                    );
 
                     return (
-                      <motion.div
-                        key={lesson.day}
-                        initial={{ opacity: 0, x: -8 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        transition={{ delay: idx * 0.04 }}
-                        className={`flex items-center gap-4 px-4 py-3.5 ${
-                          isLocked ? "opacity-50" : ""
-                        }`}
-                        data-ocid={`courses.item.${lesson.day}`}
+                      <Card
+                        key={report.id}
+                        className="rounded-2xl border border-gray-200 bg-white shadow-md overflow-hidden"
+                        data-ocid={`reports.item.${idx + 1}`}
                       >
-                        {/* Day badge */}
-                        <div
-                          className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold shrink-0 ${
-                            isDone
-                              ? "bg-emerald-500 text-white"
-                              : isActive
-                                ? "bg-teal-600 text-white"
-                                : "bg-gray-200 text-gray-500"
-                          }`}
-                        >
-                          {isDone ? (
-                            <CheckCircle className="w-4 h-4" />
-                          ) : isLocked ? (
-                            <Lock className="w-3.5 h-3.5" />
-                          ) : (
-                            lesson.day
-                          )}
-                        </div>
-
-                        {/* Icon + text */}
-                        <div className="flex items-center gap-3 flex-1 min-w-0">
-                          <span className="text-xl shrink-0">
-                            {lesson.icon}
-                          </span>
-                          <div className="min-w-0">
-                            <p
-                              className={`text-sm font-semibold truncate ${
-                                isDone
-                                  ? "text-gray-400 line-through"
-                                  : isLocked
-                                    ? "text-gray-400"
-                                    : "text-gray-900"
-                              }`}
-                            >
-                              Day {lesson.day} — {lesson.title}
-                            </p>
-                            <p className="text-xs text-gray-400 truncate">
-                              {lesson.subtitle}
-                            </p>
+                        {/* Header */}
+                        <CardHeader className="border-b border-gray-100 pb-3 bg-gradient-to-r from-indigo-50 to-white">
+                          <div className="flex items-center justify-between">
+                            <div>
+                              <CardTitle className="text-base text-indigo-700">
+                                Week {report.weekNumber} Report
+                              </CardTitle>
+                              <p className="text-xs text-gray-400 mt-0.5">
+                                {reportDate} · Grade {report.grade}
+                              </p>
+                            </div>
+                            {reportBadge && (
+                              <span
+                                className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-bold border ${reportBadge.cls}`}
+                              >
+                                {reportBadge.label}
+                              </span>
+                            )}
                           </div>
-                        </div>
+                        </CardHeader>
 
-                        {/* Action button */}
-                        <div className="shrink-0">
-                          {isDone ? (
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              className="text-xs px-3 h-7 rounded-full border-teal-300 text-teal-600 hover:bg-teal-50"
-                              onClick={() => onNavigate(lesson.route)}
-                              data-ocid={`courses.edit_button.${lesson.day}`}
-                            >
-                              Review
-                            </Button>
-                          ) : isActive ? (
-                            <Button
-                              size="sm"
-                              className="text-xs px-4 h-7 rounded-full bg-teal-600 hover:bg-teal-700 text-white font-semibold"
-                              onClick={() => onNavigate(lesson.route)}
-                              data-ocid={`courses.primary_button.${lesson.day}`}
-                            >
-                              Start
-                            </Button>
-                          ) : (
-                            <span className="text-gray-300">
-                              <Lock className="w-4 h-4" />
-                            </span>
+                        <CardContent className="p-5 space-y-5">
+                          {/* Overall score */}
+                          <div className="flex items-center gap-4">
+                            <div className="w-16 h-16 rounded-full border-4 border-indigo-400 flex flex-col items-center justify-center bg-indigo-50">
+                              <span className="text-xl font-extrabold text-indigo-700">
+                                {pct}%
+                              </span>
+                            </div>
+                            <div className="flex-1">
+                              <p className="font-semibold text-gray-900">
+                                Overall Score
+                              </p>
+                              <p className="text-sm text-gray-500">
+                                {report.total} out of {report.totalQ} correct
+                              </p>
+                              <div className="mt-1 h-2 bg-gray-100 rounded-full overflow-hidden">
+                                <div
+                                  className="h-full bg-indigo-500 rounded-full transition-all"
+                                  style={{ width: `${pct}%` }}
+                                />
+                              </div>
+                            </div>
+                          </div>
+
+                          {/* Section breakdown */}
+                          <div className="grid grid-cols-2 gap-3">
+                            <div className="rounded-xl border border-indigo-100 bg-indigo-50 p-3">
+                              <p className="text-xs font-semibold text-indigo-600 mb-1">
+                                📚 Vocabulary
+                              </p>
+                              <p className="text-2xl font-bold text-indigo-700">
+                                {vocabPct}%
+                              </p>
+                              <p className="text-xs text-gray-500">
+                                {report.vocabScore}/{report.vocabTotal} correct
+                              </p>
+                            </div>
+                            <div className="rounded-xl border border-violet-100 bg-violet-50 p-3">
+                              <p className="text-xs font-semibold text-violet-600 mb-1">
+                                📖 Comprehension
+                              </p>
+                              <p className="text-2xl font-bold text-violet-700">
+                                {compPct}%
+                              </p>
+                              <p className="text-xs text-gray-500">
+                                {report.compScore}/{report.compTotal} correct
+                              </p>
+                            </div>
+                          </div>
+
+                          {/* Reading skills */}
+                          {report.skills && (
+                            <div>
+                              <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">
+                                Reading Skills
+                              </p>
+                              <div className="grid grid-cols-2 gap-2">
+                                {[
+                                  {
+                                    key: "rhythm" as const,
+                                    label: "Rhythm",
+                                    emoji: "🎵",
+                                  },
+                                  {
+                                    key: "intonation" as const,
+                                    label: "Intonation",
+                                    emoji: "🎶",
+                                  },
+                                  {
+                                    key: "chunking" as const,
+                                    label: "Chunking",
+                                    emoji: "📋",
+                                  },
+                                  {
+                                    key: "pronunciation" as const,
+                                    label: "Pronunciation",
+                                    emoji: "🗣️",
+                                  },
+                                ].map((s) => (
+                                  <div
+                                    key={s.key}
+                                    className="flex items-center justify-between rounded-lg border border-gray-100 bg-gray-50 px-3 py-2"
+                                  >
+                                    <span className="text-xs text-gray-600">
+                                      {s.emoji} {s.label}
+                                    </span>
+                                    <StarRow score={report.skills[s.key]} />
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
                           )}
-                        </div>
-                      </motion.div>
+
+                          {/* Additional activities */}
+                          {(report.spellingScore !== null ||
+                            report.grammarScore !== null ||
+                            report.practiceScore !== null) && (
+                            <div>
+                              <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">
+                                Additional Activities
+                              </p>
+                              <div className="grid grid-cols-3 gap-2">
+                                {report.practiceScore !== null && (
+                                  <div className="rounded-xl border border-teal-100 bg-teal-50 p-3 text-center">
+                                    <p className="text-xs text-teal-600 font-semibold mb-1">
+                                      📖 Practice
+                                    </p>
+                                    <p className="text-lg font-bold text-teal-700">
+                                      {report.practiceScore}/5
+                                    </p>
+                                  </div>
+                                )}
+                                {report.spellingScore !== null && (
+                                  <div className="rounded-xl border border-amber-100 bg-amber-50 p-3 text-center">
+                                    <p className="text-xs text-amber-600 font-semibold mb-1">
+                                      ✍️ Spelling
+                                    </p>
+                                    <p className="text-lg font-bold text-amber-700">
+                                      {report.spellingScore}/5
+                                    </p>
+                                  </div>
+                                )}
+                                {report.grammarScore !== null && (
+                                  <div className="rounded-xl border border-rose-100 bg-rose-50 p-3 text-center">
+                                    <p className="text-xs text-rose-600 font-semibold mb-1">
+                                      📝 Grammar
+                                    </p>
+                                    <p className="text-lg font-bold text-rose-700">
+                                      {report.grammarScore}/5
+                                    </p>
+                                  </div>
+                                )}
+                              </div>
+                            </div>
+                          )}
+
+                          {/* View full report link */}
+                          <Button
+                            variant="outline"
+                            className="w-full text-indigo-600 border-indigo-200 hover:bg-indigo-50"
+                            onClick={() => onNavigate("/student/weekly-report")}
+                          >
+                            View Full Report
+                          </Button>
+                        </CardContent>
+                      </Card>
                     );
                   })}
                 </div>
-              </div>
-
-              {/* Feature 7: Skill-Specific Progress Bars */}
-              <div className="mt-4">
-                <SkillProgressBars
-                  scores={{
-                    pronunciation:
-                      scoreHistory.length > 0
-                        ? Math.min(
-                            100,
-                            Number(
-                              scoreHistory[scoreHistory.length - 1]
-                                .pronunciationScore,
-                            ),
-                          )
-                        : avg !== null
-                          ? Math.round(avg * 20)
-                          : 45,
-                    rhythm:
-                      scoreHistory.length > 0
-                        ? Math.min(
-                            100,
-                            Number(
-                              scoreHistory[scoreHistory.length - 1].rhythmScore,
-                            ),
-                          )
-                        : avg !== null
-                          ? Math.round(avg * 18)
-                          : 38,
-                    intonation:
-                      scoreHistory.length > 0
-                        ? Math.min(
-                            100,
-                            Number(
-                              scoreHistory[scoreHistory.length - 1]
-                                .fluencyScore,
-                            ),
-                          )
-                        : avg !== null
-                          ? Math.round(avg * 19)
-                          : 52,
-                    fluency:
-                      scoreHistory.length > 0
-                        ? Math.min(
-                            100,
-                            Number(scoreHistory[scoreHistory.length - 1].wpm) /
-                              2,
-                          )
-                        : avg !== null
-                          ? Math.round(avg * 17)
-                          : 60,
-                  }}
-                />
-              </div>
-
-              {/* Weekly complete banner */}
-              {weeklyDone && (
-                <motion.div
-                  initial={{ opacity: 0, y: -8 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  className="mt-4 flex items-start gap-3 rounded-xl border border-teal-500/30 bg-teal-500/10 p-4"
-                  data-ocid="student.success_state"
-                >
-                  <CheckCircle className="w-5 h-5 text-teal-600 shrink-0 mt-0.5" />
-                  <div>
-                    <p className="text-sm font-semibold text-teal-700">
-                      Week {currentWeekNumber} complete! 🎉
-                    </p>
-                    <p className="text-xs text-teal-500 mt-0.5">
-                      Next week&apos;s tasks unlock on{" "}
-                      <span className="font-medium">{getNextMonday()}</span>.
-                    </p>
-                  </div>
-                </motion.div>
               )}
             </motion.div>
           )}
 
-          {/* ─── Tab 2: My Reports ─────────────────────────────────────── */}
-          {activeTab === "reports" && (
-            <motion.div
-              key="reports"
-              initial={{ opacity: 0, y: 12 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -8 }}
-              transition={{ duration: 0.25 }}
-              className="space-y-6"
-            >
-              <h2 className="text-xl font-bold text-gray-900">My Reports</h2>
-
-              {/* Proficiency Test Results */}
-              <Card className="rounded-xl bg-white border border-gray-200 shadow-sm">
-                <CardHeader className="pb-3 border-b border-gray-200">
-                  <CardTitle className="text-base flex items-center gap-2 text-gray-900">
-                    <Trophy className="w-4 h-4 text-teal-500" />
-                    Proficiency Test Results
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="p-0">
-                  {isLoading ? (
-                    <div
-                      className="flex justify-center py-8"
-                      data-ocid="student.loading_state"
-                    >
-                      <Loader2 className="w-5 h-5 animate-spin text-teal-500" />
-                    </div>
-                  ) : results && results.length > 0 ? (
-                    <div className="divide-y divide-gray-100">
-                      {results.map((r, i) => (
-                        <div
-                          key={r.id.toString()}
-                          className="flex items-center justify-between px-5 py-3 hover:bg-gray-50"
-                          data-ocid={`student.item.${i + 1}`}
-                        >
-                          <div>
-                            <p className="text-sm font-medium text-gray-900">
-                              Test #{i + 1}
-                            </p>
-                            <p className="text-xs text-gray-400">
-                              {new Date(
-                                Number(r.timestamp) / 1_000_000,
-                              ).toLocaleDateString()}
-                            </p>
-                          </div>
-                          <Badge
-                            className={
-                              Number(r.score) >= 4
-                                ? "bg-emerald-100 text-emerald-700 border border-emerald-200"
-                                : Number(r.score) >= 2
-                                  ? "bg-teal-100 text-teal-700 border border-teal-200"
-                                  : "bg-red-100 text-red-700 border border-red-200"
-                            }
-                          >
-                            {r.score.toString()}/5
-                          </Badge>
-                        </div>
-                      ))}
-                    </div>
-                  ) : (
-                    <div
-                      className="text-center py-10 text-gray-400"
-                      data-ocid="student.empty_state"
-                    >
-                      <BookOpen className="w-8 h-8 mx-auto mb-2 opacity-40" />
-                      <p className="text-sm">No proficiency tests taken yet</p>
-                    </div>
-                  )}
-                </CardContent>
-              </Card>
-
-              {/* Practice Report */}
-              <Card className="rounded-xl bg-white border border-gray-200 shadow-sm">
-                <CardHeader className="pb-3 border-b border-gray-200">
-                  <CardTitle className="text-base flex items-center gap-2 text-gray-900">
-                    <span className="text-base">📖</span> Practice Report
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  {practiceData ? (
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                      <ScoreOverviewPanel
-                        readingCurrent={practiceScore}
-                        readingPrevious={null}
-                        compCurrent={practiceScore}
-                        compPrevious={null}
-                        max={5}
-                      />
-                      <ReportingIndicatorsPanel
-                        indicators={[
-                          { label: "Overall", score: practiceScore, max: 5 },
-                          { label: "Reading", score: practiceScore, max: 5 },
-                          {
-                            label: "Comprehension",
-                            score:
-                              practiceScore !== null
-                                ? practiceScore * 0.9
-                                : null,
-                            max: 5,
-                          },
-                        ]}
-                      />
-                    </div>
-                  ) : (
-                    <div
-                      className="text-center py-8 text-gray-400"
-                      data-ocid="report.practice.empty_state"
-                    >
-                      <p className="text-sm">
-                        Complete a practice test to see your report.
-                      </p>
-                    </div>
-                  )}
-                </CardContent>
-              </Card>
-
-              {/* Weekly Report */}
-              <Card className="rounded-xl bg-white border border-gray-200 shadow-sm">
-                <CardHeader className="pb-3 border-b border-gray-200">
-                  <CardTitle className="text-base flex items-center gap-2 text-gray-900">
-                    <span className="text-base">📊</span> Weekly Report
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  {weeklyData ? (
-                    <div className="space-y-4">
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                        <ScoreOverviewPanel
-                          readingCurrent={
-                            weeklyData.total != null
-                              ? (weeklyData.total / 10) * 5
-                              : null
-                          }
-                          readingPrevious={null}
-                          compCurrent={
-                            weeklyData.total != null
-                              ? (weeklyData.total / 10) * 4.5
-                              : null
-                          }
-                          compPrevious={null}
-                          max={5}
-                        />
-                        <ReportingIndicatorsPanel
-                          indicators={[
-                            {
-                              label: "Overall",
-                              score:
-                                weeklyData.total != null
-                                  ? (weeklyData.total / 10) * 5
-                                  : null,
-                              max: 5,
-                            },
-                            {
-                              label: "Reading",
-                              score:
-                                weeklyData.total != null
-                                  ? (weeklyData.total / 10) * 5
-                                  : null,
-                              max: 5,
-                            },
-                            {
-                              label: "Comprehension",
-                              score:
-                                weeklyData.total != null
-                                  ? (weeklyData.total / 10) * 4.5
-                                  : null,
-                              max: 5,
-                            },
-                          ]}
-                        />
-                      </div>
-                      <div className="grid grid-cols-3 gap-3">
-                        <SkillCard
-                          color="emerald"
-                          title="Pronunciation"
-                          icon="🗣️"
-                        >
-                          <div className="space-y-1 text-xs text-emerald-400">
-                            <div className="flex justify-between">
-                              <span>Correct</span>
-                              <span className="font-semibold">
-                                {weeklyData.pronunciation?.correct ?? "—"}
-                              </span>
-                            </div>
-                            <div className="flex justify-between">
-                              <span>Mispronounced</span>
-                              <span className="font-semibold">
-                                {weeklyData.pronunciation?.mispronounced ?? "—"}
-                              </span>
-                            </div>
-                          </div>
-                        </SkillCard>
-                        <SkillCard
-                          color="rose"
-                          title="Rhythm & Intonation"
-                          icon="🎵"
-                        >
-                          <StarRating
-                            value={
-                              weeklyData.total != null
-                                ? (weeklyData.total / 10) * 5
-                                : null
-                            }
-                          />
-                        </SkillCard>
-                        <SkillCard color="sky" title="Fluency" icon="⚡">
-                          <div className="text-xs text-sky-400">
-                            <span className="font-semibold">
-                              {weeklyData.fluency?.wpm ?? "—"}
-                            </span>{" "}
-                            words/min
-                          </div>
-                        </SkillCard>
-                      </div>
-                    </div>
-                  ) : (
-                    <div
-                      className="text-center py-8 text-gray-400"
-                      data-ocid="report.weekly.empty_state"
-                    >
-                      <p className="text-sm">
-                        Complete a weekly test to see your report.
-                      </p>
-                    </div>
-                  )}
-                </CardContent>
-              </Card>
-
-              {/* Feature 1: Reading Growth Timeline */}
-              <ReadingGrowthTimeline records={scoreHistory} />
-
-              {/* Feature 2: WPM Tracker */}
-              <WPMTracker records={scoreHistory} />
-
-              {/* Feature 5: Comprehension Accuracy Trend */}
-              <ComprehensionAccuracyTrend records={scoreHistory} />
-
-              {/* Feature 3: Vocabulary Mastery Map */}
-              <VocabMasteryMap words={vocabWords} grade={grade} />
-
-              {/* Feature 6: Monthly Progress Report */}
-              <MonthlyProgressReport
-                startScore={
-                  results && results.length > 0
-                    ? Math.round((Number(results[0].score) / 5) * 100)
-                    : null
-                }
-                currentScore={avg !== null ? Math.round((avg / 5) * 100) : null}
-                grade={grade}
-                username={user?.username ?? ""}
-              />
-            </motion.div>
-          )}
-
-          {/* ─── Tab 3: Achievements ───────────────────────────────────── */}
+          {/* ── Achievements ── */}
           {activeTab === "achievements" && (
             <motion.div
               key="achievements"
-              initial={{ opacity: 0, y: 12 }}
+              initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -8 }}
-              transition={{ duration: 0.25 }}
+              transition={{ duration: 0.2 }}
+              className="space-y-5"
             >
-              <h2 className="text-xl font-bold text-gray-900 mb-4">
-                Achievements
-              </h2>
+              <h2 className="text-xl font-bold text-gray-900">Achievements</h2>
 
               {/* Summary row */}
-              <div className="flex flex-wrap items-center gap-4 bg-white border border-gray-200 rounded-xl px-5 py-3 mb-6 shadow-sm">
-                <div className="flex items-center gap-2">
-                  <span className="text-xl">🥇</span>
-                  <span className="text-sm font-semibold text-yellow-600">
-                    {goldCount} Gold Coin{goldCount !== 1 ? "s" : ""}
-                  </span>
-                </div>
-                <span className="text-gray-300">|</span>
-                <div className="flex items-center gap-2">
-                  <span className="text-xl">🥈</span>
-                  <span className="text-sm font-semibold text-gray-600">
-                    {silverCount} Silver Coin{silverCount !== 1 ? "s" : ""}
-                  </span>
-                </div>
-                <span className="text-gray-300">|</span>
-                <div className="flex items-center gap-2">
-                  <CheckCircle className="w-4 h-4 text-teal-500" />
-                  <span className="text-sm font-semibold text-teal-600">
-                    {completedCount} Activit{completedCount !== 1 ? "ies" : "y"}{" "}
-                    Completed
-                  </span>
-                </div>
+              <div className="grid grid-cols-3 gap-3">
+                {[
+                  {
+                    count: goldCount,
+                    label: "Gold 🥇",
+                    cls: "bg-amber-50 border-amber-200",
+                  },
+                  {
+                    count: silverCount,
+                    label: "Silver 🥈",
+                    cls: "bg-gray-50 border-gray-200",
+                  },
+                  {
+                    count: completedCount,
+                    label: "Completed ✅",
+                    cls: "bg-indigo-50 border-indigo-200",
+                  },
+                ].map((item) => (
+                  <div
+                    key={item.label}
+                    className={`rounded-2xl border p-4 text-center ${item.cls}`}
+                  >
+                    <p className="text-2xl font-extrabold text-gray-900">
+                      {item.count}
+                    </p>
+                    <p className="text-xs text-gray-500 mt-0.5 font-medium">
+                      {item.label}
+                    </p>
+                  </div>
+                ))}
               </div>
 
-              {/* Achievement grid */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                {achievementDefs.map((ach, i) => {
-                  const isGold =
-                    ach.done && ach.score !== null && ach.score >= 4;
-                  const isSilver =
-                    ach.done &&
-                    ach.score !== null &&
-                    ach.score >= 3 &&
-                    ach.score < 4;
-                  const isBronze =
-                    ach.done && (ach.score === null || ach.score < 3);
-
-                  let cardCls =
-                    "rounded-xl border p-4 flex flex-col gap-2 transition-all";
-                  let coinEl: React.ReactNode = null;
+              {/* Achievement cards */}
+              <div className="space-y-3">
+                {achievementDefs.map((ach, idx) => {
+                  let coinEmoji = "";
                   let coinLabel = "";
+                  let cardCls = "bg-white border-gray-200";
 
-                  if (!ach.done) {
-                    cardCls += " border-gray-200 bg-gray-50 opacity-60";
-                    coinEl = <span className="text-2xl">🔒</span>;
-                    coinLabel = "Locked";
-                  } else if (isGold) {
-                    cardCls +=
-                      " bg-gradient-to-br from-yellow-50 to-amber-50 border-amber-300 shadow-sm";
-                    coinEl = <span className="text-2xl">🥇</span>;
-                    coinLabel = "Gold Coin";
-                  } else if (isSilver) {
-                    cardCls +=
-                      " bg-gradient-to-br from-gray-50 to-slate-100 border-slate-300 shadow-sm";
-                    coinEl = <span className="text-2xl">🥈</span>;
-                    coinLabel = "Silver Coin";
-                  } else if (isBronze) {
-                    cardCls +=
-                      " bg-gradient-to-br from-orange-50 to-amber-50 border-amber-200 shadow-sm";
-                    coinEl = <span className="text-2xl">🎖️</span>;
-                    coinLabel = "Completed";
+                  if (ach.done) {
+                    const s = ach.score ?? 0;
+                    if (s >= 4) {
+                      coinEmoji = "🥇";
+                      coinLabel = "Gold";
+                      cardCls = "bg-amber-50 border-amber-200";
+                    } else if (s >= 3) {
+                      coinEmoji = "🥈";
+                      coinLabel = "Silver";
+                      cardCls = "bg-gray-50 border-gray-200";
+                    } else {
+                      coinEmoji = "🥉";
+                      coinLabel = "Bronze";
+                      cardCls = "bg-orange-50 border-orange-200";
+                    }
                   }
 
                   return (
-                    <motion.div
+                    <div
                       key={ach.id}
-                      initial={{ opacity: 0, scale: 0.96 }}
-                      animate={{ opacity: 1, scale: 1 }}
-                      transition={{ delay: i * 0.05 }}
-                      className={cardCls}
-                      data-ocid={`achievements.item.${i + 1}`}
+                      className={`rounded-xl border p-4 flex items-center gap-4 ${cardCls}`}
+                      data-ocid={`achievements.item.${idx + 1}`}
                     >
-                      <div className="flex items-start justify-between">
-                        <span className="text-2xl">{ach.icon}</span>
-                        {coinEl}
-                      </div>
-                      <div>
-                        <p
-                          className={`text-sm font-bold ${
-                            ach.done ? "text-gray-900" : "text-gray-400"
-                          }`}
-                        >
+                      <span className="text-2xl">
+                        {ach.done ? coinEmoji : "🔒"}
+                      </span>
+                      <div className="flex-1">
+                        <p className="font-semibold text-gray-900 text-sm">
                           {ach.title}
                         </p>
-                        <p
-                          className={`text-xs mt-0.5 ${
-                            ach.done ? "text-gray-500" : "text-gray-400"
-                          }`}
-                        >
+                        <p className="text-xs text-gray-500 mt-0.5">
                           {ach.desc}
                         </p>
                       </div>
-                      {ach.done && (
-                        <div className="flex items-center justify-between mt-1">
-                          <span className="text-xs font-semibold text-teal-600">
-                            {coinLabel}
-                          </span>
-                          {ach.score !== null && (
-                            <span className="text-xs text-gray-400">
-                              {ach.score.toFixed(1)}/5
-                            </span>
-                          )}
-                        </div>
+                      {ach.done ? (
+                        <Badge
+                          className={`text-xs font-bold ${
+                            coinLabel === "Gold"
+                              ? "bg-amber-100 text-amber-700 border-amber-300"
+                              : coinLabel === "Silver"
+                                ? "bg-gray-100 text-gray-700 border-gray-300"
+                                : "bg-orange-100 text-orange-700 border-orange-300"
+                          }`}
+                        >
+                          {coinLabel} {coinEmoji}
+                        </Badge>
+                      ) : (
+                        <Badge className="bg-gray-100 text-gray-400 border-gray-200 text-xs">
+                          Locked
+                        </Badge>
                       )}
-                    </motion.div>
+                    </div>
                   );
                 })}
               </div>
@@ -1124,6 +783,18 @@ export function StudentDashboard({ onNavigate }: StudentDashboardProps) {
           )}
         </AnimatePresence>
       </main>
+
+      <footer className="py-6 text-center text-xs text-gray-400 border-t border-gray-200 mt-8">
+        © {new Date().getFullYear()}. Built with ❤️ using{" "}
+        <a
+          href={`https://caffeine.ai?utm_source=caffeine-footer&utm_medium=referral&utm_content=${encodeURIComponent(typeof window !== "undefined" ? window.location.hostname : "")}`}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="text-indigo-600 hover:underline"
+        >
+          caffeine.ai
+        </a>
+      </footer>
     </div>
   );
 }

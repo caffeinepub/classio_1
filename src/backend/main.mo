@@ -138,8 +138,8 @@ actor {
 
   // ── Stable storage ─────────────────────────────────────────────────────────
   stable var _adminId       : Text = "admin1";
-  stable var _adminUsername : Text = "Classio1";
-  stable var _adminPassword : Text = "Classio@11";
+  stable var _adminUsername : Text = "classio1";
+  stable var _adminPassword : Text = "classio11";
 
   stable var stableScoreHistories   : [(UserId, [ScoreRecord])]   = [];
   stable var stableVocabMasteries   : [(UserId, [VocabMastery])]  = [];
@@ -265,6 +265,9 @@ actor {
     for ((k, v) in stableSkillScores.vals()) { resultSkillScores.add(k, v); };
     for ((k, v) in stableEffectiveLevels.vals()) { effectiveLevels.add(k, v); };
     nextResultId := stableNextResultId;
+    // Reset admin credentials to new values on upgrade
+    _adminUsername := "classio1";
+    _adminPassword := "classio11";
     seedAdmin();
     seedDefaultAccounts();
 
@@ -340,6 +343,7 @@ actor {
       upsertSession(caller, _adminId);
       return { role = #admin; userId = _adminId };
     };
+    seedDefaultAccounts();
     let found = users.values().toArray().find(func(u) {
       u.username == username and u.password == password
     });

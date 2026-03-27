@@ -16,6 +16,7 @@ export default {
     },
     extend: {
       fontFamily: {
+        display: ["Bricolage Grotesque", "system-ui", "sans-serif"],
         sans: ["Plus Jakarta Sans", "system-ui", "sans-serif"],
       },
       colors: {
@@ -69,8 +70,8 @@ export default {
           border: "oklch(var(--sidebar-border))",
           ring: "oklch(var(--sidebar-ring))",
         },
-        "classio-blue": "oklch(0.52 0.19 262)",
-        "classio-green": "oklch(0.60 0.18 161)",
+        "classio-blue": "oklch(0.40 0.19 262)",
+        "classio-teal": "oklch(0.68 0.17 195)",
         "classio-dark": "oklch(0.17 0.025 260)",
         "classio-navy": "oklch(0.13 0.028 262)",
         "classio-gray": "oklch(0.47 0.02 255)",
@@ -86,6 +87,7 @@ export default {
         card: "0 1px 3px 0 rgba(15,23,42,0.06), 0 4px 16px 0 rgba(15,23,42,0.06)",
         "card-lg": "0 4px 24px 0 rgba(15,23,42,0.10)",
         xs: "0 1px 2px 0 rgba(0,0,0,0.05)",
+        glow: "0 0 40px 0 rgba(56,189,248,0.18)",
       },
       keyframes: {
         "accordion-down": {

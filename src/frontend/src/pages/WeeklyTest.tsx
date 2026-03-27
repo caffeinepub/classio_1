@@ -32,7 +32,6 @@ export function WeeklyTest({ onNavigate }: WeeklyTestProps) {
     5,
   );
 
-  // Build vocab questions (match word to definition)
   const vocabQs = words.slice(0, 5).map((w, i) => {
     const wrong = words
       .filter((_, j) => j !== i)
@@ -54,6 +53,9 @@ export function WeeklyTest({ onNavigate }: WeeklyTestProps) {
   const [compIdx, setCompIdx] = useState(0);
   const [compScore, setCompScore] = useState(0);
   const [selected, setSelected] = useState<number | null>(null);
+  // Track final scores to pass to done screen without state timing issues
+  const [finalVocab, setFinalVocab] = useState(0);
+  const [finalComp, setFinalComp] = useState(0);
 
   const totalQ = vocabQs.length + questions.length;
   const answered =
@@ -86,20 +88,91 @@ export function WeeklyTest({ onNavigate }: WeeklyTestProps) {
   };
 
   const nextComp = () => {
-    if (compIdx + 1 >= questions.length) {
-      const total =
-        vocabScore +
-        compScore +
-        (selected === questions[compIdx]?.correctIndex ? 0 : 0);
+    const isLastQuestion = compIdx + 1 >= questions.length;
+    const lastAnswerCorrect = selected === questions[compIdx]?.correctIndex;
+
+    if (isLastQuestion) {
+      // Correctly account for the last answer
+      const finalCompScore = compScore + (lastAnswerCorrect ? 1 : 0);
+      const finalVocabScore = vocabScore;
+      const total = finalVocabScore + finalCompScore;
+
+      setFinalVocab(finalVocabScore);
+      setFinalComp(finalCompScore);
+
+      // Get skill scores from proficiency test
+      const skillsRaw = localStorage.getItem(`classio_skills_${userId}`);
+      const skills = skillsRaw
+        ? JSON.parse(skillsRaw)
+        : { rhythm: 2, intonation: 2, chunking: 2, pronunciation: 2 };
+
+      const todayKey = new Date().toISOString().split("T")[0];
+      const spellingRaw = localStorage.getItem(
+        `classio_spelling_${userId}_${grade}_${todayKey}`,
+      );
+      const spellingData = spellingRaw ? JSON.parse(spellingRaw) : null;
+      const spellingScore = spellingData?.total
+        ? Math.round((spellingData.score / spellingData.total) * 5)
+        : null;
+
+      const grammarRaw = localStorage.getItem(
+        `classio_grammar_${userId}_${grade}_${todayKey}`,
+      );
+      const grammarData = grammarRaw ? JSON.parse(grammarRaw) : null;
+      const grammarScore = grammarData?.total
+        ? Math.round((grammarData.score / grammarData.total) * 5)
+        : null;
+
+      const practiceRaw = localStorage.getItem(
+        `classio_practice_${userId}_${todayKey}`,
+      );
+      const practiceData = practiceRaw ? JSON.parse(practiceRaw) : null;
+      const practiceScore = practiceData?.score ?? null;
+
+      // Save weekly data (for WeeklyReport page compatibility)
       localStorage.setItem(
         `classio_weekly_${userId}_${getWeekNumber()}`,
         JSON.stringify({
-          vocabScore,
-          comprehensionScore: compScore,
+          vocabScore: finalVocabScore,
+          comprehensionScore: finalCompScore,
           total,
           date: new Date().toISOString(),
         }),
       );
+
+      // Save consolidated report entry to the reports list
+      const reportsKey = `classio_reports_${userId}`;
+      const existingRaw = localStorage.getItem(reportsKey);
+      const existingReports: WeeklyReportEntry[] = existingRaw
+        ? JSON.parse(existingRaw)
+        : [];
+
+      const newReport: WeeklyReportEntry = {
+        id: `week_${getWeekNumber()}_${Date.now()}`,
+        weekNumber: getWeekNumber(),
+        date: new Date().toISOString(),
+        grade,
+        vocabScore: finalVocabScore,
+        vocabTotal: vocabQs.length,
+        compScore: finalCompScore,
+        compTotal: questions.length,
+        total,
+        totalQ,
+        skills,
+        spellingScore,
+        grammarScore,
+        practiceScore,
+      };
+
+      // Replace any existing report for the same week, or append
+      const filtered = existingReports.filter(
+        (r) => r.weekNumber !== getWeekNumber(),
+      );
+      localStorage.setItem(
+        reportsKey,
+        JSON.stringify([newReport, ...filtered]),
+      );
+
       setSection("done");
     } else {
       setCompIdx(compIdx + 1);
@@ -108,7 +181,7 @@ export function WeeklyTest({ onNavigate }: WeeklyTestProps) {
   };
 
   if (section === "done") {
-    const total = vocabScore + compScore;
+    const total = finalVocab + finalComp;
     const pct = Math.round((total / totalQ) * 100);
     return (
       <div className="min-h-screen bg-gray-50">
@@ -135,7 +208,7 @@ export function WeeklyTest({ onNavigate }: WeeklyTestProps) {
               <Card className="rounded-xl bg-white border border-gray-200">
                 <CardContent className="pt-4 pb-4 text-center">
                   <p className="text-2xl font-bold text-indigo-600">
-                    {vocabScore}/{vocabQs.length}
+                    {finalVocab}/{vocabQs.length}
                   </p>
                   <p className="text-xs text-gray-500">Vocabulary</p>
                 </CardContent>
@@ -143,7 +216,7 @@ export function WeeklyTest({ onNavigate }: WeeklyTestProps) {
               <Card className="rounded-xl bg-white border border-gray-200">
                 <CardContent className="pt-4 pb-4 text-center">
                   <p className="text-2xl font-bold text-indigo-600">
-                    {compScore}/{questions.length}
+                    {finalComp}/{questions.length}
                   </p>
                   <p className="text-xs text-gray-500">Comprehension</p>
                 </CardContent>
@@ -247,9 +320,9 @@ export function WeeklyTest({ onNavigate }: WeeklyTestProps) {
                     if (selected !== null) {
                       if (i === currentCorrect)
                         cls =
-                          "border-green-500 bg-green-500/15 text-green-300 font-semibold";
+                          "border-green-500 bg-green-50 text-green-700 font-semibold";
                       else if (i === selected)
-                        cls = "border-red-500 bg-red-500/15 text-red-400";
+                        cls = "border-red-400 bg-red-50 text-red-600";
                     }
                     return (
                       <button
@@ -279,8 +352,8 @@ export function WeeklyTest({ onNavigate }: WeeklyTestProps) {
                 <div
                   className={`rounded-xl border p-3 mb-4 text-sm ${
                     selected === currentCorrect
-                      ? "border-green-500/30 bg-green-500/10 text-green-700"
-                      : "border-red-500/30 bg-red-500/10 text-red-700"
+                      ? "border-green-400 bg-green-50 text-green-700"
+                      : "border-red-400 bg-red-50 text-red-700"
                   }`}
                   data-ocid="weekly.success_state"
                 >
@@ -304,4 +377,27 @@ export function WeeklyTest({ onNavigate }: WeeklyTestProps) {
       </main>
     </div>
   );
+}
+
+// Exported type for use in dashboard
+export interface WeeklyReportEntry {
+  id: string;
+  weekNumber: number;
+  date: string;
+  grade: number;
+  vocabScore: number;
+  vocabTotal: number;
+  compScore: number;
+  compTotal: number;
+  total: number;
+  totalQ: number;
+  skills: {
+    rhythm: number;
+    intonation: number;
+    chunking: number;
+    pronunciation: number;
+  };
+  spellingScore: number | null;
+  grammarScore: number | null;
+  practiceScore: number | null;
 }
