@@ -1,14 +1,7 @@
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import {
-  BarChart2,
-  BookOpen,
-  CheckCircle,
-  Lock,
-  PlayCircle,
-  Trophy,
-} from "lucide-react";
+import { BarChart2, BookOpen, CheckCircle, Lock, Trophy } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
 import { useState } from "react";
 import { AppHeader } from "../components/AppHeader";
@@ -311,49 +304,181 @@ export function StudentDashboard({ onNavigate }: StudentDashboardProps) {
               transition={{ duration: 0.2 }}
               className="space-y-5"
             >
+              {/* Header */}
               <div className="flex items-center justify-between">
-                <h2 className="text-xl font-bold text-gray-900">
-                  Welcome back, {user?.username ?? "Student"}!
-                </h2>
+                <div>
+                  <h2 className="text-xl font-bold text-gray-900">
+                    Welcome back, {user?.username ?? "Student"}! 👋
+                  </h2>
+                  <p className="text-sm text-gray-500 mt-0.5">
+                    Grade {grade} &nbsp;·&nbsp;{" "}
+                    {journeySteps.filter((s) => s.done).length} of{" "}
+                    {journeySteps.length} activities completed today
+                  </p>
+                </div>
+                {badgeInfo && (
+                  <span
+                    className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-bold border ${badgeInfo.cls}`}
+                  >
+                    {badgeInfo.label}
+                  </span>
+                )}
               </div>
 
-              {/* Proficiency badge card */}
-              <Card
-                className={`rounded-2xl border-2 shadow-md ${
-                  proficiencyLevelFound
-                    ? "border-emerald-400 bg-emerald-50"
-                    : "border-indigo-200 bg-white"
-                }`}
-              >
-                <CardContent className="p-5">
-                  <div className="flex items-center justify-between">
+              {/* Week Learning Plan */}
+              <Card className="rounded-2xl border border-gray-200 bg-white shadow-sm overflow-hidden">
+                <div className="bg-gradient-to-r from-indigo-600 to-indigo-700 px-5 py-4">
+                  <div className="flex items-center justify-between mb-2">
                     <div>
-                      <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">
-                        Proficiency Badge
+                      <p className="text-xs font-semibold text-indigo-200 uppercase tracking-wider">
+                        Week {weekNum}
                       </p>
-                      {badgeInfo ? (
-                        <span
-                          className={`inline-flex items-center px-4 py-1.5 rounded-full text-sm font-bold border ${badgeInfo.cls}`}
+                      <h3 className="text-base font-bold text-white">
+                        Learning Plan
+                      </h3>
+                    </div>
+                    <span className="text-sm font-semibold text-indigo-100 bg-indigo-500/40 px-3 py-1 rounded-full">
+                      {journeySteps.filter((s) => s.done).length} /{" "}
+                      {journeySteps.length}
+                    </span>
+                  </div>
+                  {/* Progress bar */}
+                  <div className="w-full bg-indigo-500/40 rounded-full h-2">
+                    <div
+                      className="bg-white rounded-full h-2 transition-all duration-500"
+                      style={{
+                        width: `${Math.round((journeySteps.filter((s) => s.done).length / journeySteps.length) * 100)}%`,
+                      }}
+                    />
+                  </div>
+                </div>
+
+                <CardContent className="p-4 space-y-2">
+                  {journeySteps.map((step, idx) => {
+                    const isLocked =
+                      !step.done && idx > 0 && !journeySteps[idx - 1].done;
+                    return (
+                      <motion.div
+                        key={step.label}
+                        initial={{ opacity: 0, x: -8 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ delay: idx * 0.06 }}
+                        className={`flex items-center gap-3 p-3.5 rounded-xl border transition-all ${
+                          step.done
+                            ? "bg-emerald-50 border-emerald-200"
+                            : isLocked
+                              ? "bg-gray-50 border-gray-200 opacity-50"
+                              : "bg-indigo-50 border-indigo-300 shadow-sm"
+                        }`}
+                        data-ocid={`courses.item.${idx + 1}`}
+                      >
+                        <div
+                          className={`w-9 h-9 rounded-lg flex items-center justify-center text-lg flex-shrink-0 ${
+                            step.done
+                              ? "bg-emerald-100"
+                              : isLocked
+                                ? "bg-gray-100"
+                                : "bg-indigo-100"
+                          }`}
                         >
-                          {badgeInfo.label}
-                        </span>
-                      ) : (
-                        <span className="inline-flex items-center px-4 py-1.5 rounded-full text-sm font-bold bg-gray-100 text-gray-500 border border-gray-200">
-                          🔰 Not Yet Assessed
-                        </span>
-                      )}
-                      {proficiencyLevelFound && (
-                        <div className="flex items-center gap-1.5 mt-2">
-                          <CheckCircle className="w-4 h-4 text-emerald-500" />
-                          <span className="text-sm text-emerald-600 font-semibold">
-                            Proficiency level found
-                          </span>
+                          {step.icon}
                         </div>
-                      )}
-                    </div>
-                    <div className="w-16 h-16 rounded-full bg-indigo-100 border-2 border-indigo-200 flex items-center justify-center text-3xl">
-                      {proficiencyLevelFound ? "✅" : "🎯"}
-                    </div>
+                        <div className="flex-1 min-w-0">
+                          <p
+                            className={`text-sm font-semibold ${
+                              step.done
+                                ? "text-emerald-700"
+                                : isLocked
+                                  ? "text-gray-400"
+                                  : "text-indigo-800"
+                            }`}
+                          >
+                            {step.label}
+                          </p>
+                          <p className="text-xs text-gray-400 mt-0.5">
+                            {step.done
+                              ? "Completed ✓"
+                              : isLocked
+                                ? "Unlocks after previous activity"
+                                : "Ready to start"}
+                          </p>
+                        </div>
+                        {step.done ? (
+                          <span className="flex items-center gap-1 text-xs font-semibold text-emerald-600 bg-emerald-100 px-2.5 py-1 rounded-full">
+                            <CheckCircle className="w-3.5 h-3.5" /> Done
+                          </span>
+                        ) : isLocked ? (
+                          <Lock className="w-4 h-4 text-gray-300 flex-shrink-0" />
+                        ) : (
+                          <Button
+                            size="sm"
+                            className="bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold flex-shrink-0"
+                            onClick={() => onNavigate(step.route)}
+                            data-ocid={`courses.item.${idx + 1}.button`}
+                          >
+                            Start →
+                          </Button>
+                        )}
+                      </motion.div>
+                    );
+                  })}
+                </CardContent>
+              </Card>
+
+              {/* Skills Progress Strip */}
+              <Card className="rounded-2xl border border-gray-200 bg-white shadow-sm">
+                <CardHeader className="border-b border-gray-100 pb-3 pt-4 px-5">
+                  <CardTitle className="text-sm font-semibold text-gray-700 uppercase tracking-wider">
+                    Reading Skills Progress
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="p-4">
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                    {[
+                      { key: "rhythm" as const, label: "Rhythm", emoji: "🎵" },
+                      {
+                        key: "intonation" as const,
+                        label: "Intonation",
+                        emoji: "🎶",
+                      },
+                      {
+                        key: "chunking" as const,
+                        label: "Chunking",
+                        emoji: "📋",
+                      },
+                      {
+                        key: "pronunciation" as const,
+                        label: "Pronunciation",
+                        emoji: "🗣️",
+                      },
+                    ].map((skill) => {
+                      const score: number | null = skills
+                        ? (skills[skill.key] as number)
+                        : null;
+                      return (
+                        <div
+                          key={skill.key}
+                          className="flex flex-col items-center bg-slate-50 rounded-xl border border-gray-100 p-3 text-center"
+                        >
+                          <span className="text-xl mb-1">{skill.emoji}</span>
+                          <p className="text-xs font-semibold text-gray-600 mb-1.5">
+                            {skill.label}
+                          </p>
+                          {score !== null ? (
+                            <>
+                              <StarRow score={score} />
+                              <p className="text-xs text-gray-400 mt-1">
+                                {score}/5
+                              </p>
+                            </>
+                          ) : (
+                            <p className="text-xs text-gray-400 leading-tight">
+                              Take proficiency test
+                            </p>
+                          )}
+                        </div>
+                      );
+                    })}
                   </div>
                   {!proficiencyLevelFound && (
                     <Button
@@ -361,57 +486,9 @@ export function StudentDashboard({ onNavigate }: StudentDashboardProps) {
                       onClick={() => onNavigate("/student/test")}
                       data-ocid="proficiency.primary_button"
                     >
-                      Take Proficiency Test
+                      🎯 Take Proficiency Test
                     </Button>
                   )}
-                </CardContent>
-              </Card>
-
-              {/* Journey steps */}
-              <Card className="rounded-2xl border border-gray-200 bg-white shadow-sm">
-                <CardHeader className="border-b border-gray-100 pb-3">
-                  <CardTitle className="text-base flex items-center gap-2">
-                    <PlayCircle className="w-4 h-4 text-indigo-500" />
-                    Learning Journey
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="p-4 space-y-3">
-                  {journeySteps.map((step, idx) => {
-                    const isLocked =
-                      !step.done && idx > 0 && !journeySteps[idx - 1].done;
-                    return (
-                      <div
-                        key={step.label}
-                        className={`flex items-center gap-3 p-3 rounded-xl border ${
-                          step.done
-                            ? "bg-emerald-50 border-emerald-200"
-                            : isLocked
-                              ? "bg-gray-50 border-gray-200 opacity-60"
-                              : "bg-indigo-50 border-indigo-200"
-                        }`}
-                        data-ocid={`courses.item.${idx + 1}`}
-                      >
-                        <span className="text-xl">{step.icon}</span>
-                        <span className="flex-1 text-sm font-semibold text-gray-800">
-                          {step.label}
-                        </span>
-                        {step.done ? (
-                          <CheckCircle className="w-5 h-5 text-emerald-500" />
-                        ) : isLocked ? (
-                          <Lock className="w-4 h-4 text-gray-400" />
-                        ) : (
-                          <Button
-                            size="sm"
-                            className="bg-indigo-600 hover:bg-indigo-700 text-white text-xs"
-                            onClick={() => onNavigate(step.route)}
-                            data-ocid={`courses.item.${idx + 1}.button`}
-                          >
-                            Start
-                          </Button>
-                        )}
-                      </div>
-                    );
-                  })}
                 </CardContent>
               </Card>
             </motion.div>

@@ -366,6 +366,18 @@ export function StudentTest({ onNavigate }: StudentTestProps) {
         audioBlobId: null,
       });
       setSubmitted(true);
+      // Mark proficiency level as found after first attempt
+      const userId2 = userId;
+      const enrolledGrade2 = enrolledGrade;
+      localStorage.setItem(
+        `classio_proficiency_search_${userId2}`,
+        JSON.stringify({
+          attemptsMade: 1,
+          currentTestLevel: enrolledGrade2,
+          levelFound: true,
+          foundLevel: enrolledGrade2,
+        }),
+      );
     } catch {
       toast.error("Failed to submit test. Please try again.");
       submitFiredRef.current = false; // allow retry
